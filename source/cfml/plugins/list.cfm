@@ -1,31 +1,27 @@
-<!---
-/*
- * list.cfm, enhanced by Paul Klinkenberg
- * Originally written by Gert Franz
- * http://www.lucee.nl/post.cfm/railo-admin-log-analyzer
+<!--- 
  *
- * Date: 2015-03-23 22:25:00 +0100
- * Revision: 2.3.0
+ * Copyright (c) 2016, Paul Klinkenberg, Utrecht, The Netherlands.
+ * Originally written by Gert Franz, Switzerland.
+ * All rights reserved.
  *
- * Copyright (c) 2015 Paul Klinkenberg, lucee.nl
- * Licensed under the GPL license.
+ * Date: 2016-02-11 13:45:05
+ * Revision: 2.3.1.
+ * Project info: http://www.lucee.nl/post.cfm/railo-admin-log-analyzer
  *
- *    This program is free software: you can redistribute it and/or modify
- *    it under the terms of the GNU General Public License as published by
- *    the Free Software Foundation, either version 3 of the License, or
- *    (at your option) any later version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- *    This program is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU General Public License for more details.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- *    You should have received a copy of the GNU General Public License
- *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
- *    ALWAYS LEAVE THIS COPYRIGHT NOTICE IN PLACE!
- */
----><cfparam name="url.startrow" default="1" type="integer" />
+ ---><cfparam name="url.startrow" default="1" type="integer" />
 <cfparam name="url.pagesperrow" default="10" type="integer" />
 <!--- to fix any problems with urlencoding etc. for logfile paths, we just use the filename of 'form.logfile'.
 The rest of the path is always recalculated anyway. --->

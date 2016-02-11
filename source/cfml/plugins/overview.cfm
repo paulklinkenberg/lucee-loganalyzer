@@ -1,31 +1,27 @@
-<!---
-/*
- * overview.cfm, enhanced by Paul Klinkenberg
- * Originally written by Gert Franz
- * http://www.lucee.nl/post.cfm/railo-admin-log-analyzer
+<!--- 
  *
- * Date: 2015-03-23 22:25:00 +0100
- * Revision: 2.3.0
+ * Copyright (c) 2016, Paul Klinkenberg, Utrecht, The Netherlands.
+ * Originally written by Gert Franz, Switzerland.
+ * All rights reserved.
  *
- * Copyright (c) 2015 Paul Klinkenberg, lucee.nl
- * Licensed under the GPL license.
+ * Date: 2016-02-11 13:45:05
+ * Revision: 2.3.1.
+ * Project info: http://www.lucee.nl/post.cfm/railo-admin-log-analyzer
  *
- *    This program is free software: you can redistribute it and/or modify
- *    it under the terms of the GNU General Public License as published by
- *    the Free Software Foundation, either version 3 of the License, or
- *    (at your option) any later version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- *    This program is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU General Public License for more details.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- *    You should have received a copy of the GNU General Public License
- *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
- *    ALWAYS LEAVE THIS COPYRIGHT NOTICE IN PLACE!
- */
----><cfif structKeyExists(url, "delfile")>
+ ---><cfif structKeyExists(url, "delfile")>
 	<cfset var tempFilePath = getLogPath(file=url.delfile) />
 	<cftry>
 		<cffile action="delete" file="#tempFilePath#" />
@@ -70,9 +66,9 @@
 <cfoutput><table class="maintbl">
 	<thead>
 		<tr>
-			<th>#arguments.lang.logfilename#</th>
-			<th>#arguments.lang.logfiledate#</th>
-			<th>#arguments.lang.logfilesize#</th>
+			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=name<cfif url.sort eq 'name' and url.dir neq 'desc'>&amp;dir=desc</cfif>" title="#arguments.lang.Orderonthiscolumn#"<cfif url.sort eq 'name'> style="font-weight:bold"</cfif>>#arguments.lang.logfilename#</a></th>
+			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=datelastmodified<cfif url.sort neq 'datelastmodified' or url.dir neq 'desc'>&amp;dir=desc</cfif>" title="#arguments.lang.Orderonthiscolumn#"<cfif url.sort eq 'datelastmodified'> style="font-weight:bold"</cfif>>#arguments.lang.logfiledate#</a></th>
+			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=size<cfif url.sort neq 'size' or url.dir neq 'desc'>&amp;dir=desc</cfif>" title="#arguments.lang.Orderonthiscolumn#"<cfif url.sort eq 'size'> style="font-weight:bold"</cfif>>#arguments.lang.logfilesize#</a></th>
 			<th>#arguments.lang.actions#</th>
 		</tr>
 	</thead>

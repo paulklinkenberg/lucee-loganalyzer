@@ -1,36 +1,34 @@
-<cfcomponent hint="I contain the main functions for the log Analyzer plugin" extends="lucee.admin.plugin.Plugin">
-<!---
-/*
- * Action.cfc, enhanced by Paul Klinkenberg
- * Originally written by Gert Franz
- * http://www.lucee.nl/post.cfm/railo-admin-log-analyzer
+<!--- 
  *
- * Date: 2015-03-23 22:25:00 +0100
- * Revision: 2.3.0
+ * Copyright (c) 2016, Paul Klinkenberg, Utrecht, The Netherlands.
+ * Originally written by Gert Franz, Switzerland.
+ * All rights reserved.
  *
- * Copyright (c) 2015 Paul Klinkenberg, lucee.nl
- * Licensed under the GPL license.
+ * Date: 2016-02-11 13:45:05
+ * Revision: 2.3.1.
+ * Project info: http://www.lucee.nl/post.cfm/railo-admin-log-analyzer
  *
- *    This program is free software: you can redistribute it and/or modify
- *    it under the terms of the GNU General Public License as published by
- *    the Free Software Foundation, either version 3 of the License, or
- *    (at your option) any later version.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- *    This program is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU General Public License for more details.
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- *    You should have received a copy of the GNU General Public License
- *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
- *    ALWAYS LEAVE THIS COPYRIGHT NOTICE IN PLACE!
- */
---->
-	
+ ---><cfcomponent hint="I contain the main functions for the log Analyzer plugin" extends="lucee.admin.plugin.Plugin">
+
 	<cffunction name="init" hint="this function will be called to initalize">
 		<cfargument name="lang" type="struct">
 		<cfargument name="app" type="struct">
+
+		<cfhtmlhead text='<style type="text/css">#fileRead(getDirectoryFromPath(getCurrentTemplatePath()) & "style.css")#</style>' />
+
 	</cffunction>
 	
 	
@@ -126,6 +124,8 @@
 		<cfargument name="app" type="struct">
 		<cfargument name="req" type="struct">
 		
+		<cfparam name="url.sort" default="name" />
+		<cfparam name="url.dir" default="" />
 		<cfparam name="session.loganalyzer.webID" default="" />
 		<!--- web context chosen? --->
 		<cfif request.admintype eq "server" and structKeyExists(form, "webID") and len(form.webID)>
@@ -133,15 +133,16 @@
 		</cfif>
 		
 		<cfif request.admintype neq "server" or len(session.loganalyzer.webID)>
-			<cfset arguments.req.logfiles = getLogs() />
+			<cfset arguments.req.logfiles = getLogs(sort="#url.sort# #url.dir#") />
 		</cfif>
 	</cffunction>
 	
 	<cffunction name="getLogs" output="Yes" returntype="query">
+		<cfargument name="sort" default="name asc" />
 		<cfset var qGetLogs = ""/>
 		<cfset var tempFilePath = getLogPath() />
 		<cfdirectory action="list" listinfo="Name,datelastmodified,size" directory="#tempFilePath#"
-				filter="#logsFilter#" name="qGetLogs" sort="name asc" />
+				filter="#logsFilter#" name="qGetLogs" sort="#sort#" />
 		<cfreturn qGetLogs />
 	</cffunction>
 
