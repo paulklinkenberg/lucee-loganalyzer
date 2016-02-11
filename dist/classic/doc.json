@@ -1,11 +1,11 @@
 
 {
-"builtDate":"2015-03-23 22:30:11",
-"version":"2.3.0.4",
+"builtDate":"2016-02-11 13:45:12",
+"version":"2.3.1.12",
 "id":"1C9A7C34-2555-4AAA-92FBB7FC7111140C",
 "name":"loganalyzer",
 "codename":"loganalyzer",
-"label":"LogAnalyzer",
+"label":"Log analyzer",
 "description":"This extension adds a plugin to your Lucee server/web admin, to view the Lucee log files",
  "type":"all",
  "author":"Gert Franz and Paul Klinkenberg",
