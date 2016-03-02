@@ -41,6 +41,11 @@ start-bundles: false
 cache: "[{'class':'${class}','bundleName':'${bundlename}','bundleVersion':'${bundleversion}${build.number}'}]"
 -->
 
+    <!-- copy plugin -->
+    <copy todir="${dist}/extension2/plugins/${codename}" failonerror="false">
+      <fileset dir="${plugins}"/>
+    </copy>
+
     <!-- copy custom tags -->
     <copy todir="${dist}/extension2/tags" failonerror="false">
       <fileset dir="${tags}">
