@@ -27,6 +27,7 @@
 		<custom key="download">Download</custom>
 		<custom key="viewlog">View</custom>
 		<custom key="details">Details</custom>
+		<custom key="analyse">Analyse</custom>		
 		<custom key="to">to</custom>
 		<custom key="perpage">per page</custom>
 		<custom key="page">page</custom>
@@ -38,10 +39,10 @@
 		<custom key="logfilehasbeendeleted">The log file %1 has been deleted.</custom>
 		<custom key="bytes">bytes</custom>
 		<custom key="KB">KB</custom>
-		<custom key="Xsecondsago">%1 seconds ago</custom>
-		<custom key="Xminutesago">%1 minutes ago</custom>
-		<custom key="Xhoursago">%1 hours ago</custom>
-		<custom key="Xdaysago">%1 days ago</custom>
+		<custom key="Xsecondsago">%1s ago</custom>
+		<custom key="Xminutesago">%1m ago</custom>
+		<custom key="Xhoursago">%1h ago</custom>
+		<custom key="Xdaysago">%1d ago</custom>
 		<custom key="dateformatchart">Mmm. d, </custom>
 		<custom key="timeformatchart">HH:mm</custom>
 		<custom key="allinthesameminute">all in the same minute</custom>
@@ -73,6 +74,8 @@
 		<custom key="download">Download</custom>
 		<custom key="viewlog">View</custom>
 		<custom key="details">Details</custom>
+		<custom key="analyse">Analyse</custom>		
+		<custom key="analysis">Analysis</custom>	
 		<custom key="to">to</custom>
 		<custom key="perpage">per page</custom>
 		<custom key="page">page</custom>
@@ -84,10 +87,10 @@
 		<custom key="logfilehasbeendeleted">The log file %1 has been deleted.</custom>
 		<custom key="bytes">bytes</custom>
 		<custom key="KB">KB</custom>
-		<custom key="Xsecondsago">%1 seconds ago</custom>
-		<custom key="Xminutesago">%1 minutes ago</custom>
-		<custom key="Xhoursago">%1 hours ago</custom>
-		<custom key="Xdaysago">%1 days ago</custom>
+		<custom key="Xsecondsago">%1s ago</custom>
+		<custom key="Xminutesago">%1m ago</custom>
+		<custom key="Xhoursago">%1h ago</custom>
+		<custom key="Xdaysago">%1d ago</custom>
 		<custom key="dateformatchart">Mmm. d, </custom>
 		<custom key="timeformatchart">HH:mm</custom>
 		<custom key="allinthesameminute">all in the same minute</custom>
@@ -118,6 +121,8 @@
 		<custom key="delete">Verwijder</custom>
 		<custom key="download">Download</custom>
 		<custom key="details">Details</custom>
+		<custom key="analyse">Analyse</custom>		
+		<custom key="analysis">Analysis</custom>	
 		<custom key="to">tot</custom>
 		<custom key="perpage">per pagina</custom>
 		<custom key="page">pagina</custom>

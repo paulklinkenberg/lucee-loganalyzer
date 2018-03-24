@@ -2,3 +2,24 @@ th a {
 	color: inherit;
 	text-decoration: underline;
 }
+	color:white;
+}
+
+
+	background-color: #D2E0EE;
+}
+
+#body .layout-fullwidth {
+	width: 100%;
+}
+
+	display: none;
+}
+
+abbr {
+	text-decoration: none;
+}
+
+.maintbl TH.row { width:auto; }
+
+.black { color: black;}

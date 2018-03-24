@@ -84,7 +84,7 @@
 				<td class="tblContent"><cfif size lt 1024>#size# #arguments.lang.bytes#<cfelse>#ceiling(size/1024)# #arguments.lang.KB#</cfif></td>
 				<td class="tblContent" style="text-align:right; white-space:nowrap; width:1%"><form action="#frmaction#" method="post" style="display:inline;margin:0;padding:0;">
 					<input type="hidden" name="logfile" value="#name#" />
-					<input type="submit" value="#arguments.lang.details#" class="button" />
+					<input type="submit" value="#arguments.lang.analyse#" class="button" />
 					<input type="button" class="button" onclick="self.location.href='#viewlogaction#&amp;file=#name#'" value="#arguments.lang.viewlog#" />
 					<input type="button" class="button" onclick="self.location.href='#downloadaction#&amp;file=#name#'" value="#arguments.lang.download#" />
 					<input type="button" class="button" onclick="self.location.href='#thispageaction#&amp;delfile=#name#'" value="#arguments.lang.delete#" />
