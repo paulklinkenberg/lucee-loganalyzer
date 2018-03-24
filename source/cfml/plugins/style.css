@@ -2,10 +2,17 @@ th a {
 	color: inherit;
 	text-decoration: underline;
 }
+.maintbl .tooltipMe {
 	color:white;
 }
 
+pre {
+	padding: 2px 5px;
+	margin: 2px;
+	background-color: #eee;
+}
 
+.odd {
 	background-color: #D2E0EE;
 }
 
@@ -13,6 +20,7 @@ th a {
 	width: 100%;
 }
 
+.search-hidden {
 	display: none;
 }
 
