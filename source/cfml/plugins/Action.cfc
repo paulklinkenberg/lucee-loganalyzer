@@ -50,6 +50,11 @@
 				type="server"
 				password="#session.passwordserver#"
 				returnVariable="qWebContexts" />
+			<cfquery name="qWebContexts" dbtype="query">
+				select 	*
+				from 	qWebContexts
+				order 	by path
+			</cfquery>
 			<cfset variables.qWebContexts = qWebContexts />
 		</cfif>
 		<cfreturn variables.qWebContexts />
