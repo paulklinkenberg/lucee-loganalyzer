@@ -50,7 +50,7 @@
 	</form>
 </cfoutput>
 <cfhtmlbody>
-	<script>
+	<script data-src="log-analyzer-plugin">
 		$(function(){
 			//$("#layout").addClass("layout-fullwidth");
 			$(".log").click(function(){
