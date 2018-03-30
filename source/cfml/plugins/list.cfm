@@ -22,19 +22,23 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  --->
-<cfparam name="url.startrow" default="1" type="integer" />
-<cfparam name="url.pagesperrow" default="10" type="integer" />
-<!--- to fix any problems with urlencoding etc. for logfile paths, we just use the filename of 'form.logfile'.
-The rest of the path is always recalculated anyway. --->
-<cfset form.logfile = listLast(form.logfile, "/\") />
-<cfset request.subTitle = "#arguments.lang.analysis# of #htmleditformat(form.logfile)#">
-<cfset maxrows = ArrayLen(req.result.sortOrder) />
-<cfset iFrom = url.startrow />
-<cfset iTo = Min(url.startrow+url.pagesperrow-1, maxrows) />
+ <cfscript>
+	param name="url.startrow" default="1" type="integer";
+	param name="url.pagesperrow" default="20" type="integer";
+	// to fix any problems with urlencoding etc. for logfile paths, 
+	// we just use the filename of 'form.logfile'.
+    // The rest of the path is always recalculated anyway.
+	form.logfile = listLast(url.file, "/\");
+	request.title=""; // clear plugin title 5.2.7
+	request.subTitle = "#arguments.lang.analysis# of #htmleditformat(form.logfile)#";
+	maxrows = ArrayLen(req.result.sortOrder);
+	iFrom = url.startrow;
+	iTo = Min(url.startrow+url.pagesperrow-1, maxrows);
 
-<cfset var detailUrl = rereplace(action('detail'), "^[[:space:]]+", "") />
-<cfset var thisUrl = rereplace(action('list'), "^[[:space:]]+", "") & "&amp;logfile=#urlEncodedFormat(form.logfile)#" />
-
+	var detailUrl = rereplace(action('detail'), "^[[:space:]]+", "");
+	var thisUrl = rereplace(action('list'), "^[[:space:]]+", "") & "&amp;file=#urlEncodedFormat(form.logfile)#";
+	var back = "";
+</cfscript>
 <cfif request.admintype eq "server">
 	<cfif session.loganalyzer.webID eq "serverContext">
 		<cfoutput><h3>Server context log files</h3></cfoutput>
@@ -43,7 +47,6 @@ The rest of the path is always recalculated anyway. --->
 	</cfif>
 </cfif>
 <cfoutput>
-<cfset var back = "" />
 <cfsavecontent variable="back">
 	<form action="#action('overview')#" method="post">
 		<input type="hidden" name="logfile" value="#form.logfile#">
@@ -65,9 +68,10 @@ The rest of the path is always recalculated anyway. --->
 <cfset var paging = "" />
 <cfsavecontent variable="paging">
 	<cfif maxrows gt url.pagesperrow>
-		<div class="maincontent" style="text-align:center; padding: 10px">#arguments.lang.Page#
+		<div class="maincontent paging">#arguments.lang.Page#
 			<cfloop from="1" to="#maxrows#" step="#url.pagesperrow#" index="i">
-				<a href="#thisUrl#&amp;sort=#url.sort#&amp;dir=#url.dir#&amp;startrow=#i#"<cfif i eq url.startrow> style="border:1px solid ##ccc;padding:2px 4px;"</cfif>><strong>#ceiling(i/url.pagesperrow)#</strong></a>
+				<a href="#thisUrl#&amp;sort=#url.sort#&amp;dir=#url.dir#&amp;startrow=#i#"
+				<cfif i eq url.startrow> class="active"</cfif>>#ceiling(i/url.pagesperrow)#</a>
 				&nbsp;
 			</cfloop>
 		</div>
@@ -98,8 +102,8 @@ The rest of the path is always recalculated anyway. --->
 				<td class="tblContent" valign="top" align="right">
 					#req.result.stErrors[el].iCount#&nbsp;&nbsp;&nbsp;
 				</td>
-				<td class="tblContent"><form action="#detailUrl#" method="post" name="el" style="margin:0;">
-					<input type="hidden" name="logfile" value="#form.logfile#">
+				<td class="tblContent">
+				<form action="#detailUrl#&file=#url.file#" method="post" name="el" style="margin:0;">					
 					<input type="hidden" name="data" value="#htmleditformat(serializeJson(req.result.stErrors[el]))#">
 					<input type="submit" value="#arguments.lang.Details#" class="button" />
 				</form></td>

@@ -21,25 +21,14 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
- ---><cfif structKeyExists(url, "delfile")>
-	<cfset var tempFilePath = getLogPath(file=url.delfile) />
-	<cftry>
-		<cffile action="delete" file="#tempFilePath#" />
-		<cfoutput><p class="message">#replace(arguments.lang.logfilehasbeendeleted, "%1", listLast(tempFilePath, '/\'))#</p></cfoutput>
-		<cfcatch>
-			<p class="error">The file could not be deleted; instead we will erase the contents:</p>
-			<cffile action="write" file="#tempFilePath#" output="" />
-			<cfoutput><p class="message">#replace(arguments.lang.logfilehasbeencleared, "%1", listLast(tempFilePath, '/\'))#</p></cfoutput>
-		</cfcatch>
-	</cftry>
-</cfif>
-
+ --->
+<cfparam name="url.file" default="">
 <cfset thispageaction = rereplace(action('overview'), "^[[:space:]]+", "") />
 
 <!--- show a select list of all the web contexts --->
 <cfif request.admintype eq "server">
 	<cfparam name="session.loganalyzer.webID" default="serverContext" />
-	<cfset var webContexts = getWebContexts() />
+	<cfset var webContexts = logGateway.getWebContexts() />
 	<cfoutput><form action="#thispageaction#" method="post"></cfoutput>
 		Choose a log location:
 		<select name="webID">
@@ -63,7 +52,8 @@
 	</cfif>
 </cfif>
 
-<cfoutput><table class="maintbl">
+<cfoutput>
+	<table class="maintbl log-overview">
 	<thead>
 		<tr>
 			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=name<cfif url.sort eq 'name' and url.dir neq 'desc'>&amp;dir=desc</cfif>" title="#arguments.lang.Orderonthiscolumn#"<cfif url.sort eq 'name'> style="font-weight:bold"</cfif>>#arguments.lang.logfilename#</a></th>
@@ -72,27 +62,25 @@
 			<th>#arguments.lang.actions#</th>
 		</tr>
 	</thead>
-	<cfset frmaction = rereplace(action('list'), "^[[:space:]]+", "") />
-	<cfset downloadaction = rereplace(action('download'), "^[[:space:]]+", "") />
-	<cfset viewlogaction = rereplace(action('viewlog'), "^[[:space:]]+", "") />
-
 	<tbody>
 		<cfloop query="arguments.req.logfiles">
-			<tr>
+			<tr data-logfile="#htmleditformat(name)#">
 				<td class="tblContent">#name#</td>
 				<td class="tblContent"><abbr title="#dateformat(datelastmodified, arguments.lang.dateformat)# #timeformat(datelastmodified, arguments.lang.timeformatshort)#">#getTextTimeSpan(datelastmodified, arguments.lang)#</abbr></td>
 				<td class="tblContent"><cfif size lt 1024>#size# #arguments.lang.bytes#<cfelse>#ceiling(size/1024)# #arguments.lang.KB#</cfif></td>
-				<td class="tblContent" style="text-align:right; white-space:nowrap; width:1%"><form action="#frmaction#" method="post" style="display:inline;margin:0;padding:0;">
-					<input type="hidden" name="logfile" value="#name#" />
-					<input type="submit" value="#arguments.lang.analyse#" class="button" />
-					<input type="button" class="button" onclick="self.location.href='#viewlogaction#&amp;file=#name#'" value="#arguments.lang.viewlog#" />
-					<input type="button" class="button" onclick="self.location.href='#downloadaction#&amp;file=#name#'" value="#arguments.lang.download#" />
-					<input type="button" class="button" onclick="self.location.href='#thispageaction#&amp;delfile=#name#'" value="#arguments.lang.delete#" />
-				</form></td>
+				<td class="tblContent" style="text-align:right; white-space:nowrap; width:1%">	
+				<input type="submit" class="button" data-action="list" value="#arguments.lang.analyse#"/>
+				<input type="button" class="button" data-action="viewLog" value="#arguments.lang.viewlog#" />
+				<input type="button" class="button" data-action="download"value="#arguments.lang.download#" />
+				<input type="button" class="button" data-action="delete" value="#arguments.lang.delete#" />
+				</td>
 			</tr>
 		</cfloop>
 	</tbody>
-</table>
-<p>#arguments.lang.logfilelocation#: <em>#arguments.req.logfiles.directory#</em></p>
-</cfoutput>
+	</table>
+	<p>#arguments.lang.logfilelocation#: <em>#arguments.req.logfiles.directory#</em></p>
+	<div class="csrf-token" data-token="#getCSRF()#">
+	#includeJavascript("overview")#
+</cfoutput>	
+
 

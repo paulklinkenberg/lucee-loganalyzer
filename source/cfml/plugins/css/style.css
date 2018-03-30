@@ -31,3 +31,15 @@ abbr {
 .maintbl TH.row { width:auto; }
 
 .black { color: black;}
+
+.paging {
+	padding: 0;
+	text-align:center; padding: 4px;
+	font-size: 1.25em;
+}
+
+.paging .active{
+	font-weight: bolder;
+	border: 1px solid #ccc;	
+}
+

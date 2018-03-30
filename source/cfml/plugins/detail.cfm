@@ -42,9 +42,9 @@
 	
 	<!--- to fix any problems with urlencoding etc. for logfile paths, we just use the filename of 'form.logfile'.
 	The rest of the path is always recalculated anyway. --->
-	<cfset form.logfile = listLast(form.logfile, "/\") />
-
-	<cfset request.subTitle = "Detail from #htmleditformat(form.logfile)#">
+	<cfset url.file = listLast(url.file, "/\") />
+	<cfset request.Title = "">
+	<cfset request.subTitle = "Log Entry from #htmleditformat(url.file)#">
 	
 	<cfset stOccurences = {} />
 	<cfloop from="1" to="#arrayLen(stData.dateTime)#" index="i">
@@ -56,20 +56,24 @@
 		</cfif>
 	</cfloop>
 	
-	<cfset qValues = queryNew("date,datedisplay,occurences", "timestamp,varchar,integer") />
+	<cfset qValues = queryNew("logdate,datedisplay,occurences", "timestamp,varchar,integer") />
 	<cfloop collection="#stOccurences#" item="i">
-		<cfset queryAddRow(qValues) />
-		<cfset querySetCell(qValues, "date", parseDateTime(i)) /> 
-		<cfset querySetCell(qValues, "datedisplay", dateformat(parseDateTime(i), arguments.lang.dateformatchart) & timeformat(parseDateTime(i), arguments.lang.timeformatchart)) /> 
-		<cfset querySetCell(qValues, "occurences", stOccurences[i]) /> 
+		<cfscript>
+			queryAddRow(qValues);
+        	querySetCell(qValues, "logdate", parseDateTime(i)); 
+        	querySetCell(qValues, "datedisplay", 
+				dateformat(parseDateTime(i), arguments.lang.dateformatchart)
+            	& timeformat(parseDateTime(i), arguments.lang.timeformatchart) 
+			);
+        	querySetCell(qValues, "occurences", stOccurences[i]); 
+		</cfscript>
 	</cfloop>
 	<cfquery name="qValues" dbtype="query">
-		SELECT *
-		FROM qValues
-		ORDER BY date
+		SELECT 	*
+		FROM 	qValues
+		ORDER 	BY logdate
 	</cfquery>	
-	<form action="#action('list')#" method="post">
-		<input type="hidden" name="logfile" value="#form.logfile#" />
+	<form action="#action('list')#&file=#url.file#" method="post">		
 		<input class="button submit" type="submit" value="#arguments.lang.Back#" name="mainAction" />
 	</form>
 	<table class="maintbl">
@@ -124,8 +128,7 @@
 		<tfoot>
 			<tr>
 				<td colspan="2">
-					<form action="#action('list')#" method="post">
-						<input type="hidden" name="logfile" value="#form.logfile#" />
+					<form action="#action('list')#&file=#url.file#" method="get">						
 						<input class="button submit" type="submit" value="#arguments.lang.Back#" name="mainAction" />
 					</form>
 				</td>

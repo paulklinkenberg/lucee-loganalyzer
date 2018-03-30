@@ -21,7 +21,31 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
- ---><cfset var tempFilePath = getLogPath(file=url.file) />
+ --->
+ <cfscript>
+    param name="url.file" default="";
+    var filePath = logGateway.getLogPath(file=url.file);    
 
-<cfheader name="Content-Disposition" value="attachment;filename=#listLast(tempFilePath, '/\')#" />
-<cfcontent type="text/plain" file="#tempFilePath#" reset="yes" />
+    if (not fileExists(filePath)){
+        header statuscode=404;
+        abort;
+    }       
+    var raw = fileInfo(filePath);
+    log text="download logfile: #url.file# #numberformat(raw.size/1024)#kb bytes";         
+    
+    header name="Content-Disposition" value="attachment;filename=#listLast(filePath, '/\')#";
+    if (raw.size gt (1024*1024)){
+        var tempFile =  GetTempFile( getTempDirectory(), "logs" );    
+        log text="compressing log file:#url.file#";
+        Compress("gzip", filePath, tempFile);    
+        var compressed = fileInfo(tempFile);
+        log text="download gzipped logfile:#url.file#, #numberFormat(compressed.size/1024)#kb";
+        header name="Content-Length" value="#compressed.size#";        
+        header name="content-encoding" value="gzip";    
+        content type="text/plain" file="#tempFile#" reset="yes" deletefile="true";
+    } else {        
+        header name="Content-Length" value="#raw.size#";                
+        content type="text/plain" file="#filePath#" reset="yes";
+    }
+ </cfscript>
+ 

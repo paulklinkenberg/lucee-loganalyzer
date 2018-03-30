@@ -44,85 +44,75 @@
 
 	<form action="#action('overview')#" method="post">
 		<input class="submit" type="submit" value="#arguments.lang.Back#" name="mainAction"/>
-		<input class="expand-all button" type="button" value="Expand All"/>
+		<input class="expand-all button" type="button" value="Expand All" data-expanded="false"/>
 		<input class="reload-logs button" type="button" value="Refresh"/>
 		Search: <input type="text" class="search-logs" size="25">
 	</form>
 </cfoutput>
-<cfhtmlbody>
-	<script data-src="log-analyzer-plugin">
-		$(function(){
-			//$("#layout").addClass("layout-fullwidth");
-			$(".log").click(function(){
-				var data = $(this).data();
-				$(".long-log-" + data.log).show();
-				if (this.nodeName == "A"){
-					$(this).hide();
-				} else {
-					$(this).find("a.expand-log").hide();
-				}
-			});
-			$(".reload-logs").click(function(){
-				document.location.reload();
-			});
-
-			$(".expand-all").click(function(){
-				$(".collapsed-log").show();
-				$("a.expand-log").hide();
-			});
-
-			var doSearch = function(){
-				var $el = $(".search-logs");
-				var str = $.trim($el.val()).toLowerCase();
-				if (str.length === 0){
-					$(".logs .log.search-hidden").removeClass("search-hidden");
-				} else {
-					$(".logs .log").each(function(){
-						var txt = $(this).text().toLowerCase();
-						var match = (txt.indexOf(str) === -1);
-						$(this).toggleClass("search-hidden", match);
-					});
-				}
-			};
-			var debounceTimer = null;
-			$(".search-logs").on("keyup", function(){
-				clearTimeout(debounceTimer);
-				debounceTimer = setTimeout(doSearch, 250);
-			}).on("submit", function(){
-				return false;
-			});
-		});
-	</script>
-</cfhtmlbody>
-
 <cfset num=0/>
-<cfset limit=10/>
+<cfset limit=5/>
 <div style="border:1px solid ##999;padding: 5px 0px;" class="longwords logs">
 	<cfscript>
-		log = getLog(url.file);
-		logs = log.logs.reverse();
+		q_log = logGateway.readLog(url.file);				
+	</cfscript>		
+	<!---
+	<cfscript>
+		//q_log = logGateway.readAllLogs(url.file);		
+		logs = logGateway.readAllLogs();	
+	</cfscript>		
 		//dump (var=#logs#, top=20, keys=20);
+		dump(logs.timings);
+		q_log = logs.qlog;
 	</cfscript>
-	<cfsetting enablecfoutputonly="true">
-	<cfoutput><pre><b>#log.columns#</b></pre></cfoutput>
-	<cfloop array="#logs#" index="line">
+	<cfquery name=q_summary dbtype="query">
+		select 	count(*), severity
+		from 	q_log
+		group by severity
+	</cfquery>
+	<Cfdump var=#q_summary#>
+	<cfquery name=q_summary dbtype="query">
+		select 	count(*), logdate, logfile
+		from 	q_log
+		group by logdate, logfile
+	</cfquery>
+	<Cfdump var=#q_summary#>
+	--->
+	<cfsetting enablecfoutputonly="true">	
+	<cfloop query="q_log" maxrows=1000>
 		<cfoutput><pre class="log #num mod 2 ? 'odd':''#" data-log="#num#"></cfoutput>
 		<cfset r = 1>
-		<cfloop array="#line#" index="row">
+		<cfloop list="#q_log.raw#" item="row" delimiters="#chr(10)##chr(13)#">
 			<cfif r eq limit>
 				<cfoutput><div style="display:none;" class="collapsed-log long-log-#num#"></cfoutput>
 			</cfif>
 			<cfoutput>#htmleditformat(wrap(row, 150))##chr(13)#</cfoutput>
 			<Cfset r++>
 		</cfloop>
-		<cfif ArrayLen(line) gt limit>
+		<cfif r gt limit>
 			<cfoutput></div><a class="expand-log" data-log="#num#">Expand Log (#r- limit# more rows)</a></cfoutput>
 		</cfif>
-		<cfoutput></pre>
-</cfoutput>
-		<cfset num++ />
-
-	</cfloop>
+		<cfoutput></pre></cfoutput>
+		<cfset num++ />		
+	</cfloop>	
+		<!---
+		<cfloop array="#logs#" index="line">
+			<cfoutput><pre class="log #num mod 2 ? 'odd':''#" data-log="#num#"></cfoutput>
+			<cfset r = 1>
+			<cfloop array="#line#" index="row">
+				<cfif r eq limit>
+					<cfoutput><div style="display:none;" class="collapsed-log long-log-#num#"></cfoutput>
+				</cfif>
+				<cfoutput>#htmleditformat(wrap(row, 150))##chr(13)#</cfoutput>
+				<Cfset r++>
+			</cfloop>
+			<cfif ArrayLen(line) gt limit>
+				<cfoutput></div><a class="expand-log" data-log="#num#">Expand Log (#r- limit# more rows)</a></cfoutput>
+			</cfif>
+			<cfoutput></pre></cfoutput>
+			<cfset num++ />
+		</cfloop>
+		--->		
+	
 	<cfsetting enablecfoutputonly="false">
 	</pre>
 </div>
@@ -151,4 +141,5 @@
 	<form action="#action('overview')#" method="post">
 		<input class="submit" type="submit" value="#arguments.lang.Back#" name="mainAction"/>
 	</form>
+	#includeJavascript("viewlog")#
 </cfoutput>
