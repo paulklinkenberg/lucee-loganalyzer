@@ -1,4 +1,4 @@
-/* 
+/*
  *
  * Copyright (c) 2016, Paul Klinkenberg, Utrecht, The Netherlands.
  * Originally written by Gert Franz, Switzerland.
@@ -27,23 +27,23 @@
  */
 component hint="I contain the main functions for the log Analyzer plugin" extends="lucee.admin.plugin.Plugin" {
 
-	
+
 	/**
 	 * this function will be called to initalize
 	 */
-	public void function init(required struct lang, required struct app) {		
+	public void function init(required struct lang, required struct app) {
 		variables.logGateway = new logGateway();
-	}		
+	}
 
 	public string function getCSRF(){
-		return CSRFGenerateToken("log-analyzer");	
+		return CSRFGenerateToken("log-analyzer");
 	}
 
 	private boolean function checkCSRF(required string token){
 		if (not CSRFVerifyToken( arguments.token, "log-analyzer" ))
 			throw message="access denied";
 		else
-			return true;	
+			return true;
 	}
 
 	public void function _display(required string template, required struct lang, required struct app, required struct req) {
@@ -54,7 +54,7 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 
 	public void function includeJavascript(required string template) {
 		var js = fileRead(getDirectoryFromPath(getCurrentTemplatePath()) & "/js/#template#.js");
-		htmlbody text='<script data-src="log-analyzer-plugin-#template#">#js#</script>';		
+		htmlbody text='<script data-src="log-analyzer-plugin-#template#">#js#</script>';
 	}
 	/**
 	 * creates a text string indicating the timespan between NOW and given datetime
@@ -79,7 +79,7 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 		param default="name", name="url.sort";
 		param default="", name="url.dir";
 		param default="", name="session.loganalyzer.webID";
-		//  web context chosen? 
+		//  web context chosen?
 		if ( request.admintype == "server" && structKeyExists(form, "webID") && len(form.webID) ) {
 			session.logAnalyzer.webID = form.webID;
 		}
@@ -89,7 +89,7 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 	}
 
 	public function list(struct lang, struct app, struct req) output=false {
-		//  when viewing logs in the server admin, then a webID must be defined 
+		//  when viewing logs in the server admin, then a webID must be defined
 		if ( request.admintype == "server" ) {
 			param  default="" name="session.loganalyzer.webID";
 			if ( !len(session.loganalyzer.webID) ) {
@@ -97,30 +97,30 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 				location( gotoUrl, false );
 			}
 		}
-		param  name="url.file" default="";				
+		param  name="url.file" default="";
 		param  name="url.sort" default="date";
-		param  name="url.dir" default="desc";		
+		param  name="url.dir" default="desc";
 		req.result = logGateway.analyzeLog(url.file, url.sort, url.dir);
 	}
 
 	public function viewLog(struct lang, struct app, struct req) output=false {
-		param name="url.file" default="";					
+		param name="url.file" default="";
 		param name="url.since" default="";
 
 		var sinceDate = "";
 		if (len(url.since)){
 			sinceDate = ParseDateTime(since);
-		}				
-		arguments.req.q_log = logGateway.readLog(url.file, sinceDate);	
-	}	
+		}
+		arguments.req.q_log = logGateway.readLog(url.file, sinceDate);
+	}
 
 	public function deleteLog(struct lang, struct app, struct req) output=false {
 		if (structKeyExists(url, "delete")){
 			param name="url.token" default="";
-			param name="url.file" default="";					
+			param name="url.file" default="";
 			//if (checkCSRF( url.token))
-			//	throw message="access denied";		
-		
+			//	throw message="access denied";
+
 			var tempFilePath = logGateway.getLogPath(file=url.file);
 			try {
 				file action="delete" file="#tempFilePath#";
@@ -131,7 +131,7 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 		} else {
 			location url=action("overview","&missing=true");
 		}
-		
+
 	}
 
 }

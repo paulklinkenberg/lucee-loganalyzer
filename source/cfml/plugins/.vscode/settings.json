@@ -1,5 +1,7 @@
 {
     "editor.renderWhitespace": "boundary",
     "files.trimFinalNewlines": true,
-    "files.trimTrailingWhitespace": true
+    "files.trimTrailingWhitespace": true,
+    "editor.detectIndentation": false,
+    "editor.insertSpaces": false
 }

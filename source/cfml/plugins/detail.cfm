@@ -1,4 +1,4 @@
-<!--- 
+<!---
  *
  * Copyright (c) 2016, Paul Klinkenberg, Utrecht, The Netherlands.
  * Originally written by Gert Franz, Switzerland.
@@ -35,17 +35,17 @@
 			<cfoutput><h3>Web context <em>#getWebRootPathByWebID(session.loganalyzer.webID)#</em></h3></cfoutput>
 		</cfif>
 	</cfif>
-	
+
 	<cfset stData = deserializeJSON(form.data)>
 	<cfset dMin = stData.firstdate />
 	<cfset dMax = stData.lastdate />
-	
+
 	<!--- to fix any problems with urlencoding etc. for logfile paths, we just use the filename of 'form.logfile'.
 	The rest of the path is always recalculated anyway. --->
 	<cfset url.file = listLast(url.file, "/\") />
 	<cfset request.Title = "">
 	<cfset request.subTitle = "Log Entry from #htmleditformat(url.file)#">
-	
+
 	<cfset stOccurences = {} />
 	<cfloop from="1" to="#arrayLen(stData.dateTime)#" index="i">
 		<cfset tempdate = dateFormat(stData.dateTime[i], "yyyy-mm-dd ") & timeformat(stData.dateTime[i], "HH:mm") />
@@ -55,33 +55,33 @@
 			<cfset stOccurences[tempdate]++ />
 		</cfif>
 	</cfloop>
-	
+
 	<cfset qValues = queryNew("logdate,datedisplay,occurences", "timestamp,varchar,integer") />
 	<cfloop collection="#stOccurences#" item="i">
 		<cfscript>
 			queryAddRow(qValues);
-        	querySetCell(qValues, "logdate", parseDateTime(i)); 
-        	querySetCell(qValues, "datedisplay", 
+			querySetCell(qValues, "logdate", parseDateTime(i));
+			querySetCell(qValues, "datedisplay",
 				dateformat(parseDateTime(i), arguments.lang.dateformatchart)
-            	& timeformat(parseDateTime(i), arguments.lang.timeformatchart) 
+				& timeformat(parseDateTime(i), arguments.lang.timeformatchart)
 			);
-        	querySetCell(qValues, "occurences", stOccurences[i]); 
+			querySetCell(qValues, "occurences", stOccurences[i]);
 		</cfscript>
 	</cfloop>
 	<cfquery name="qValues" dbtype="query">
 		SELECT 	*
 		FROM 	qValues
 		ORDER 	BY logdate
-	</cfquery>	
-	<form action="#action('list')#&file=#url.file#" method="post">		
+	</cfquery>
+	<form action="#action('list')#&file=#url.file#" method="post">
 		<input class="button submit" type="submit" value="#arguments.lang.Back#" name="mainAction" />
 	</form>
 	<table class="maintbl">
-		<tbody>						
+		<tbody>
 			<tr>
 				<th class="row">#arguments.lang.Message#</th>
 				<td><h2 class="black">#htmlEditFormat(rereplace(stData.message, "([^[:space:]]{50}.*?[,\.\(\)\{\}\[\]])", "\1 ", "all"))#</h2></td>
-			</tr>			
+			</tr>
 			<tr>
 				<th class="row" style="white-space:nowrap">#arguments.lang.Lastoccurence#</th>
 				<td>#getTextTimeSpan(dMax, arguments.lang)#: #dateFormat(dMax, arguments.lang.dateformat)# #timeFormat(dMax, arguments.lang.timeformat)#</td>
@@ -128,7 +128,7 @@
 		<tfoot>
 			<tr>
 				<td colspan="2">
-					<form action="#action('list')#&file=#url.file#" method="get">						
+					<form action="#action('list')#&file=#url.file#" method="get">
 						<input class="button submit" type="submit" value="#arguments.lang.Back#" name="mainAction" />
 					</form>
 				</td>

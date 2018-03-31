@@ -1,4 +1,4 @@
-<!--- 
+<!---
  *
  * Copyright (c) 2016, Paul Klinkenberg, Utrecht, The Netherlands.
  * Originally written by Gert Franz, Switzerland.
@@ -23,29 +23,28 @@
  *
  --->
  <cfscript>
-    param name="url.file" default="";
-    var filePath = logGateway.getLogPath(file=url.file);    
+	param name="url.file" default="";
+	var filePath = logGateway.getLogPath(file=url.file);
 
-    if (not fileExists(filePath)){
-        header statuscode=404;
-        abort;
-    }       
-    var raw = fileInfo(filePath);
-    log text="download logfile: #url.file# #numberformat(raw.size/1024)#kb bytes";         
-    
-    header name="Content-Disposition" value="attachment;filename=#listLast(filePath, '/\')#";
-    if (raw.size gt (1024*1024)){
-        var tempFile =  GetTempFile( getTempDirectory(), "logs" );    
-        log text="compressing log file:#url.file#";
-        Compress("gzip", filePath, tempFile);    
-        var compressed = fileInfo(tempFile);
-        log text="download gzipped logfile:#url.file#, #numberFormat(compressed.size/1024)#kb";
-        header name="Content-Length" value="#compressed.size#";        
-        header name="content-encoding" value="gzip";    
-        content type="text/plain" file="#tempFile#" reset="yes" deletefile="true";
-    } else {        
-        header name="Content-Length" value="#raw.size#";                
-        content type="text/plain" file="#filePath#" reset="yes";
-    }
+	if (not fileExists(filePath)){
+		header statuscode=404;
+		abort;
+	}
+	var raw = fileInfo(filePath);
+	log text="download logfile: #url.file# #numberformat(raw.size/1024)#kb bytes";
+
+	header name="Content-Disposition" value="attachment;filename=#listLast(filePath, '/\')#";
+	if (raw.size gt (1024*1024)){
+		var tempFile =  GetTempFile( getTempDirectory(), "logs" );
+		log text="compressing log file:#url.file#";
+		Compress("gzip", filePath, tempFile);
+		var compressed = fileInfo(tempFile);
+		log text="download gzipped logfile:#url.file#, #numberFormat(compressed.size/1024)#kb";
+		header name="Content-Length" value="#compressed.size#";
+		header name="content-encoding" value="gzip";
+		content type="text/plain" file="#tempFile#" reset="yes" deletefile="true";
+	} else {
+		header name="Content-Length" value="#raw.size#";
+		content type="text/plain" file="#filePath#" reset="yes";
+	}
  </cfscript>
- 

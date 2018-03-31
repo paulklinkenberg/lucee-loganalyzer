@@ -1,4 +1,4 @@
-<!--- 
+<!---
  *
  * Copyright (c) 2016, Paul Klinkenberg, Utrecht, The Netherlands.
  * Originally written by Gert Franz, Switzerland.
@@ -25,9 +25,9 @@
  <cfscript>
 	param name="url.startrow" default="1" type="integer";
 	param name="url.pagesperrow" default="20" type="integer";
-	// to fix any problems with urlencoding etc. for logfile paths, 
+	// to fix any problems with urlencoding etc. for logfile paths,
 	// we just use the filename of 'form.logfile'.
-    // The rest of the path is always recalculated anyway.
+	// The rest of the path is always recalculated anyway.
 	form.logfile = listLast(url.file, "/\");
 	request.title=""; // clear plugin title 5.2.7
 	request.subTitle = "#arguments.lang.analysis# of #htmleditformat(form.logfile)#";
@@ -103,7 +103,7 @@
 					#req.result.stErrors[el].iCount#&nbsp;&nbsp;&nbsp;
 				</td>
 				<td class="tblContent">
-				<form action="#detailUrl#&file=#url.file#" method="post" name="el" style="margin:0;">					
+				<form action="#detailUrl#&file=#url.file#" method="post" name="el" style="margin:0;">
 					<input type="hidden" name="data" value="#htmleditformat(serializeJson(req.result.stErrors[el]))#">
 					<input type="submit" value="#arguments.lang.Details#" class="button" />
 				</form></td>

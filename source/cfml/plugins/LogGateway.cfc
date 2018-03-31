@@ -1,4 +1,4 @@
-/* 
+/*
  *
  * Copyright (c) 2016, Paul Klinkenberg, Utrecht, The Netherlands.
  * Originally written by Gert Franz, Switzerland.
@@ -32,12 +32,12 @@ component hint="I enumerate logs and contexts" {
 	 */
 	public void function init() {
 		variables.logParser = new LogParser();
-	}		
-	
+	}
+
 	public query function getWebContexts(boolean fromCache="true") output=false {
 		var qWebContexts = "";
 		if ( !structKeyExists(variables, "qWebContexts") || !arguments.fromCache ) {
-			//  get all web contexts 
+			//  get all web contexts
 			var admin = new Administrator( "server", password );
 			qWebContexts = admin.getContextes();
 
@@ -100,7 +100,7 @@ component hint="I enumerate logs and contexts" {
 
 			loop query="webContexts" {
 				tmp[webContexts.id] = webContexts.path
-			}			
+			}
 			variables[cacheKey] = tmp;
 		}
 		return variables[cacheKey][arguments.webID];
@@ -112,25 +112,25 @@ component hint="I enumerate logs and contexts" {
 		var nioAttributes = createObject("java", "java.nio.file.attribute.BasicFileAttributes");
 		var nioFiles = createObject("java", "java.nio.file.Files");
 		var fileAttr = nioFiles.readAttributes(nioPath, nioAttributes.getClass(), []);
-   		// Display NIO results as date objects		   
+   		// Display NIO results as date objects
    		return parseDateTime(fileAttr.creationTime().toString());
 	}
 
 	public query function getLogs(string sort="name", string dir="asc") output=false {
-		var q_log_files = "";		
+		var q_log_files = "";
 		directory filter=logsFilter, directory=getLogPath() listinfo="all" name="q_log_files" action="list";
 
 		// add created date
 		QueryAddColumn( q_log_files, "created", "date" );
 		loop query=q_log_files{
-			QuerySetCell(q_log_files, "created", 
-				getFileCreationDate(q_log_files.directory & "/" & q_log_files.name), 
+			QuerySetCell(q_log_files, "created",
+				getFileCreationDate(q_log_files.directory & "/" & q_log_files.name),
 				q_log_files.currentrow
-			);			
+			);
 		}
 		QuerySort( q_log_files, arguments.sort, arguments.dir );
 		return	q_log_files;
-		
+
 	}
 
 	public boolean function logsFilter(path) output=false {
@@ -153,7 +153,7 @@ component hint="I enumerate logs and contexts" {
 		loop query=q_log_files {
 			var startTime = getTickCount();
 			logParser.readLog(getLogPath(q_log_files.name), q_log_files.name, "", qLog);
-			timings[q_log_files.name] = { 
+			timings[q_log_files.name] = {
 				parseTime: getTickCount()-startTime,
 				recordcount: qLog.recordcount - rows
 			};

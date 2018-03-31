@@ -29,54 +29,15 @@ component hint="I parse log files " {
 
 	public void function init() {
 	}
-	/**
-	 * read a log file and parse into an array
-	 */
-    /*
-	public struct function getLog(required string file) output=false {
-		var line = "";
-		var logs = [];
-		var row = [];
-		var num = 0;
-		var columns = "";
-		var log = getLogPath(arguments.file);
-		var wrapLinesAt = 150;
-
-		loop file="#log#" index="line" {
-			if (num eq 0){
-				columns = line;
-				num++;
-				row = [];
-			} else {
-				if (len(line) gt wrapLinesAt){ // split super long lines
-					ArrayAppend(row, ListToArray( wrap(line, wrapLinesAt),"#chr(13)##chr(10)#"), true);
-				} else {
-					arrayAppend(row, line);
-				}
-				if (find('"', right(line, 2))){ // new log row
-					arrayAppend(logs, row);
-					row = [];
-					num++;
-				}
-			}
-		}
-		if (arrayLen(row))
-			arrayAppend(logs, row);
-		return {
-			"columns": columns,
-			"logs": logs
-		};
-	}
-    */
 
 	public void function _readLog(required string logPath,
-            required string logName,
-            required string context,
-            required query qLog,
-            any since="") output=false {
+			required string logName,
+			required string context,
+			required query qLog,
+			any since="") output=false {
 		var line = "";
 		var row = [];
-        var timestamp = "";
+		var timestamp = "";
 		var num = 0;
 		var javaFile   = createObject("java", "java.io.File").init(logPath);
 		var reader = createObject("java", "org.apache.commons.io.input.ReversedLinesFileReader").init(javaFile);
@@ -84,41 +45,41 @@ component hint="I parse log files " {
 		var wrapLinesAt = 300;
 		// reading the log files in reverse
 
-        if (arguments.since eq "")
-            arguments.since = false;
-        else if (not isDate(arguments.since))
-            throw text="bad since date: " & since;
+		if (arguments.since eq "")
+			arguments.since = false;
+		else if (not isDate(arguments.since))
+			throw text="bad since date: " & since;
 
 		LineLoop: while (num < maxLogRows) {
 			line = reader.readLine();
-            if (isNull(line))
+			if (isNull(line))
 				break; // start of file
 			if (len(line) gt wrapLinesAt) // split super long lines
 				line =  wrap(line, wrapLinesAt);
 			if (len(line) gt 0 and left(line, 1) eq '"'){
-                // double quotes are escaped, don't get tripped up by wierd logs
-                if (line neq '"' and left(line,2) neq '""' ){ // new log row
-                    var entry = parseLogEntry(line, row.reverse().toList( chr(10) ) );
-                    switch(structCount(entry)){
-                        case 0:
-                            break LineLoop;
-                        case 7:
-                            break; // normal
-                        default:
-                            dump (entry);
-                            abort;
-                    }
+				// double quotes are escaped, don't get tripped up by wierd logs
+				if (line neq '"' and left(line,2) neq '""' ){ // new log row
+					var entry = parseLogEntry(line, row.reverse().toList( chr(10) ) );
+					switch(structCount(entry)){
+						case 0:
+							break LineLoop;
+						case 7:
+							break; // normal
+						default:
+							dump (entry);
+							abort;
+					}
 
-                    if (arguments.since){
-                        if (dateCompare(entry.timeStamp, arguments.since) eq -1)  {
-                            break;
-                        }
-                    }
-				    insertLogEntry(qLog, logName, context, entry);
-				    row = [];
-                } else {
-                    arrayAppend(row, line);
-                }
+					if (arguments.since){
+						if (dateCompare(entry.timeStamp, arguments.since) eq -1)  {
+							break;
+						}
+					}
+					insertLogEntry(qLog, logName, context, entry);
+					row = [];
+				} else {
+					arrayAppend(row, line);
+				}
 				//num++;
 			} else {
 				arrayAppend(row, line);
@@ -128,93 +89,93 @@ component hint="I parse log files " {
 		reader.close();
 	}
 
-    public query function readLog(required string logPath,
-            required string logName,
-            required string context,
-            required query qLog
-            date since) output=false {
-        _readLog(logPath, logName, context, qLog, since);
-        return qLog;
-    }
+	public query function readLog(required string logPath,
+			required string logName,
+			required string context,
+			required query qLog
+			date since) output=false {
+		_readLog(logPath, logName, context, qLog, since);
+		return qLog;
+	}
 
-    public struct function parseLogEntry(required string log, string stack=""){
-        // make some assumptions here, the stack traces are all embeded
-        if (arguments.log.startsWith('"Severity"'))
-            return {}; // header row
-        var entry = {};
-        var str = arguments.log;
-        if ( len(arguments.stack) )
-            str = str & chr(10) & arguments.stack;
-        var header =  REMatch('(?:[^\"]*\"){11}', str);
-        str = mid(str, len(header[1]));
-        // get rid of the double quotes
-        header = listToArray(Replace(header[1], '"',"","ALL"), ",", true);
-        try {
-            entry.severity = header[1];
-            entry.thread = header[2];
-            entry.timestamp = lsparseDateTime(header[3] & " " & header[4]);
-            entry.app = header[5];
-            entry.cfstack = REMatch("\(([\/a-zA-Z\_]*\.(cfc|cfm|lucee)\:\d*\))", str);
-            for (var cf = 1; cf <= entry.cfstack.len(); cf++)
-                entry.cfstack[cf] = ListFirst(entry.cfstack[cf],"()");
-        } catch (any){
-            dump(header);
-            dump(cfcatch);
-            abort;
-        }
-        // now to parse out the error message and stack trace
-        var firstTab = find(chr(9), str); // stack traces have leading tabs
-        if (firstTab gt 0){
-            entry.log = mid(str,1,firstTab);
-            entry.stack = mid(str,firstTab);
-        } else {
-            // no stack stace
-            entry.log = str;
-            entry.stack = "";
-        }
+	public struct function parseLogEntry(required string log, string stack=""){
+		// make some assumptions here, the stack traces are all embeded
+		if (arguments.log.startsWith('"Severity"'))
+			return {}; // header row
+		var entry = {};
+		var str = arguments.log;
+		if ( len(arguments.stack) )
+			str = str & chr(10) & arguments.stack;
+		var header =  REMatch('(?:[^\"]*\"){11}', str);
+		str = mid(str, len(header[1]));
+		// get rid of the double quotes
+		header = listToArray(Replace(header[1], '"',"","ALL"), ",", true);
+		try {
+			entry.severity = header[1];
+			entry.thread = header[2];
+			entry.timestamp = lsparseDateTime(header[3] & " " & header[4]);
+			entry.app = header[5];
+			entry.cfstack = REMatch("\(([\/a-zA-Z\_]*\.(cfc|cfm|lucee)\:\d*\))", str);
+			for (var cf = 1; cf <= entry.cfstack.len(); cf++)
+				entry.cfstack[cf] = ListFirst(entry.cfstack[cf],"()");
+		} catch (any){
+			dump(header);
+			dump(cfcatch);
+			abort;
+		}
+		// now to parse out the error message and stack trace
+		var firstTab = find(chr(9), str); // stack traces have leading tabs
+		if (firstTab gt 0){
+			entry.log = mid(str,1,firstTab);
+			entry.stack = mid(str,firstTab);
+		} else {
+			// no stack stace
+			entry.log = str;
+			entry.stack = "";
+		}
 
-        if (entry.stack contains '"ERROR","'
-                or entry.log contains '"ERROR","'){
-            writeoutput('"<h1>"ERROR" in log message</h1><pre>#str#</pre>');
-            dump (entry);
-            dump (local);
-            abort;
-        }
-        return entry;
-    }
+		if (entry.stack contains '"ERROR","'
+				or entry.log contains '"ERROR","'){
+			writeoutput('"<h1>"ERROR" in log message</h1><pre>#str#</pre>');
+			dump (entry);
+			dump (local);
+			abort;
+		}
+		return entry;
+	}
 
-    public query function createLogQuery(){
-        return QueryNew(
-            "context, logFile, logDate,  logTimestamp, thread, app,     severity, log,    stack,    cfstack",
-            "varchar, varchar, date,     timestamp,    varchar,varchar, varchar,  varchar, varchar, array"
-        );
-    }
+	public query function createLogQuery(){
+		return QueryNew(
+			"context, logFile, logDate,  logTimestamp, thread, app,     severity, log,    stack,    cfstack",
+			"varchar, varchar, date,     timestamp,    varchar,varchar, varchar,  varchar, varchar, array"
+		);
+	}
 
-    public void function insertLogEntry(required query q,
-            required string logFile,
-            required string context,
-            required struct entry){
+	public void function insertLogEntry(required query q,
+			required string logFile,
+			required string context,
+			required struct entry){
 
-        var row = queryAddRow(q);
-        try {
-            querySetCell(q, "logfile",      arguments.logFile, row);
-            querySetCell(q, "severity",     entry.severity, row);
-            querySetCell(q, "app",          entry.app, row);
-            querySetCell(q, "thread",       entry.thread, row);
-            querySetCell(q, "logTimestamp", entry.timestamp, row);
-            querySetCell(q, "cfstack", entry.cfstack, row);
-            querySetCell(q, "log",        entry.log, row);
-            querySetCell(q, "stack",        entry.stack, row);
-        } catch (any){
-            dump(entry);
-            dump(cfcatch);
-            abort;
-        }
+		var row = queryAddRow(q);
+		try {
+			querySetCell(q, "logfile",      arguments.logFile, row);
+			querySetCell(q, "severity",     entry.severity, row);
+			querySetCell(q, "app",          entry.app, row);
+			querySetCell(q, "thread",       entry.thread, row);
+			querySetCell(q, "logTimestamp", entry.timestamp, row);
+			querySetCell(q, "cfstack", entry.cfstack, row);
+			querySetCell(q, "log",        entry.log, row);
+			querySetCell(q, "stack",        entry.stack, row);
+		} catch (any){
+			dump(entry);
+			dump(cfcatch);
+			abort;
+		}
 
-    }
+	}
 
 	/**
-	 * analyze the logfile
+	 * analyze the logfile, old style
 	 */
 	public struct function analyzeLog(required string logFile, string sort, string sortDir) output=false {
 		var stErrors = {};
@@ -223,64 +184,64 @@ component hint="I parse log files " {
 		var sTmp     = "";
 		var st       = [];
 		var aTmp	 = "";
-        var result = {};
+		var result = {};
 
 		loop file="#logfile#" index="sLine" {
 			<!--- If line starts with a quote, then it is either an error line, or the end of a dump--->
 			if (left(sLine, 1) == '"') {
-                //if not a new error
-                if (not refind('^"[A-Z-]+","', sLine)) {
-                    if (isDefined("aDump") and ArrayLen(aDump) > 1) {
-                        if (isStruct(aDump[6])) {
-                            aDump[6].detail &= Chr(13) & Chr(10) & sLine;
-                        } else {
-                            sTmp = aDump[6];
-                            aDump[6] = structNew();
-                            aDump[6].error = sTmp;
-                            aDump[6].detail = sLine;
-                            aDump[6].fileName = "";
-                            aDump[6].lineNo = "";
-                            sTmp = "";
-                        }
-                    }
-                //new error
-                } else {
-                    aTmp = ListToArray(rereplace(rereplace(trim(sLine), '(^"|"$)', '', 'all'), '",("|$)', chr(10), "all"), chr(10), true);
-                    //was there a previous error
-                    if (ArrayLen(aDump) == 6) {
-                        __addError(aDump, stErrors);
-                    }
-                    //create new error container
-                    aDump = aTmp;
-                    sTmp = aDump[6];
-                    //in some cases, there == no message text on the first line of the error output.
-                    WriteOutput('This seems to have to do with customly thrown errors, where message="". ');
-                    if (sTmp == "") {
-                        sTmp = "no error msg #structCount(stErrors)#";
-                    }
-                    aDump[6] = structNew();
-                    aDump[6].error = sTmp;
-                    aDump[6].detail = sLine;
-                    aDump[6].fileName = "";
-                    aDump[6].lineNo = 0;
-                    sTmp = "";
-                }
-         	   //within a dump output
-            } else {
-                if (isDefined("aDump") and ArrayLen(aDump) > 1){
-                    if (isStruct(aDump[6])) {
-                        aDump[6].detail &= Chr(13) & Chr(10) & sLine;
-                    } else {
-                        sTmp = aDump[6];
-                        aDump[6] = structNew();
-                        aDump[6].error = sTmp;
-                        aDump[6].detail = sLine;
-                        aDump[6].fileName = "";
-                        aDump[6].lineNo = 0;
-                        sTmp = "";
-                    }
-                }
-            }
+				//if not a new error
+				if (not refind('^"[A-Z-]+","', sLine)) {
+					if (isDefined("aDump") and ArrayLen(aDump) > 1) {
+						if (isStruct(aDump[6])) {
+							aDump[6].detail &= Chr(13) & Chr(10) & sLine;
+						} else {
+							sTmp = aDump[6];
+							aDump[6] = structNew();
+							aDump[6].error = sTmp;
+							aDump[6].detail = sLine;
+							aDump[6].fileName = "";
+							aDump[6].lineNo = "";
+							sTmp = "";
+						}
+					}
+				//new error
+				} else {
+					aTmp = ListToArray(rereplace(rereplace(trim(sLine), '(^"|"$)', '', 'all'), '",("|$)', chr(10), "all"), chr(10), true);
+					//was there a previous error
+					if (ArrayLen(aDump) == 6) {
+						__addError(aDump, stErrors);
+					}
+					//create new error container
+					aDump = aTmp;
+					sTmp = aDump[6];
+					//in some cases, there == no message text on the first line of the error output.
+					WriteOutput('This seems to have to do with customly thrown errors, where message="". ');
+					if (sTmp == "") {
+						sTmp = "no error msg #structCount(stErrors)#";
+					}
+					aDump[6] = structNew();
+					aDump[6].error = sTmp;
+					aDump[6].detail = sLine;
+					aDump[6].fileName = "";
+					aDump[6].lineNo = 0;
+					sTmp = "";
+				}
+		 	   //within a dump output
+			} else {
+				if (isDefined("aDump") and ArrayLen(aDump) > 1){
+					if (isStruct(aDump[6])) {
+						aDump[6].detail &= Chr(13) & Chr(10) & sLine;
+					} else {
+						sTmp = aDump[6];
+						aDump[6] = structNew();
+						aDump[6].error = sTmp;
+						aDump[6].detail = sLine;
+						aDump[6].fileName = "";
+						aDump[6].lineNo = 0;
+						sTmp = "";
+					}
+				}
+			}
 		}
 
 		//  add the last error
@@ -298,7 +259,7 @@ component hint="I parse log files " {
 		result.sortOrder = st;
 		result.stErrors  = stErrors;
 
-        return result;
+		return result;
 	}
 
 	public void function __addError(array aDump, struct stErrors) output=false {

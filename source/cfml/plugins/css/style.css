@@ -34,7 +34,7 @@ abbr {
 
 .paging .active{
 	font-weight: bolder;
-	border: 1px solid #ccc;	
+	border: 1px solid #ccc;
 }
 
 ul.stack {
@@ -52,7 +52,7 @@ ul.stack {
 .log-controls::after {
 	clear: both;
 	content: "";
-  	display: block; 
+  	display: block;
 }
 
 .logs {
@@ -122,12 +122,12 @@ ul.stack {
 .logs-error {
 	padding: 10px;
 	border: 2px red solid;
-	overflow-y: scroll; 
+	overflow-y: scroll;
 	max-height: 400px;
 }
 .logs-update {
 	text-align: center;
-	font-size: 1em;	
+	font-size: 1em;
 }
 .logs .log, {
 	padding: 5px;
@@ -135,6 +135,6 @@ ul.stack {
 
 .log-detail {
 	padding: 2px 5px;
-	margin: 2px;	
+	margin: 2px;
 	font-family: Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New;
 }
