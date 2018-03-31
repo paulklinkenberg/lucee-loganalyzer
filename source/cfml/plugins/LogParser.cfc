@@ -42,7 +42,7 @@ component hint="I parse log files " {
 		var javaFile   = createObject("java", "java.io.File").init(logPath);
 		var reader = createObject("java", "org.apache.commons.io.input.ReversedLinesFileReader").init(javaFile);
 		var maxLogRows = 2000;
-
+		var wrapLinesAt = 300;
 		// reading the log files in reverse
 
 		if (arguments.since eq "")
