@@ -40,11 +40,8 @@ component hint="I enumerate logs and contexts" {
 			//  get all web contexts 
 			var admin = new Administrator( "server", password );
 			qWebContexts = admin.getContextes();
-			cfquery( dbtype="query", name="qWebContexts" ) { //Note: queryExecute() is the preferred syntax but this syntax is easier to convert generically
-				writeOutput("select 	*
-				from 	qWebContexts
-				order 	by path");
-			}
+
+			QuerySort( qWebContexts, "path", "desc");
 			variables.qWebContexts = qWebContexts;
 		}
 		return variables.qWebContexts;
@@ -109,21 +106,42 @@ component hint="I enumerate logs and contexts" {
 		return variables[cacheKey][arguments.webID];
 	}
 
-	public query function getLogs(sort="name asc") output=true {
-		var qGetLogs = "";
-		var tempFilePath = getLogPath();
-		cfdirectory( sort=sort, filter=logsFilter, directory=tempFilePath, listinfo="Name,datelastmodified,size", name="qGetLogs", action="list" );
-		return qGetLogs;
+	public string function getFileCreationDate(required string file) output=false {
+   		// Get file attributes using NIO
+		var nioPath = createObject("java", "java.nio.file.Paths").get( arguments.file, [] );
+		var nioAttributes = createObject("java", "java.nio.file.attribute.BasicFileAttributes");
+		var nioFiles = createObject("java", "java.nio.file.Files");
+		var fileAttr = nioFiles.readAttributes(nioPath, nioAttributes.getClass(), []);
+   		// Display NIO results as date objects		   
+   		return parseDateTime(fileAttr.creationTime().toString());
+	}
+
+	public query function getLogs(string sort="name", string dir="asc") output=false {
+		var q_log_files = "";		
+		directory filter=logsFilter, directory=getLogPath() listinfo="all" name="q_log_files" action="list";
+
+		// add created date
+		QueryAddColumn( q_log_files, "created", "date" );
+		loop query=q_log_files{
+			QuerySetCell(q_log_files, "created", 
+				getFileCreationDate(q_log_files.directory & "/" & q_log_files.name), 
+				q_log_files.currentrow
+			);			
+		}
+		QuerySort( q_log_files, arguments.sort, arguments.dir );
+		return	q_log_files;
+		
 	}
 
 	public boolean function logsFilter(path) output=false {
 		return listfindNoCase("log,bak", right(path,3));
 	}
 
-	public query function readLog(required string file) output=false {
+	public query function readLog(required string file, any sinceDate) output=false {
 		var log = getLogPath(arguments.file);
 		var qLog = logParser.createLogQuery();
-		logParser.readLog(log, arguments.file, "", qLog);
+		logParser.readLog(log, arguments.file, "", qLog, sinceDate);
+		//throw "zac	zac	zaczac";
 		return qLog;
 	}
 

@@ -6,12 +6,6 @@ th a {
 	color:white;
 }
 
-pre {
-	padding: 2px 5px;
-	margin: 2px;
-	background-color: #eee;
-}
-
 .odd {
 	background-color: #D2E0EE;
 }
@@ -43,3 +37,104 @@ abbr {
 	border: 1px solid #ccc;	
 }
 
+ul.stack {
+	list-style-type: none;
+	margin: 2px;
+	padding: 0;
+	padding-left: 20px;
+}
+
+.log-header {
+	padding: 8px;
+	padding-bottom: 4px;
+}
+
+.log-controls::after {
+	clear: both;
+	content: "";
+  	display: block; 
+}
+
+.logs {
+	border:1px solid #999;
+	padding: 5px 0px;
+}
+
+.log-severity-filter-type{
+	margin: 0 5px;
+}
+
+.log-severity-filter, .log-actions {
+	float: left;
+}
+
+.log-severity-filter, .log-actions {
+	margin-bottom: 5px;
+}
+.log-severity-filter-type LABEL{
+	padding: 8px;
+	padding-bottom: 4px;
+}
+
+.log-header {
+	font-weight: 600;
+	display: inline;
+}
+
+.log PRE {
+	display: inline;
+}
+
+.log-header SPAN {
+	padding-right: 10px;
+}
+
+.log-severity-INFO, log-severity-INFORMATION {
+	background-color: #a6cee3;
+	color: black;
+}
+.log-severity-WARN, log-severity-WARNING {
+	background-color: #fdbf6f;
+	color: black;
+}
+.log-severity-ERROR {
+	background-color: #fb9a99;
+	color: black;
+}
+.log-severity-FATAL {
+	background-color: #d7301f;
+	color: white;
+}
+
+.log-severity-DEBUG {
+	background-color:#cab2d6;
+	color: black;
+}
+.log-severity-TRACE {
+	background-color: yellow;
+	color: black;
+}
+
+.expand-log {
+	color: #084081;
+}
+
+.logs-error {
+	padding: 10px;
+	border: 2px red solid;
+	overflow-y: scroll; 
+	max-height: 400px;
+}
+.logs-update {
+	text-align: center;
+	font-size: 1em;	
+}
+.logs .log, {
+	padding: 5px;
+}
+
+.log-detail {
+	padding: 2px 5px;
+	margin: 2px;	
+	font-family: Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New;
+}

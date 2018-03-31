@@ -14,5 +14,5 @@ $(function(){
                 break;            
         }
         document.location = actionUrl + "&pluginAction=" + data.action ;
-    });
+    });   
 });

@@ -72,24 +72,46 @@ component hint="I parse log files " {
 	public void function _readLog(required string logPath, 
             required string logName,
             required string context,
-            required query qLog) output=false {
+            required query qLog,
+            any since="") output=false {
 		var line = "";		
 		var row = [];
+        var timestamp = "";
 		var num = 0;				
 		var javaFile   = createObject("java", "java.io.File").init(logPath);
 		var reader = createObject("java", "org.apache.commons.io.input.ReversedLinesFileReader").init(javaFile);
 		var maxLogRows = 20000;
 		var wrapLinesAt = 300;        
 		// reading the log files in reverse
+
+        if (arguments.since eq "")    
+            arguments.since = false;
+        else if (not isDate(arguments.since))    
+            throw text="bad since date: " & since;
+
 		while (num < maxLogRows) {
 			line = reader.readLine();			
             if (isNull(line))
 				break; // start of file
 			if (len(line) gt wrapLinesAt) // split super long lines
 				line =  wrap(line, wrapLinesAt);				
-			if (num gt 0 and left(line, 1) eq '"' and line neq '"' ){ // new log row								
-				insertLog(qLog, logName, context, line, row.reverse().toList( chr(10) ) );				
-				row = [];
+			if (num gt 0 and left(line, 1) eq '"'){
+                // double quotes are escaped, don't get tripped up by wierd logs
+                if (line neq '"' and left(line,2) neq '""' ){ // new log row								
+				    timestamp = insertLog(qLog, logName, context, line, row.reverse().toList( chr(10) ) );				
+
+                    if (arguments.since){
+                        //cflog (text="zzzzz #arguments.since# #timestamp# #dateCompare(timeStamp, arguments.since)#");
+                        if (dateCompare(timeStamp, arguments.since) eq -1)  {
+                            queryDeleteRow(qLog, qLog.recordcount);
+                            break;
+                        }
+                    }
+
+				    row = [];
+                } else {
+                    arrayAppend(row, line);				    
+                }            
 				//num++;
 			} else {
 				arrayAppend(row, line);				
@@ -102,15 +124,16 @@ component hint="I parse log files " {
     public query function readLog(required string logPath, 
         required string logName,
         required string context,
-        required query qLog) output=false {
-        _readLog(logPath, logName, context, qLog);                
+        required query qLog
+        date since) output=false {
+        _readLog(logPath, logName, context, qLog, since);                
         return qLog;
     }
     
     public query function createLogQuery(){
         return QueryNew(
-            "context, logFile, logDate,  logTimestamp, thread,  severity, log, raw", 
-            "varchar, varchar, date, timestamp,    varchar, varchar,  varchar, varchar"
+            "context, logFile, logDate,  logTimestamp, thread,  severity, log, raw, data", 
+            "varchar, varchar, date, timestamp,    varchar, varchar,  varchar, varchar, struct"
         );
     }
 
@@ -119,23 +142,32 @@ component hint="I parse log files " {
             required string context, 
             required string log,
             required string stack){
-        var data = listToArray(arguments.log, ",", true);
+
+        var data = parseLogEntry(arguments.log, arguments.stack, q); 
         //dump(data);
-        for (var d = 1; d lte data.len(); d++)
-            data[d] = listFirst(data[d],'""');
-        if (data[1] eq "Severity" or data.len() lte 5)    
+        
+        if (data[1] eq "Severity") 
             return; // header row
+        if (data.len() lte 5)        
+            abort;
         try {
             var row = queryAddRow(q);
-            var timestamp = lsparseDateTime(data[3]); // , "MM-DD-yyyy HH:mm:ss"
-            var logDate = lsparseDateTime(data[3] & " " & data[4]); // , "MM-DD-yyyy HH:mm:ss"
+            var logDate = lsparseDateTime(data[3]); // , "MM-DD-yyyy HH:mm:ss"
+            var timestamp = lsparseDateTime(data[3] & " " & data[4]); // , "MM-DD-yyyy HH:mm:ss"
             querySetCell(q, "logfile", arguments.logFile, row);
             querySetCell(q, "severity", data[1], row);
             querySetCell(q, "thread", data[2], row);
             querySetCell(q, "logTimestamp", timestamp, row);
             querySetCell(q, "logDate", logDate, row);
-            querySetCell(q, "log", data[5], row);        
-            querySetCell(q, "raw", arguments.log & arguments.stack, row);        
+
+            var hasTab = FindOneOf( data[6], chr(9) );
+
+            if (data.len() gt 5)
+                querySetCell(q, "log", data[6], row);            
+            if (data.len() gt 6)
+                querySetCell(q, "raw", data[8], row);        
+                
+            querySetCell(q, "data", data, row);
         } catch (e){
             dump(log);
             dump (data);
@@ -143,6 +175,32 @@ component hint="I parse log files " {
             abort;
         }
         return timestamp;        
+    }
+
+    public array function parseLogEntry(required string log, string stack="", required query q){
+        // make some assumptions here, the stack traces are all embeded 
+        var entry = listToArray(arguments.log, ",", true);
+        if (entry.len() gt 6){
+            entry = entry.slice(1,5);            
+            var message =  REReplace(arguments.log, '(?:[^\"]*\"){11}', "");            
+            entry.append(message);
+            entry[7] = arguments.stack;
+            /*
+            dump(entry);
+            dump(log);
+            dump(stack);                        
+            abort;
+            */
+            
+        }
+        if (left(entry[6], 1) eq ";")
+            entry[6] = mid(entry[6], 2); 
+
+        for (var d = 1; d lte entry.len(); d++)
+            entry[d] = listFirst(entry[d],'""'); // get rid of the quotes
+        entry.append(arguments.log);
+        entry.append(arguments.stack); // append the stack to the log
+        return entry;
     }
 
 	/**

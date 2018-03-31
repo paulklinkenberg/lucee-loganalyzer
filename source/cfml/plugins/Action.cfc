@@ -84,7 +84,7 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 			session.logAnalyzer.webID = form.webID;
 		}
 		if ( request.admintype != "server" || len(session.loganalyzer.webID) ) {
-			arguments.req.logfiles = logGateway.getLogs(sort="#url.sort# #url.dir#");
+			arguments.req.logfiles = logGateway.getLogs(sort=url.sort, dir=url.dir);
 		}
 	}
 
@@ -102,6 +102,17 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 		param  name="url.dir" default="desc";		
 		req.result = logGateway.analyzeLog(url.file, url.sort, url.dir);
 	}
+
+	public function viewLog(struct lang, struct app, struct req) output=false {
+		param name="url.file" default="";					
+		param name="url.since" default="";
+
+		var sinceDate = "";
+		if (len(url.since)){
+			sinceDate = ParseDateTime(since);
+		}				
+		arguments.req.q_log = logGateway.readLog(url.file, sinceDate);	
+	}	
 
 	public function deleteLog(struct lang, struct app, struct req) output=false {
 		if (structKeyExists(url, "delete")){

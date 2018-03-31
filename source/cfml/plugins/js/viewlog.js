@@ -1,5 +1,36 @@
 $(function(){
-    //$("#layout").addClass("layout-fullwidth");
+    'use strict';
+    var updateSeverityFilter =  function(){        
+        var css = "";
+        var hidden = [];
+        $(".log-severity-filter input:not(:checked)").each(function(){
+            var item = $(this).parent().attr("class");
+            css += "." + item + ".log { display: none; } ";
+            hidden.push(item.split("-").pop());
+        });
+        $(".log-severity-filter-css").text(css);
+        history.pushState({},"", updateUrl("hidden", hidden.join()) );
+    };    
+
+    var updateUrl = function(param, val){
+        var url = document.location.href;
+        var key = "&" + param + "=";
+        var h = url.indexOf(key);
+        if (h === -1){
+            url += key + val;
+        } else {
+            var after="", pos = url.indexOf("&", h+1);
+            if (pos > -1)
+                after = url.substr(pos);
+            url = url.substr(0,h);
+            url += key + val; 
+            url += after; 
+        }
+        return url;
+    }
+    
+    $(".log-severity-filter INPUT").on("change", updateSeverityFilter);
+
     $(".log").click(function(){
         var data = $(this).data();
         var expanded = $(".long-log-" + data.log).is(":VISIBLE");
@@ -11,7 +42,30 @@ $(function(){
         }
     });
     $(".reload-logs").click(function(){
-        document.location.reload();
+        var $logs = $(".logs")
+        var fetched = $logs.data("fetched");
+        var url = updateUrl("since", fetched);        
+        $.ajax({
+            url: url,
+            type: "GET"            
+        }).done(function(data) {
+            var $data = $(data);
+            var $newLogs = $data.find(".logs");
+            var fetched = $newLogs.data("fetched");
+            $logs.data("fetched", $newLogs.data("fetched") );
+            var $new = $newLogs.find(".log");
+            var $status = $("<div>").addClass("logs-update");
+            
+            if ($logs.length > 0){
+                $logs.prepend($status.text("polled logs " + new Date()),$new);            
+            } else {              
+                $logs.prepend($status.text("polled logs, no updates, " + new Date()));            
+            }
+
+        }).error(function(jqXHR){            
+            $(".logs-error").show().html(jqXHR.responseText);
+        });
+        //document.location.reload();
     });
 
     $(".expand-all").click(function(){

@@ -53,6 +53,7 @@
 		<custom key="logfilename">Logfile name</custom>
 		<custom key="logfilelocation">Log directory</custom>
 		<custom key="logfiledate">Date last modified</custom>
+		<custom key="logfilecreated">Created</custom>
 		<custom key="logfilesize">Filesize</custom>
 		<custom key="message">Message</custom>
 		<custom key="Lastoccurence">Last occurence</custom>

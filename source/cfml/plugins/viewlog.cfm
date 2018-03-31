@@ -41,102 +41,117 @@
 	The rest of the path is always recalculated anyway. --->
 	<cfset url.logfile = listLast(url.file, "/\") />
 	<cfset request.subTitle = "View  #htmleditformat(url.logfile)#">
+	<div class="log-controls">
+		<form action="#action('overview')#" method="post" class="log-actions">
+			<input class="submit" type="submit" value="#arguments.lang.Back#" name="mainAction"/>
+			<input class="expand-all button" type="button" value="Expand All" data-expanded="false"/>
+			<input class="reload-logs button" type="button" value="Refresh"/>
+			Search: <input type="text" class="search-logs" size="25">
+		</form>
 
-	<form action="#action('overview')#" method="post">
-		<input class="submit" type="submit" value="#arguments.lang.Back#" name="mainAction"/>
-		<input class="expand-all button" type="button" value="Expand All" data-expanded="false"/>
-		<input class="reload-logs button" type="button" value="Refresh"/>
-		Search: <input type="text" class="search-logs" size="25">
-	</form>
+		<cfscript>
+			param name="url.hidden"  default="";
+			st_hidden = {};
+			if (len(url.hidden) gt 0){
+				var _hidden = ListToArray(url.hidden);
+				for (var h in _hidden)
+					st_hidden[h] = true;
+			}
+		</cfscript>
+
+		<div class="log-severity-filter">
+			<cfloop list="INFO,INFORMATION|WARN,WARNING|ERROR|FATAL|DEBUG|TRACE" index="severity" delimiters="|">
+				<span class="log-severity-filter-type">		
+					<cfset sev = listFirst(severity,",")>			
+					<label class="log-severity-#sev#">
+						#sev#
+						<input type="checkbox" value="#sev#" <cfif not structKeyExists(st_hidden, sev)>checked</cfif>>
+					</label>			
+				</span>
+			</cfloop>
+		</div>
+	</div>
+	<style class="log-severity-filter-css">
+		<cfloop collection="#st_hidden#" item="h">
+			.log-severity-#h#.log { display: none;}
+		</cfloop>
+	</style>
 </cfoutput>
+
+<div class="logs-error" style="display:none;"></div>
 <cfset num=0/>
 <cfset limit=5/>
-<div style="border:1px solid ##999;padding: 5px 0px;" class="longwords logs">
+<cfoutput>
+	<div class="longwords logs" data-fetched="#DateTimeFormat(now(),"yyyy-mm-dd'T'HH:nn:ss")#">
+</cfoutput>
 	<cfscript>
-		q_log = logGateway.readLog(url.file);				
+		q_log = req.q_log;
 	</cfscript>		
-	<!---
-	<cfscript>
-		//q_log = logGateway.readAllLogs(url.file);		
-		logs = logGateway.readAllLogs();	
-	</cfscript>		
-		//dump (var=#logs#, top=20, keys=20);
-		dump(logs.timings);
-		q_log = logs.qlog;
-	</cfscript>
-	<cfquery name=q_summary dbtype="query">
-		select 	count(*), severity
-		from 	q_log
-		group by severity
-	</cfquery>
-	<Cfdump var=#q_summary#>
-	<cfquery name=q_summary dbtype="query">
-		select 	count(*), logdate, logfile
-		from 	q_log
-		group by logdate, logfile
-	</cfquery>
-	<Cfdump var=#q_summary#>
-	--->
 	<cfsetting enablecfoutputonly="true">	
 	<cfloop query="q_log" maxrows=1000>
-		<cfoutput><pre class="log #num mod 2 ? 'odd':''#" data-log="#num#"></cfoutput>
-		<cfset r = 1>
-		<cfloop list="#q_log.raw#" item="row" delimiters="#chr(10)##chr(13)#">
-			<cfif r eq limit>
-				<cfoutput><div style="display:none;" class="collapsed-log long-log-#num#"></cfoutput>
-			</cfif>
-			<cfoutput>#htmleditformat(wrap(row, 150))##chr(13)#</cfoutput>
-			<Cfset r++>
-		</cfloop>
-		<cfif r gt limit>
-			<cfoutput></div><a class="expand-log" data-log="#num#">Expand Log (#r- limit# more rows)</a></cfoutput>
-		</cfif>
-		<cfoutput></pre></cfoutput>
-		<cfset num++ />		
-	</cfloop>	
+		<cfoutput><div class="log log-severity-#q_log.severity# #num mod 2 ? 'odd':''#" data-log="#num#"></cfoutput>
+		<cfoutput><div class="log-header"><span class="log-fie">#q_log.logfile#</span></cfoutput>
+		<cfoutput><span class="log-severity">#q_log.severity#</span></cfoutput>
+		<cfoutput><span class="log-timestamp">#LSDateFormat(q_log.logtimestamp)# #LSTimeFormat(q_log.logtimestamp)#</span></cfoutput>
+		<cfoutput></div></cfoutput>
+		<cfoutput><div class="log-detail"></cfoutput>
+		<cfset r = 1>		
 		<!---
-		<cfloop array="#logs#" index="line">
-			<cfoutput><pre class="log #num mod 2 ? 'odd':''#" data-log="#num#"></cfoutput>
-			<cfset r = 1>
-			<cfloop array="#line#" index="row">
+		<cfdump var="#dump(queryGetRow(q_log, q_log.currentrow))#" expand="false">
+		--->
+		<cfset cfstacktrace = []>		
+		<cfif len(q_log.raw) gt 200>
+			<cfset cfstacktrace = REMatch("\(([\/a-zA-Z\_]*\.(cfc|cfm)\:\d*\))", q_log.raw)>			
+			<cfset inStack = 0>			
+			<Cfif cfstacktrace.len() gt 0>
+				<cfloop list="#q_log.log#" item="row" delimiters="#chr(10)##chr(13)#">
+					<cfoutput>#htmleditformat(wrap(row, 150))##chr(10)#</cfoutput>
+					<Cfset r++>
+				</cfloop>
+				<cfloop list="#q_log.raw#" item="row" delimiters="#chr(10)##chr(13)#">
+					<cfif left(row,1) eq chr(9)>
+						<cfif inStack eq 0>
+							<cfset inStack++>
+							<cfoutput><ul class="stack"></cfoutput>
+							<cfscript>
+								if (cfstacktrace.len() gt 5)
+									cfstacktrace = ArraySlice(cfstacktrace, 5);
+							</cfscript>
+							<cfloop array=#cfstacktrace# item="lineRef">
+								<cfoutput><li>#listFirst(lineRef,"()")#</li></cfoutput>					
+							</cfloop>
+							<cfoutput></ul></cfoutput>
+							<cfoutput><div style="display:none;" class="collapsed-log long-log-#num#"></cfoutput>						
+						</cfif>
+						<cfset inStack++>						
+						<cfoutput>#htmleditformat(wrap(row, 150))##chr(10)#</cfoutput>
+					<cfelse>	
+						<cfoutput>#htmleditformat(wrap(row, 150))##chr(10)#</cfoutput>
+					</cfif>
+				</cfloop>
+				<cfif inStack gt 0>
+					<cfoutput></div><a class="expand-log" data-log="#num#">click to expand</a></cfoutput>					
+				</cfif>
+			</cfif>		
+		</cfif>
+		<Cfif cfstacktrace.len() eq 0>
+			<cfloop list="#q_log.log#" item="row" delimiters="#chr(10)##chr(10)#">
 				<cfif r eq limit>
 					<cfoutput><div style="display:none;" class="collapsed-log long-log-#num#"></cfoutput>
 				</cfif>
-				<cfoutput>#htmleditformat(wrap(row, 150))##chr(13)#</cfoutput>
+				<cfoutput>#htmleditformat(wrap(row, 150))##chr(10)#</cfoutput>
 				<Cfset r++>
 			</cfloop>
-			<cfif ArrayLen(line) gt limit>
+			<cfif r gt limit>
 				<cfoutput></div><a class="expand-log" data-log="#num#">Expand Log (#r- limit# more rows)</a></cfoutput>
 			</cfif>
-			<cfoutput></pre></cfoutput>
-			<cfset num++ />
-		</cfloop>
-		--->		
-	
-	<cfsetting enablecfoutputonly="false">
-	</pre>
-</div>
-
-<!---
-<div style="border:1px solid ##999;padding: 5px 0px;" class="longwords">
-	<cfsetting enablecfoutputonly="true">
-	<cfloop file="#getLogPath(url.file)#" index="line">
-		<cfoutput>#htmleditformat(wrap(line, 150))##chr(13)#</cfoutput>
-		<!---		--->
-		<cfif find('"', right(line, 2))>
-			<cfif num gt 0>
-				<cfoutput></pre></cfoutput>
-			</cfif>
-			<cfoutput><pre #num mod 2 ? 'class="odd"':''#></cfoutput>
-			<cfset num++ />
 		</cfif>
-		<!---	--->
+		<cfoutput></div></div></cfoutput>
+		<cfset num++ />		
 	</cfloop>
 	<cfsetting enablecfoutputonly="false">
 	</pre>
 </div>
---->
-
 <cfoutput>
 	<form action="#action('overview')#" method="post">
 		<input class="submit" type="submit" value="#arguments.lang.Back#" name="mainAction"/>

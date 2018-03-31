@@ -51,28 +51,31 @@
 		</cfif>
 	</cfif>
 </cfif>
-
 <cfoutput>
 	<table class="maintbl log-overview">
 	<thead>
 		<tr>
 			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=name<cfif url.sort eq 'name' and url.dir neq 'desc'>&amp;dir=desc</cfif>" title="#arguments.lang.Orderonthiscolumn#"<cfif url.sort eq 'name'> style="font-weight:bold"</cfif>>#arguments.lang.logfilename#</a></th>
 			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=datelastmodified<cfif url.sort neq 'datelastmodified' or url.dir neq 'desc'>&amp;dir=desc</cfif>" title="#arguments.lang.Orderonthiscolumn#"<cfif url.sort eq 'datelastmodified'> style="font-weight:bold"</cfif>>#arguments.lang.logfiledate#</a></th>
+			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=created<cfif url.sort neq 'created' or url.dir neq 'desc'>&amp;	dir=desc</cfif>" title="#arguments.lang.Orderonthiscolumn#"<cfif url.sort eq 'created'> style="font-weight:bold"</cfif>>#arguments.lang.logfilecreated#</a></th>
 			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=size<cfif url.sort neq 'size' or url.dir neq 'desc'>&amp;dir=desc</cfif>" title="#arguments.lang.Orderonthiscolumn#"<cfif url.sort eq 'size'> style="font-weight:bold"</cfif>>#arguments.lang.logfilesize#</a></th>
 			<th>#arguments.lang.actions#</th>
 		</tr>
 	</thead>
 	<tbody>
-		<cfloop query="arguments.req.logfiles">
-			<tr data-logfile="#htmleditformat(name)#">
-				<td class="tblContent">#name#</td>
-				<td class="tblContent"><abbr title="#dateformat(datelastmodified, arguments.lang.dateformat)# #timeformat(datelastmodified, arguments.lang.timeformatshort)#">#getTextTimeSpan(datelastmodified, arguments.lang)#</abbr></td>
-				<td class="tblContent"><cfif size lt 1024>#size# #arguments.lang.bytes#<cfelse>#ceiling(size/1024)# #arguments.lang.KB#</cfif></td>
-				<td class="tblContent" style="text-align:right; white-space:nowrap; width:1%">	
-				<input type="submit" class="button" data-action="list" value="#arguments.lang.analyse#"/>
-				<input type="button" class="button" data-action="viewLog" value="#arguments.lang.viewlog#" />
-				<input type="button" class="button" data-action="download"value="#arguments.lang.download#" />
-				<input type="button" class="button" data-action="delete" value="#arguments.lang.delete#" />
+		<cfset q =arguments.req.logfiles>
+		<cfloop query="q">
+			<tr data-logfile="#htmleditformat(q.name)#">
+				<td>#name#</td>
+				<td><abbr title="#dateformat(q.datelastmodified, arguments.lang.dateformat)# #timeformat(q.datelastmodified, arguments.lang.timeformatshort)#">	#getTextTimeSpan(q.datelastmodified, arguments.lang)#</abbr></td>
+				<td><abbr title="#dateformat(q.created, arguments.lang.dateformat)# #timeformat(q.created, arguments.lang.timeformatshort)#">
+					#getTextTimeSpan(q.created, arguments.lang)#</abbr></td>
+				<td><cfif q.size lt 1024>#size# #arguments.lang.bytes#<cfelse>#ceiling(q.size/1024)# #arguments.lang.KB#</cfif></td>
+				<td style="text-align:right; white-space:nowrap; width:1%">	
+					<input type="submit" class="button" data-action="list" value="#arguments.lang.analyse#"/>
+					<input type="button" class="button" data-action="viewLog" value="#arguments.lang.viewlog#" />
+					<input type="button" class="button" data-action="download"value="#arguments.lang.download#" />
+					<input type="button" class="button" data-action="delete" value="#arguments.lang.delete#" />
 				</td>
 			</tr>
 		</cfloop>
