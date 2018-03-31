@@ -1,0 +1,5 @@
+{
+    "editor.renderWhitespace": "boundary",
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true
+}

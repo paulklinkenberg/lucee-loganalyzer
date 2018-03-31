@@ -1,4 +1,4 @@
-/* 
+/*
  *
  * Copyright (c) 2016, Paul Klinkenberg, Utrecht, The Netherlands.
  * Originally written by Gert Franz, Switzerland.
@@ -27,7 +27,7 @@
  */
 component hint="I parse log files " {
 
-	public void function init() {        
+	public void function init() {
 	}
 	/**
 	 * read a log file and parse into an array
@@ -42,7 +42,7 @@ component hint="I parse log files " {
 		var log = getLogPath(arguments.file);
 		var wrapLinesAt = 150;
 
-		loop file="#log#" index="line" {			
+		loop file="#log#" index="line" {
 			if (num eq 0){
 				columns = line;
 				num++;
@@ -58,10 +58,10 @@ component hint="I parse log files " {
 					row = [];
 					num++;
 				}
-			}			
+			}
 		}
 		if (arrayLen(row))
-			arrayAppend(logs, row);		
+			arrayAppend(logs, row);
 		return {
 			"columns": columns,
 			"logs": logs
@@ -69,138 +69,148 @@ component hint="I parse log files " {
 	}
     */
 
-	public void function _readLog(required string logPath, 
+	public void function _readLog(required string logPath,
             required string logName,
             required string context,
             required query qLog,
             any since="") output=false {
-		var line = "";		
+		var line = "";
 		var row = [];
         var timestamp = "";
-		var num = 0;				
+		var num = 0;
 		var javaFile   = createObject("java", "java.io.File").init(logPath);
 		var reader = createObject("java", "org.apache.commons.io.input.ReversedLinesFileReader").init(javaFile);
 		var maxLogRows = 20000;
-		var wrapLinesAt = 300;        
+		var wrapLinesAt = 300;
 		// reading the log files in reverse
 
-        if (arguments.since eq "")    
+        if (arguments.since eq "")
             arguments.since = false;
-        else if (not isDate(arguments.since))    
+        else if (not isDate(arguments.since))
             throw text="bad since date: " & since;
 
-		while (num < maxLogRows) {
-			line = reader.readLine();			
+		LineLoop: while (num < maxLogRows) {
+			line = reader.readLine();
             if (isNull(line))
 				break; // start of file
 			if (len(line) gt wrapLinesAt) // split super long lines
-				line =  wrap(line, wrapLinesAt);				
-			if (num gt 0 and left(line, 1) eq '"'){
+				line =  wrap(line, wrapLinesAt);
+			if (len(line) gt 0 and left(line, 1) eq '"'){
                 // double quotes are escaped, don't get tripped up by wierd logs
-                if (line neq '"' and left(line,2) neq '""' ){ // new log row								
-				    timestamp = insertLog(qLog, logName, context, line, row.reverse().toList( chr(10) ) );				
+                if (line neq '"' and left(line,2) neq '""' ){ // new log row
+                    var entry = parseLogEntry(line, row.reverse().toList( chr(10) ) );
+                    switch(structCount(entry)){
+                        case 0:
+                            break LineLoop;
+                        case 7:
+                            break; // normal
+                        default:
+                            dump (entry);
+                            abort;
+                    }
 
                     if (arguments.since){
-                        //cflog (text="zzzzz #arguments.since# #timestamp# #dateCompare(timeStamp, arguments.since)#");
-                        if (dateCompare(timeStamp, arguments.since) eq -1)  {
-                            queryDeleteRow(qLog, qLog.recordcount);
+                        if (dateCompare(entry.timeStamp, arguments.since) eq -1)  {
                             break;
                         }
                     }
-
+				    insertLogEntry(qLog, logName, context, entry);
 				    row = [];
                 } else {
-                    arrayAppend(row, line);				    
-                }            
+                    arrayAppend(row, line);
+                }
 				//num++;
 			} else {
-				arrayAppend(row, line);				
+				arrayAppend(row, line);
 			}
 			num++;
-		}        
-		reader.close();					
+		}
+		reader.close();
 	}
 
-    public query function readLog(required string logPath, 
-        required string logName,
-        required string context,
-        required query qLog
-        date since) output=false {
-        _readLog(logPath, logName, context, qLog, since);                
+    public query function readLog(required string logPath,
+            required string logName,
+            required string context,
+            required query qLog
+            date since) output=false {
+        _readLog(logPath, logName, context, qLog, since);
         return qLog;
     }
-    
+
+    public struct function parseLogEntry(required string log, string stack=""){
+        // make some assumptions here, the stack traces are all embeded
+        if (arguments.log.startsWith('"Severity"'))
+            return {}; // header row
+        var entry = {};
+        var str = arguments.log;
+        if ( len(arguments.stack) )
+            str = str & chr(10) & arguments.stack;
+        var header =  REMatch('(?:[^\"]*\"){11}', str);
+        str = mid(str, len(header[1]));
+        // get rid of the double quotes
+        header = listToArray(Replace(header[1], '"',"","ALL"), ",", true);
+        try {
+            entry.severity = header[1];
+            entry.thread = header[2];
+            entry.timestamp = lsparseDateTime(header[3] & " " & header[4]);
+            entry.app = header[5];
+            entry.cfstack = REMatch("\(([\/a-zA-Z\_]*\.(cfc|cfm|lucee)\:\d*\))", str);
+            for (var cf = 1; cf <= entry.cfstack.len(); cf++)
+                entry.cfstack[cf] = ListFirst(entry.cfstack[cf],"()");
+        } catch (any){
+            dump(header);
+            dump(cfcatch);
+            abort;
+        }
+        // now to parse out the error message and stack trace
+        var firstTab = find(chr(9), str); // stack traces have leading tabs
+        if (firstTab gt 0){
+            entry.log = mid(str,1,firstTab);
+            entry.stack = mid(str,firstTab);
+        } else {
+            // no stack stace
+            entry.log = str;
+            entry.stack = "";
+        }
+
+        if (entry.stack contains '"ERROR","'
+                or entry.log contains '"ERROR","'){
+            writeoutput('"<h1>"ERROR" in log message</h1><pre>#str#</pre>');
+            dump (entry);
+            dump (local);
+            abort;
+        }
+        return entry;
+    }
+
     public query function createLogQuery(){
         return QueryNew(
-            "context, logFile, logDate,  logTimestamp, thread,  severity, log, raw, data", 
-            "varchar, varchar, date, timestamp,    varchar, varchar,  varchar, varchar, struct"
+            "context, logFile, logDate,  logTimestamp, thread, app,     severity, log,    stack,    cfstack",
+            "varchar, varchar, date,     timestamp,    varchar,varchar, varchar,  varchar, varchar, array"
         );
     }
 
-    public any function insertLog(required query q, 
-            required string logFile, 
-            required string context, 
-            required string log,
-            required string stack){
+    public void function insertLogEntry(required query q,
+            required string logFile,
+            required string context,
+            required struct entry){
 
-        var data = parseLogEntry(arguments.log, arguments.stack, q); 
-        //dump(data);
-        
-        if (data[1] eq "Severity") 
-            return; // header row
-        if (data.len() lte 5)        
-            abort;
+        var row = queryAddRow(q);
         try {
-            var row = queryAddRow(q);
-            var logDate = lsparseDateTime(data[3]); // , "MM-DD-yyyy HH:mm:ss"
-            var timestamp = lsparseDateTime(data[3] & " " & data[4]); // , "MM-DD-yyyy HH:mm:ss"
-            querySetCell(q, "logfile", arguments.logFile, row);
-            querySetCell(q, "severity", data[1], row);
-            querySetCell(q, "thread", data[2], row);
-            querySetCell(q, "logTimestamp", timestamp, row);
-            querySetCell(q, "logDate", logDate, row);
-
-            var hasTab = FindOneOf( data[6], chr(9) );
-
-            if (data.len() gt 5)
-                querySetCell(q, "log", data[6], row);            
-            if (data.len() gt 6)
-                querySetCell(q, "raw", data[8], row);        
-                
-            querySetCell(q, "data", data, row);
-        } catch (e){
-            dump(log);
-            dump (data);
-            dump(e);            
-            abort;
-        }
-        return timestamp;        
-    }
-
-    public array function parseLogEntry(required string log, string stack="", required query q){
-        // make some assumptions here, the stack traces are all embeded 
-        var entry = listToArray(arguments.log, ",", true);
-        if (entry.len() gt 6){
-            entry = entry.slice(1,5);            
-            var message =  REReplace(arguments.log, '(?:[^\"]*\"){11}', "");            
-            entry.append(message);
-            entry[7] = arguments.stack;
-            /*
+            querySetCell(q, "logfile",      arguments.logFile, row);
+            querySetCell(q, "severity",     entry.severity, row);
+            querySetCell(q, "app",          entry.app, row);
+            querySetCell(q, "thread",       entry.thread, row);
+            querySetCell(q, "logTimestamp", entry.timestamp, row);
+            querySetCell(q, "cfstack", entry.cfstack, row);
+            querySetCell(q, "log",        entry.log, row);
+            querySetCell(q, "stack",        entry.stack, row);
+        } catch (any){
             dump(entry);
-            dump(log);
-            dump(stack);                        
+            dump(cfcatch);
             abort;
-            */
-            
         }
-        if (left(entry[6], 1) eq ";")
-            entry[6] = mid(entry[6], 2); 
 
-        for (var d = 1; d lte entry.len(); d++)
-            entry[d] = listFirst(entry[d],'""'); // get rid of the quotes
-        entry.append(arguments.log);
-        entry.append(arguments.stack); // append the stack to the log
-        return entry;
     }
 
 	/**
@@ -214,11 +224,11 @@ component hint="I parse log files " {
 		var st       = [];
 		var aTmp	 = "";
         var result = {};
-		
+
 		loop file="#logfile#" index="sLine" {
 			<!--- If line starts with a quote, then it is either an error line, or the end of a dump--->
 			if (left(sLine, 1) == '"') {
-                //if not a new error 
+                //if not a new error
                 if (not refind('^"[A-Z-]+","', sLine)) {
                     if (isDefined("aDump") and ArrayLen(aDump) > 1) {
                         if (isStruct(aDump[6])) {
@@ -233,14 +243,14 @@ component hint="I parse log files " {
                             sTmp = "";
                         }
                     }
-                //new error 
+                //new error
                 } else {
                     aTmp = ListToArray(rereplace(rereplace(trim(sLine), '(^"|"$)', '', 'all'), '",("|$)', chr(10), "all"), chr(10), true);
-                    //was there a previous error 
+                    //was there a previous error
                     if (ArrayLen(aDump) == 6) {
                         __addError(aDump, stErrors);
                     }
-                    //create new error container 
+                    //create new error container
                     aDump = aTmp;
                     sTmp = aDump[6];
                     //in some cases, there == no message text on the first line of the error output.
@@ -255,7 +265,7 @@ component hint="I parse log files " {
                     aDump[6].lineNo = 0;
                     sTmp = "";
                 }
-         	   //within a dump output 
+         	   //within a dump output
             } else {
                 if (isDefined("aDump") and ArrayLen(aDump) > 1){
                     if (isStruct(aDump[6])) {
@@ -273,7 +283,7 @@ component hint="I parse log files " {
             }
 		}
 
-		//  add the last error 
+		//  add the last error
 		if ( ArrayLen(aDump) == 6 ) {
 			__addError(aDump, stErrors);
 		}
@@ -293,7 +303,7 @@ component hint="I parse log files " {
 
 	public void function __addError(array aDump, struct stErrors) output=false {
 		try {
-			//  	at test_cfm$cf.call(/developing/tools/test.cfm:1):1 
+			//  	at test_cfm$cf.call(/developing/tools/test.cfm:1):1
 			var aLine = REFind("\(([^\(\)]+\.cfm):([0-9]+)\)", aDump[6].detail, 1, true);
 			if ( aLine.pos[1] > 0 ) {
 				aDump[6].fileName = Mid(aDump[6].detail, aLine.pos[2], aLine.len[2]);

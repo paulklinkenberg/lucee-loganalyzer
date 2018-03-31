@@ -61,12 +61,12 @@
 
 		<div class="log-severity-filter">
 			<cfloop list="INFO,INFORMATION|WARN,WARNING|ERROR|FATAL|DEBUG|TRACE" index="severity" delimiters="|">
-				<span class="log-severity-filter-type">		
-					<cfset sev = listFirst(severity,",")>			
+				<span class="log-severity-filter-type">
+					<cfset sev = listFirst(severity,",")>
 					<label class="log-severity-#sev#">
 						#sev#
 						<input type="checkbox" value="#sev#" <cfif not structKeyExists(st_hidden, sev)>checked</cfif>>
-					</label>			
+					</label>
 				</span>
 			</cfloop>
 		</div>
@@ -86,8 +86,8 @@
 </cfoutput>
 	<cfscript>
 		q_log = req.q_log;
-	</cfscript>		
-	<cfsetting enablecfoutputonly="true">	
+	</cfscript>
+	<cfsetting enablecfoutputonly="true">
 	<cfloop query="q_log" maxrows=1000>
 		<cfoutput><div class="log log-severity-#q_log.severity# #num mod 2 ? 'odd':''#" data-log="#num#"></cfoutput>
 		<cfoutput><div class="log-header"><span class="log-fie">#q_log.logfile#</span></cfoutput>
@@ -95,59 +95,28 @@
 		<cfoutput><span class="log-timestamp">#LSDateFormat(q_log.logtimestamp)# #LSTimeFormat(q_log.logtimestamp)#</span></cfoutput>
 		<cfoutput></div></cfoutput>
 		<cfoutput><div class="log-detail"></cfoutput>
-		<cfset r = 1>		
+		<cfset r = 1>
 		<!---
 		<cfdump var="#dump(queryGetRow(q_log, q_log.currentrow))#" expand="false">
 		--->
-		<cfset cfstacktrace = []>		
-		<cfif len(q_log.raw) gt 200>
-			<cfset cfstacktrace = REMatch("\(([\/a-zA-Z\_]*\.(cfc|cfm)\:\d*\))", q_log.raw)>			
-			<cfset inStack = 0>			
-			<Cfif cfstacktrace.len() gt 0>
-				<cfloop list="#q_log.log#" item="row" delimiters="#chr(10)##chr(13)#">
-					<cfoutput>#htmleditformat(wrap(row, 150))##chr(10)#</cfoutput>
-					<Cfset r++>
-				</cfloop>
-				<cfloop list="#q_log.raw#" item="row" delimiters="#chr(10)##chr(13)#">
-					<cfif left(row,1) eq chr(9)>
-						<cfif inStack eq 0>
-							<cfset inStack++>
-							<cfoutput><ul class="stack"></cfoutput>
-							<cfscript>
-								if (cfstacktrace.len() gt 5)
-									cfstacktrace = ArraySlice(cfstacktrace, 5);
-							</cfscript>
-							<cfloop array=#cfstacktrace# item="lineRef">
-								<cfoutput><li>#listFirst(lineRef,"()")#</li></cfoutput>					
-							</cfloop>
-							<cfoutput></ul></cfoutput>
-							<cfoutput><div style="display:none;" class="collapsed-log long-log-#num#"></cfoutput>						
-						</cfif>
-						<cfset inStack++>						
-						<cfoutput>#htmleditformat(wrap(row, 150))##chr(10)#</cfoutput>
-					<cfelse>	
-						<cfoutput>#htmleditformat(wrap(row, 150))##chr(10)#</cfoutput>
-					</cfif>
-				</cfloop>
-				<cfif inStack gt 0>
-					<cfoutput></div><a class="expand-log" data-log="#num#">click to expand</a></cfoutput>					
-				</cfif>
-			</cfif>		
-		</cfif>
-		<Cfif cfstacktrace.len() eq 0>
-			<cfloop list="#q_log.log#" item="row" delimiters="#chr(10)##chr(10)#">
-				<cfif r eq limit>
-					<cfoutput><div style="display:none;" class="collapsed-log long-log-#num#"></cfoutput>
-				</cfif>
-				<cfoutput>#htmleditformat(wrap(row, 150))##chr(10)#</cfoutput>
-				<Cfset r++>
+
+		<cfoutput>#htmleditformat(q_log.log)#</cfoutput>
+		<Cfif q_log.cfstack.len() gt 0>
+			<cfset _stack = q_log.cfstack[currentrow]>
+			<cfoutput><ul class="cfstack"></cfoutput>
+			<Cfset maxrows =Min(ArrayLen(_stack),5)>
+			<cfloop from="1" to="#maxrows#" index="s">
+				<cfoutput><li>#_stack[s]#</li></cfoutput>
 			</cfloop>
-			<cfif r gt limit>
-				<cfoutput></div><a class="expand-log" data-log="#num#">Expand Log (#r- limit# more rows)</a></cfoutput>
-			</cfif>
+			<cfoutput></ul></cfoutput>
 		</cfif>
-		<cfoutput></div></div></cfoutput>
-		<cfset num++ />		
+		<Cfif len(q_log.stack) gt 0>
+			<cfoutput><div style="display:none;" class="collapsed-log long-log-#num#"></cfoutput>
+			<cfoutput>#htmleditformat(wrap(q_log.stack, 150))##chr(10)#</cfoutput>
+			<cfoutput></div><a class="expand-log" data-log="#num#">click to expand</a></cfoutput>
+		</cfif>
+		<cfoutput></div><!---log-detail---></div><!---log---></cfoutput>
+		<cfset num++ />
 	</cfloop>
 	<cfsetting enablecfoutputonly="false">
 	</pre>
