@@ -41,8 +41,8 @@ component hint="I parse log files " {
 		var num = 0;
 		var javaFile   = createObject("java", "java.io.File").init(logPath);
 		var reader = createObject("java", "org.apache.commons.io.input.ReversedLinesFileReader").init(javaFile);
-		var maxLogRows = 20000;
-		var wrapLinesAt = 300;
+		var maxLogRows = 2000;
+
 		// reading the log files in reverse
 
 		if (arguments.since eq "")
@@ -77,6 +77,7 @@ component hint="I parse log files " {
 					}
 					insertLogEntry(qLog, logName, context, entry);
 					row = [];
+					num++;
 				} else {
 					arrayAppend(row, line);
 				}

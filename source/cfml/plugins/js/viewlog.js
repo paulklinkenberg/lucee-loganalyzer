@@ -42,7 +42,7 @@ $(function(){
 		}
 	});
 	$(".reload-logs").click(function(){
-		var $logs = $(".logs")
+		var $logs = $(".logs");
 		var fetched = $logs.data("fetched");
 		var url = updateUrl("since", fetched);
 		$.ajax({
@@ -56,8 +56,9 @@ $(function(){
 			var $new = $newLogs.find(".log");
 			var $status = $("<div>").addClass("logs-update");
 
-			if ($logs.length > 0){
+			if ($newLogs.length > 0){
 				$logs.prepend($status.text("polled logs " + new Date()),$new);
+				trimLogs();
 			} else {
 				$logs.prepend($status.text("polled logs, no updates, " + new Date()));
 			}
@@ -67,6 +68,18 @@ $(function(){
 		});
 		//document.location.reload();
 	});
+	var limit = 2000;
+	var trimLogs = function(){
+		var $logs = $(".logs .log");
+		var total = $logs.length;
+		if ($logs.length > 2000){
+			$logs.slice(2000).remove();
+		}
+		$logs = $(".logs .log");
+		var removed = (total-$logs.length);
+		if (removed)
+			console.log("removed " + removed + " logs for performance");
+	};
 
 	$(".expand-all").click(function(){
 		var state = $(this).data("expanded");
