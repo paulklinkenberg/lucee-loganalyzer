@@ -25,151 +25,88 @@
 /**
  * I contain the main functions for the log Analyzer plugin
  */
-component hint="I enumerate logs and contexts" {
+component hint="enumerate logs directories and lucee contexts" {
 
 	/**
 	 * this function will be called to initalize
 	 */
 	public void function init() {
 		variables.logParser = new LogParser();
+		variables.logDirectory = new LogDirectory();
 	}
-
-	public query function getWebContexts(boolean fromCache="true") output=false {
-		var qWebContexts = "";
-		if ( !structKeyExists(variables, "qWebContexts") || !arguments.fromCache ) {
-			//  get all web contexts
-			var admin = new Administrator( "server", password );
-			qWebContexts = admin.getContextes();
-
-			QuerySort( qWebContexts, "path", "desc");
-			variables.qWebContexts = qWebContexts;
-		}
-		return variables.qWebContexts;
-	}
-
-	/**
-	 * This function returns the full log file path, and does some security checking
-	 */
-	public string function getLogPath(string file="") output=false {
-		if ( request.admintype == "web" ) {
-			var logDir = expandPath("{lucee-web}/logs/");
-		} else if ( session.logAnalyzer.webID == "serverContext" ) {
-			var logDir = expandPath("{lucee-server}/logs/");
-		} else {
-			var logDir = getLogPathByWebID(session.logAnalyzer.webID);
-		}
-		if ( structKeyExists(arguments, "file") && len(arguments.file) ) {
-			logDir = rereplace(logDir, "\#server.separator.file#$", "") & server.separator.file & listLast(arguments.file, "/\");
-			if ( !fileExists(logDir) ) {
-				throw( message="log file '#logDir#' does not exist!" );
-			}
-		}
-		return logDir;
-	}
-
-	/**
-	 * I return the path to the log directory for a given web context
-	 */
-	public string function getLogPathByWebID(required string webID) output=false {
-		if ( request.admintype == "web" ) {
-			throw( message="Function getLogPathByWebID() may only be used in the server admin!" );
-		}
-		var cacheKey = "webContextLogPaths";
-		if ( !structKeyExists(variables, cacheKey) ) {
-			var webContexts = getWebContexts();
-			var tmp = {};
-			loop query="webContexts" {
-				tmp[webContexts.id] = rereplace(webContexts.config_file, "[^/\\]+$", "") & "logs" & server.separator.file;
-			}
-			variables[cacheKey] = tmp;
-		}
-		return variables[cacheKey][arguments.webID];
-	}
-
-	/**
-	 * I return the path to the webroot for a given web context
-	 */
-	public string function getWebRootPathByWebID(required string webID) output=false {
-		if ( request.admintype == "web" ) {
-			throw( message="Function getWebRootPathByWebID() may only be used in the server admin!" );
-		}
-		var cacheKey = "webrootPaths";
-		if ( !structKeyExists(variables, cacheKey) ) {
-			var webContexts = getWebContexts();
-			var tmp = {};
-
-			loop query="webContexts" {
-				tmp[webContexts.id] = webContexts.path
-			}
-			variables[cacheKey] = tmp;
-		}
-		return variables[cacheKey][arguments.webID];
-	}
-
-	public string function getFileCreationDate(required string file) output=false {
-   		// Get file attributes using NIO
-		var nioPath = createObject("java", "java.nio.file.Paths").get( arguments.file, [] );
-		var nioAttributes = createObject("java", "java.nio.file.attribute.BasicFileAttributes");
-		var nioFiles = createObject("java", "java.nio.file.Files");
-		var fileAttr = nioFiles.readAttributes(nioPath, nioAttributes.getClass(), []);
-   		// Display NIO results as date objects
-   		return parseDateTime(fileAttr.creationTime().toString());
-	}
-
-	public query function getLogs(string sort="name", string dir="asc") output=false {
-		var q_log_files = "";
-		directory filter=logsFilter, directory=getLogPath() listinfo="all" name="q_log_files" action="list";
-
-		// add created date
-		QueryAddColumn( q_log_files, "created", "date" );
-		loop query=q_log_files{
-			QuerySetCell(q_log_files, "created",
-				getFileCreationDate(q_log_files.directory & "/" & q_log_files.name),
-				q_log_files.currentrow
-			);
-		}
-		QuerySort( q_log_files, arguments.sort, arguments.dir );
-		return	q_log_files;
-
-	}
-
-	public boolean function logsFilter(path) output=false {
-		return listfindNoCase("log,bak", right(path,3));
-	}
-
-	public query function readLog(required string file, any sinceDate) output=false {
-		var log = getLogPath(arguments.file);
-		var qLog = logParser.createLogQuery();
-		logParser.readLog(log, arguments.file, "", qLog, sinceDate);
-		//throw "zac	zac	zaczac";
-		return qLog;
-	}
-
-	public struct function readAllLogs() output=false {
-		var qLog = logParser.createLogQuery();
-		var q_log_files = getLogs();
-		var timings = {};
-		var rows = 0;
-		loop query=q_log_files {
-			var startTime = getTickCount();
-			logParser.readLog(getLogPath(q_log_files.name), q_log_files.name, "", qLog);
-			timings[q_log_files.name] = {
-				parseTime: getTickCount()-startTime,
-				recordcount: qLog.recordcount - rows
-			};
-			if (timings[q_log_files.name].recordcount gt 0)
-				timings[q_log_files.name].avg = timings[q_log_files.name].recordcount /  timings[q_log_files.name].parseTime;
-			rows = qLog.recordcount;
-		}
-		return {
-			timings: timings,
-			qLog: qLog
-		};
-
-	}
-
+	/*
 	public struct function analyzeLog(required string file, required string sort, required string sortDir){
 		var log = getLogPath(arguments.file);
 		return logParser.analyzeLog(log, arguments.sort, arguments.sortDir);
+	}
+	*/
+
+	public string function getLogPath(string file="") output=false {
+		return variables.logDirectory.getLogPath(arguments.file);
+	}
+
+	public query function readLog(required string file, any sinceDate) output=false {
+		var log = logDirectory.getLogPath(arguments.file);
+		var qLog = logDirectory.logParser.createLogQuery();
+		var since = processDate(arguments.sinceDate);
+
+		logParser.readLog(log, arguments.file, "", qLog, since);
+		return qLog;
+	}
+
+	public query function listLogs(string sort="name", string dir="asc",
+			any sinceDate="", string filter="") output=false {
+		return	variables.logDirectory.listLogs(argument.collection=arguments);
+	}
+
+	public struct function getLog(string files, any sinceDate, numeric defaultDays=3) output=false {
+		var since = logDirectory.processDate(arguments.sinceDate);
+		var q_log = logParser.createLogQuery();
+		var q_log_files = logDirectory.listLogs(filter="*.log");
+		var timings = {};
+		var rows = 0;
+		var st_files = {};
+		if (len(arguments.files) gt 0){
+			var _files = listToArray(arguments.files); // avoid crash on single file
+			for (var file in _files)
+				st_files[file] = true;
+		}
+		if (since eq false)
+			since = logDirectory.getDefaultSince(q_log_files, st_files, defaultDays);
+
+		var startTimeLog = getTickCount();
+		//cflog(text="start getLogs: #arguments.files#");
+		loop query=q_log_files {
+			if (dateCompare(q_log_files.dateLastModified, since) eq -1)
+				continue; // log file hasn't been updated since last request
+			if (structCount(st_files) gt 0
+					and not structKeyExists(st_files, q_log_files.name))
+				continue; // this file wasn't requested
+
+			var startTimeLog = getTickCount();
+			//cflog(text="parsing #q_log_files.name#");
+			logParser.readLog(logDirectory.getLogPath(q_log_files.name), q_log_files.name, "", q_log, since);
+
+			timings[q_log_files.name] = {
+				parseTime: getTickCount()-startTimeLog,
+				recordcount: (q_log.recordcount - rows)
+			};
+
+			if (timings[q_log_files.name].recordcount gt 0)
+				timings[q_log_files.name].avg = timings[q_log_files.name].recordcount /  timings[q_log_files.name].parseTime;
+
+			//cflog(text="#q_log_files.name#: #serializeJSON(timings[q_log_files.name])#");
+			rows = q_log.recordcount;
+		}
+		//cflog(text="finished getLogs: #arguments.files# in #getTickCount()-startTimeLog#ms");
+
+		// sort the logs from multiple sources by timestamp
+		QuerySort( q_log, "logTimestamp", "desc");
+
+		return {
+			timings: timings,
+			q_log: q_log,
+			q_log_files: q_log_files
+		};
 	}
 }

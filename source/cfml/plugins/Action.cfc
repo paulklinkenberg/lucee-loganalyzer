@@ -33,43 +33,12 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 	 */
 	public void function init(required struct lang, required struct app) {
 		variables.logGateway = new logGateway();
-	}
-
-	public string function getCSRF(){
-		return CSRFGenerateToken("log-analyzer");
-	}
-
-	private boolean function checkCSRF(required string token){
-		if (not CSRFVerifyToken( arguments.token, "log-analyzer" ))
-			throw message="access denied";
-		else
-			return true;
+		variables.renderUtils = new RenderUtils(arguments.lang);
 	}
 
 	public void function _display(required string template, required struct lang, required struct app, required struct req) {
-		var css = fileRead(getDirectoryFromPath(getCurrentTemplatePath()) & "/css/style.css");
-		htmlhead text='<style id="log-analyzer" type="text/css">#css#</style>';
+		renderUtils.includeCSS();
 		super._display(argumentcollection=arguments);
-	}
-
-	public void function includeJavascript(required string template) {
-		var js = fileRead(getDirectoryFromPath(getCurrentTemplatePath()) & "/js/#template#.js");
-		htmlbody text='<script data-src="log-analyzer-plugin-#template#">#js#</script>';
-	}
-	/**
-	 * creates a text string indicating the timespan between NOW and given datetime
-	 */
-	public function getTextTimeSpan(required date date, required struct lang) output=false {
-		var diffSecs = dateDiff('s', arguments.date, now());
-		if ( diffSecs < 60 ) {
-			return replace(lang.Xsecondsago, '%1', diffSecs);
-		} else if ( diffSecs < 3600 ) {
-			return replace(lang.Xminutesago, '%1', int(diffSecs/60));
-		} else if ( diffSecs < 86400 ) {
-			return replace(lang.Xhoursago, '%1', int(diffSecs/3600));
-		} else {
-			return replace(lang.Xdaysago, '%1', int(diffSecs/86400));
-		}
 	}
 
 	/**
@@ -84,7 +53,7 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 			session.logAnalyzer.webID = form.webID;
 		}
 		if ( request.admintype != "server" || len(session.loganalyzer.webID) ) {
-			arguments.req.logfiles = logGateway.getLogs(sort=url.sort, dir=url.dir);
+			arguments.req.logfiles = logGateway.listLogs(sort=url.sort, dir=url.dir);
 		}
 	}
 
@@ -107,11 +76,7 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 		param name="url.file" default="";
 		param name="url.since" default="";
 
-		var sinceDate = "";
-		if (len(url.since)){
-			sinceDate = ParseDateTime(since);
-		}
-		arguments.req.q_log = logGateway.readLog(url.file, sinceDate);
+		arguments.req.logs = logGateway.getLog(url.file, url.since, 7);
 	}
 
 	public function deleteLog(struct lang, struct app, struct req) output=false {
@@ -131,7 +96,5 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 		} else {
 			location url=action("overview","&missing=true");
 		}
-
 	}
-
 }

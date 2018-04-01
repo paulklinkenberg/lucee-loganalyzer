@@ -66,13 +66,13 @@
 		<cfset q =arguments.req.logfiles>
 		<cfloop query="q">
 			<tr data-logfile="#htmleditformat(q.name)#">
-				<td>#name#</td>
-				<td><abbr title="#dateformat(q.datelastmodified, arguments.lang.dateformat)# #timeformat(q.datelastmodified, arguments.lang.timeformatshort)#">	#getTextTimeSpan(q.datelastmodified, arguments.lang)#</abbr></td>
+				<td class="name">#name#</td>
+				<td><abbr title="#dateformat(q.datelastmodified, arguments.lang.dateformat)# #timeformat(q.datelastmodified, arguments.lang.timeformatshort)#">	#renderUtils.getTextTimeSpan(q.datelastmodified)#</abbr></td>
 				<td><abbr title="#dateformat(q.created, arguments.lang.dateformat)# #timeformat(q.created, arguments.lang.timeformatshort)#">
-					#getTextTimeSpan(q.created, arguments.lang)#</abbr></td>
+					#renderUtils.getTextTimeSpan(q.created)#</abbr></td>
 				<td><cfif q.size lt 1024>#size# #arguments.lang.bytes#<cfelse>#ceiling(q.size/1024)# #arguments.lang.KB#</cfif></td>
 				<td style="text-align:right; white-space:nowrap; width:1%">
-					<input type="submit" class="button" data-action="list" value="#arguments.lang.analyse#"/>
+					<!--<input type="submit" class="button" data-action="list" value="#arguments.lang.analyse#"/>-->
 					<input type="button" class="button" data-action="viewLog" value="#arguments.lang.viewlog#" />
 					<input type="button" class="button" data-action="download"value="#arguments.lang.download#" />
 					<input type="button" class="button" data-action="delete" value="#arguments.lang.delete#" />
@@ -82,6 +82,6 @@
 	</tbody>
 	</table>
 	<p>#arguments.lang.logfilelocation#: <em>#arguments.req.logfiles.directory#</em></p>
-	<div class="csrf-token" data-token="#getCSRF()#">
-	#includeJavascript("overview")#
+	<div class="csrf-token" data-token="#renderUtils.getCSRF()#">
+	#renderUtils.includeJavascript("overview")#
 </cfoutput>

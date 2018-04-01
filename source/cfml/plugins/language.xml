@@ -7,6 +7,7 @@
 		<custom key="logfilelocation">Log Verzeichnis</custom>
 		<custom key="logfiledate">Datum</custom>
 		<custom key="logfilesize">Filesize</custom>
+		<custom key="logfilesize">logfilecreated</custom>
 		<custom key="message">Message</custom>
 		<custom key="Lastoccurence">Last occurence</custom>
 		<custom key="threadname">Thread name</custom>
@@ -27,7 +28,7 @@
 		<custom key="download">Download</custom>
 		<custom key="viewlog">View</custom>
 		<custom key="details">Details</custom>
-		<custom key="analyse">Analyse</custom>		
+		<custom key="analyse">Analyse</custom>
 		<custom key="to">to</custom>
 		<custom key="perpage">per page</custom>
 		<custom key="page">page</custom>
@@ -75,8 +76,8 @@
 		<custom key="download">Download</custom>
 		<custom key="viewlog">View</custom>
 		<custom key="details">Details</custom>
-		<custom key="analyse">Analyse</custom>		
-		<custom key="analysis">Analysis</custom>	
+		<custom key="analyse">Analyse</custom>
+		<custom key="analysis">Analysis</custom>
 		<custom key="to">to</custom>
 		<custom key="perpage">per page</custom>
 		<custom key="page">page</custom>
@@ -122,8 +123,8 @@
 		<custom key="delete">Verwijder</custom>
 		<custom key="download">Download</custom>
 		<custom key="details">Details</custom>
-		<custom key="analyse">Analyse</custom>		
-		<custom key="analysis">Analysis</custom>	
+		<custom key="analyse">Analyse</custom>
+		<custom key="analysis">Analysis</custom>
 		<custom key="to">tot</custom>
 		<custom key="perpage">per pagina</custom>
 		<custom key="page">pagina</custom>

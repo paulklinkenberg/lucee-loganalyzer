@@ -10,9 +10,15 @@ th a {
 	background-color: #D2E0EE;
 }
 
-#body .layout-fullwidth {
-	width: 100%;
+/* override admin styles */
+#innercontent {
+	margin: 5px;
+	padding 2px;
 }
+.box {
+	padding-top: 10px;
+}
+/* end override styles */
 
 .search-hidden {
 	display: none;
@@ -49,7 +55,7 @@ ul.stack {
 	padding-bottom: 4px;
 }
 
-.log-controls::after {
+.log-actions::after, .log-controls::after {
 	clear: both;
 	content: "";
   	display: block;
@@ -60,16 +66,14 @@ ul.stack {
 	padding: 5px 0px;
 }
 
-.log-severity-filter-type{
+.log-severity-filter-type, .log-file-filter{
 	margin: 0 5px;
-}
-
-.log-severity-filter, .log-actions {
-	float: left;
+	white-space: nowrap;
 }
 
 .log-severity-filter, .log-actions {
 	margin-bottom: 5px;
+	padding: 5px 0;
 }
 .log-severity-filter-type LABEL{
 	padding: 8px;
@@ -115,8 +119,11 @@ ul.stack {
 	color: black;
 }
 
-.expand-log {
+.log-expand {
+	padding: 4px;
+	float:right;
 	color: #084081;
+	cursor: pointer;
 }
 
 .logs-error {
@@ -137,4 +144,8 @@ ul.stack {
 	padding: 2px 5px;
 	margin: 2px;
 	font-family: Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New;
+}
+
+.cfstack {
+	margin: 2px;
 }

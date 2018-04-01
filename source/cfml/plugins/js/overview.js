@@ -1,7 +1,5 @@
 $(function(){
-	$(".log-overview INPUT.button").click(function(){
-		var data = $(this).data();
-		var logfile = $(this).closest("TR").data('logfile');
+	var doAction = function(data, logfile){
 		var token = $(".csrf-token").data('token');
 		var actionUrl = "?action=plugin&plugin=loganalyzer&file=" + logfile;
 
@@ -14,5 +12,12 @@ $(function(){
 				break;
 		}
 		document.location = actionUrl + "&pluginAction=" + data.action ;
+	};
+	$(".log-overview INPUT").on("click", function(ev){
+		doAction($(this).data(), $(this).closest("TR").data('logfile') );
+	});
+	$(".log-overview TD.name").on("click", function(ev){
+		var $el = $(ev.currentTarget);
+		doAction( {action:"viewLog"}, $el.closest("TR").data("logfile") );
 	});
 });
