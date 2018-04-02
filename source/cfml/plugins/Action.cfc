@@ -56,6 +56,8 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 		}
 		if ( request.admintype != "server" || len(session.loganalyzer.webID) ) {
 			arguments.req.logfiles = logGateway.listLogs(sort=url.sort, dir=url.dir);
+		} else {
+			location url=action("contextSelector", 'nextAction=admin') addtoken="false";
 		}
 	}
 
@@ -77,9 +79,26 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 	public function overview(struct lang, struct app, struct req) output=false {
 		param name="url.file" default="";
 		param name="url.since" default="";
-		var logs = logGateway.getLog(url.file, url.since, 7, true);
-		variables.renderUtils.renderServerTimingHeaders(logs.timings);
-		arguments.req.logs = logs;
+		param default="", name="session.loganalyzer.webID";
+
+		if ( request.admintype != "server" || len(session.loganalyzer.webID) ) {
+			var logs = logGateway.getLog(url.file, url.since, 7, true);
+			variables.renderUtils.renderServerTimingHeaders(logs.timings);
+			arguments.req.logs = logs;
+		} else {
+			location url=action("contextSelector", 'nextAction=overview') addtoken="false";
+		}
+	}
+
+	public function contextSelector(struct lang, struct app, struct req) output=false {
+	}
+
+	public function setContext(struct lang, struct app, struct req) output=false {
+		if ( request.admintype == "server" && structKeyExists(form, "webID") && len(form.webID) ) {
+			session.logAnalyzer.webID = form.webID;
+		}
+		param name="form.nextAction" default="overview";
+		location url=action(form.nextAction) addtoken="false";
 	}
 
 	public function getLogJson(struct lang, struct app, struct req) output=false {

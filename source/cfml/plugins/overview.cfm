@@ -25,7 +25,8 @@
 <!--- when viewing logs in the server admin, then a webID must be defined --->
 
 <cfscript>
-	request.subTitle = "Log Monitor";
+	request.title = "Log Monitor";
+	request.subtitle = "";
 	param name="url.xhr" default="false";
 	param name="url.severity"  default="";
 	st_severity = {};
@@ -45,16 +46,7 @@
 </cfscript>
 
 <cfif request.admintype eq "server">
-	<cfparam name="session.loganalyzer.webID" default="" />
-	<cfif not len(session.loganalyzer.webID)>
-		<cfset var gotoUrl = rereplace(action('overview'), "^[[:space:]]+", "") />
-		<cflocation url="#gotoUrl#" addtoken="no" />
-	</cfif>
-	<cfif session.loganalyzer.webID eq "serverContext">
-		<cfoutput><h3>Server context log files</h3></cfoutput>
-	<cfelse>
-		<cfoutput><h3>Web context <em>#getWebRootPathByWebID(session.loganalyzer.webID)#</em></h3></cfoutput>
-	</cfif>
+	<cfinclude  template="contextSelector.cfm">
 </cfif>
 <cfset formAction = trim(action('overview'))>
 <cfoutput>

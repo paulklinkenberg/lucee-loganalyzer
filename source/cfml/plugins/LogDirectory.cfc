@@ -61,7 +61,7 @@ component hint="I enumerate logs directories" {
 		var qWebContexts = "";
 		if ( !structKeyExists(variables, "qWebContexts") || !arguments.fromCache ) {
 			//  get all web contexts
-			local.admin = new Administrator( "server", password );
+			local.admin = new Administrator( "server", session.passwordserver );
 			qWebContexts = local.admin.getContextes();
 
 			QuerySort( qWebContexts, "path", "desc");

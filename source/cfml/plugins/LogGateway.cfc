@@ -45,6 +45,15 @@ component hint="enumerate logs directories and lucee contexts" {
 		return variables.logDirectory.getLogPath(arguments.file);
 	}
 
+
+	public query function getWebContexts() output=false {
+		return variables.logDirectory.getWebContexts();
+	}
+
+	public string function getWebRootPathByWebID(required string webID) output=false {
+		return variables.logDirectory.getWebRootPathByWebID(arguments.webID);
+	}
+
 	public query function readLog(required string file, any sinceDate) output=false {
 		var log = logDirectory.getLogPath(arguments.file);
 		var qLog = logDirectory.logParser.createLogQuery();
