@@ -171,5 +171,8 @@
 	<form action="#formAction#" method="post">
 		<input class="submit" type="submit" value="#arguments.lang.Back#" name="mainAction"/>
 	</form>
+	#renderUtils.includeJavascript("bootstrap.min")#
+	#renderUtils.includeJavascript("moment-with-locales.min")#
+	#renderUtils.includeJavascript("daterangepicker")#
 	#renderUtils.includeJavascript("viewlog")#
 </cfoutput>
