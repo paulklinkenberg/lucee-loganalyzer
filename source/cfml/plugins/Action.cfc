@@ -46,7 +46,7 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 	/**
 	 * list all files from the local web
 	 */
-	public function overview(struct lang, struct app, struct req) output=true {
+	public function admin(struct lang, struct app, struct req) output=true {
 		param default="name", name="url.sort";
 		param default="", name="url.dir";
 		param default="", name="session.loganalyzer.webID";
@@ -74,7 +74,7 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 		req.result = logGateway.analyzeLog(url.file, url.sort, url.dir);
 	}
 
-	public function viewLog(struct lang, struct app, struct req) output=false {
+	public function overview(struct lang, struct app, struct req) output=false {
 		param name="url.file" default="";
 		param name="url.since" default="";
 		var logs = logGateway.getLog(url.file, url.since, 7, true);
@@ -92,6 +92,10 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 		content type="application/json" reset="yes";
 		writeOutput(serializeJson(logs));
 		abort;
+	}
+
+	public function viewLog(struct lang, struct app, struct req) output=false {
+		location url=action("overview") addtoken="false";
 	}
 
 	public function deleteLog(struct lang, struct app, struct req) output=false {

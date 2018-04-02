@@ -84,7 +84,9 @@
 						</label>
 					</span>
 				</cfloop>
+				<input class="button" data-action="admin" type="button" value="Administer Log Files"/>
 			</div>
+
 		</div>
 		<div class="log-file-selector">
 			<cfset q = req.logs.q_log_files>

@@ -114,6 +114,8 @@ var viewLog = {
 			case "expand-all":
 				viewLog.expandAll();
 				break;
+			case "admin":
+				document.location=  viewLog.updateUrl(null, "pluginAction","admin");
 			default:
 				//console.warn("unsupported action: " + data.action);
 		};
