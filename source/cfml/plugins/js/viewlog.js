@@ -217,9 +217,9 @@ var viewLog = {
 		return Number($(".poll-period").val()) * 1000; // timeouts in ms, drop down has seconds
 	},
 	autoRefresh: function(){
-		refreshTimer = setTimeout(function doPoll (){
+		viewLog.refreshTimer = setTimeout(function doPoll (){
 			viewLog.pollServerForUpdates(function callback(){
-				refreshTimer = setTimeout(viewLog.autoRefresh, viewLog.getRefreshPeriod());
+				viewLog.refreshTimer = setTimeout(viewLog.autoRefresh, viewLog.getRefreshPeriod());
 			});
 		}, 5000);
 	},

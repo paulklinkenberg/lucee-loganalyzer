@@ -66,7 +66,7 @@
 		<cfset q =arguments.req.logfiles>
 		<cfloop query="q">
 			<tr data-logfile="#htmleditformat(q.name)#">
-				<td class="name">#name#</td>
+				<td class="name"><a href=#action('viewLog',"file=#q.name#")#>#name#</a></td>
 				<td><abbr title="#dateformat(q.datelastmodified, arguments.lang.dateformat)# #timeformat(q.datelastmodified, arguments.lang.timeformatshort)#">	#renderUtils.getTextTimeSpan(q.datelastmodified)#</abbr></td>
 				<td><abbr title="#dateformat(q.created, arguments.lang.dateformat)# #timeformat(q.created, arguments.lang.timeformatshort)#">
 					#renderUtils.getTextTimeSpan(q.created)#</abbr></td>
