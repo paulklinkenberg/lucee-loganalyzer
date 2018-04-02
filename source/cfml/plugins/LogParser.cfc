@@ -110,7 +110,7 @@ component hint="I parse log files " {
 
 			entry.severity = header[1];
 			entry.thread = header[2];
-			entry.timestamp = lsparseDateTime(header[3] & " " & header[4]);
+			entry.timestamp = parseDateTime(header[3] & " " & header[4]);
 			entry.app = header[5];
 			// extract out all the cfml source paths, far more interesting at a glance for cfml developers
 			entry.cfstack = REMatch("\(([\/a-zA-Z\_]*\.(cfc|cfm|lucee)\:\d*\))", str);
