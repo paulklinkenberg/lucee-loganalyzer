@@ -23,9 +23,10 @@
  *
  --->
 <!--- when viewing logs in the server admin, then a webID must be defined --->
+
 <cfscript>
 	request.subTitle = "Log Monitor";
-
+	param name="url.xhr" default="false";
 	param name="url.severity"  default="";
 	st_severity = {};
 	if (len(url.severity) gt 0){
@@ -116,12 +117,14 @@
 </cfsavecontent>
 	#renderUtils.cleanHtml(formControls)# <!--- avoid lots of whitespace --->
 </cfoutput>
-
+<cfif url.xhr>
+	<Cfcontent reset="yes">
+</cfif>
 <div class="logs-error" style="display:none;"></div>
+<div class="logs-loading" style="display:none;">Loading Logs.... please wait</div>
 <cfset num=0/>
 <cfset limit=5/>
 <cfoutput>
-	<b>#url.file#</b>
 	<div class="longwords logs" data-fetched="#DateTimeFormat(now(),"yyyy-mm-dd'T'HH:nn:ss")#"
 		data-files="#url.file#">
 </cfoutput>
@@ -147,7 +150,7 @@
 		<cfoutput>#htmleditformat(q_log.log)#</cfoutput>
 		<Cfif q_log.cfstack.len() gt 0>
 			<cfset _stack = q_log.cfstack[currentrow]>
-			<cfoutput><ul class="cfstack"></cfoutput>
+			<cfoutput><ol class="cfstack"></cfoutput>
 			<Cfset maxrows = Min(ArrayLen(_stack),15)>
 			<cfloop from="1" to="#maxrows#" index="s">
 				<cfoutput><li>#_stack[s]#</li></cfoutput>
@@ -168,11 +171,16 @@
 	<cfsetting enablecfoutputonly="false">
 </div>
 <cfoutput>
-	<form action="#formAction#" method="post">
-		<input class="submit" type="submit" value="#arguments.lang.Back#" name="mainAction"/>
-	</form>
-	#renderUtils.includeJavascript("bootstrap.min")#
-	#renderUtils.includeJavascript("moment-with-locales.min")#
-	#renderUtils.includeJavascript("daterangepicker")#
-	#renderUtils.includeJavascript("viewlog")#
+
+	<cfif url.xhr>
+		<cfabort>
+	<cfelse>
+		<form action="#formAction#" method="post">
+			<input class="submit" type="submit" value="#arguments.lang.Back#" name="mainAction"/>
+		</form>
+		#renderUtils.includeJavascript("bootstrap.min")#
+		#renderUtils.includeJavascript("moment-with-locales.min")#
+		#renderUtils.includeJavascript("daterangepicker")#
+		#renderUtils.includeJavascript("viewlog")#
+	</cfif>
 </cfoutput>

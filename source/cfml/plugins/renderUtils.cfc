@@ -46,6 +46,16 @@ component hint="various rendering related files"{
 			return true;
 	}
 
+	public void function renderServerTimingHeaders(required array timings){
+		var serverTimingHeaders = [];
+		for (var timing in arguments.timings){
+			arrayAppend(serverTimingHeaders, '#timing.metric#;dur=#timing.data#;desc="#timing.name#"');
+		}
+
+		if (serverTimingHeaders.len() gt 0 and not getPageContext().getHttpServletResponse().isCommitted() ) // avoid cfflush error
+            header name="Server-Timing" value="#ArrayToList(serverTimingHeaders,", ")#";
+	}
+
 	public void function includeCSS(required string template) {
 		htmlhead text='<link rel="stylesheet" href="#variables.AssetHrefPath#?asset=#arguments.template#.css&#variables.AssetHrefParams#">#chr(10)#';
 	}

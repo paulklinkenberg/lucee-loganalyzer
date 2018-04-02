@@ -37,7 +37,9 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 	}
 
 	public void function _display(required string template, required struct lang, required struct app, required struct req) {
-		renderUtils.includeCSS("style");
+		param name="url.xhr" default="false";
+		if ( not url.xhr)
+			renderUtils.includeCSS("style");
 		super._display(argumentcollection=arguments);
 	}
 
@@ -75,8 +77,20 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 	public function viewLog(struct lang, struct app, struct req) output=false {
 		param name="url.file" default="";
 		param name="url.since" default="";
+		var logs = logGateway.getLog(url.file, url.since, 7, true);
+		variables.renderUtils.renderServerTimingHeaders(logs.timings);
+		arguments.req.logs = logs;
+	}
 
-		arguments.req.logs = logGateway.getLog(url.file, url.since, 7);
+	public function getLogJson(struct lang, struct app, struct req) output=false {
+		param name="url.file" default="";
+		param name="url.since" default="";
+
+		var logs = logGateway.getLog(url.file, url.since, 7, true);
+		variables.renderUtils.renderServerTimingHeaders(logs.timings);
+		content type="application/json" reset="yes";
+		writeOutput(serializeJson(logs));
+		abort;
 	}
 
 	public function deleteLog(struct lang, struct app, struct req) output=false {
