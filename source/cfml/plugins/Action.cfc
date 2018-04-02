@@ -33,11 +33,11 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 	 */
 	public void function init(required struct lang, required struct app) {
 		variables.logGateway = new logGateway();
-		variables.renderUtils = new RenderUtils(arguments.lang);
+		variables.renderUtils = new RenderUtils(arguments.lang, action("asset"));
 	}
 
 	public void function _display(required string template, required struct lang, required struct app, required struct req) {
-		renderUtils.includeCSS();
+		renderUtils.includeCSS("style");
 		super._display(argumentcollection=arguments);
 	}
 
@@ -96,5 +96,10 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 		} else {
 			location url=action("overview","&missing=true");
 		}
+	}
+
+	public function asset(struct lang, struct app, struct req) output=false {
+		param name="url.asset";
+		renderUtils.returnAsset(url.asset);
 	}
 }

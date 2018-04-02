@@ -29,7 +29,9 @@ component hint="various rendering related files"{
 	/**
 	 * this function will be called to initalize
 	 */
-	public void function init(required struct lang) {
+	public void function init(required struct lang, required string href) {
+		variables.AssetHrefPath = listFirst(arguments.href,"?");
+		variables.AssetHrefParams = listLast(arguments.href,"?");;
 		variables.lang = arguments.lang;
 	}
 
@@ -44,15 +46,50 @@ component hint="various rendering related files"{
 			return true;
 	}
 
-	public void function includeCSS() {
-		var css = fileRead(getDirectoryFromPath(getCurrentTemplatePath()) & "/css/style.css");
-		htmlhead text='<style id="log-analyzer" type="text/css">#css#</style>';
+	public void function includeCSS(required string template) {
+		htmlhead text='<link rel="stylesheet" href="#variables.AssetHrefPath#?asset=#arguments.template#.css&#variables.AssetHrefParams#">#chr(10)#';
 	}
 
 	public void function includeJavascript(required string template) {
-		var js = fileRead(getDirectoryFromPath(getCurrentTemplatePath()) & "/js/#template#.js");
-		htmlbody text='<script data-src="log-analyzer-plugin-#template#">#js#</script>';
+		htmlbody text='<script src="#variables.AssetHrefPath#?asset=#arguments.template#.js&#variables.AssetHrefParams#"></script>#chr(10)#';
 	}
+
+	public void function returnAsset(required string asset) {
+		if (arguments.asset contains "..")
+			throw "invalid asset request #htmleditformat(arguments.asset)#";
+		local.fileType = listLast(arguments.asset, ".");
+
+		switch (local.fileType){
+			case "js":
+				local.file = getDirectoryFromPath(getCurrentTemplatePath()) & "js/#arguments.asset#";
+				local.mime = "text/javascript";
+				break;
+			case "css":
+				local.file = getDirectoryFromPath(getCurrentTemplatePath()) & "css/#arguments.asset#";
+				local.mime = "text/css";
+				break;
+			default:
+				throw();
+		}
+		if (not fileExists(local.file)){
+			header statuscode="404";
+			writeOutput("file not found #htmleditformat(local.file)#");
+			abort;
+		}
+		local.fileInfo = FileInfo(local.file);
+
+		if ( structKeyExists(GetHttpRequestData().headers, "If-Modified-Since") ){
+			local.if_modified_since=ParseDateTime(GetHttpRequestData().headers['If-Modified-Since']);
+			if (DateDiff("s", local.fileInfo.dateLastModified, local.if_modified_since) GTE 0){
+				header statuscode="304" statustext="Not Modified";
+				abort;
+			}
+		}
+		header name="cache-control" value="max-age=50000";
+		header name="Last-Modified" value="#GetHttpTimeString(local.fileInfo.dateLastModified)#";
+		content type="#local.mime#" reset="yes" file="#local.file#";
+	}
+
 	/**
 	 * creates a text string indicating the timespan between NOW and given datetime
 	 */
