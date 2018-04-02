@@ -35,6 +35,7 @@ component hint="I parse log files " {
 			required string context,
 			required query qLog,
 			any since="",
+			numeric maxLengthStackTrace = 4000,
 			numeric maxLogLines = 1000,
 			numeric maxLogRows = 1000 ) output=false {
 		var line = "";
@@ -71,7 +72,7 @@ component hint="I parse log files " {
 								break;
 							}
 						}
-						insertLogEntry(qLog, logName, context, entry);
+						insertLogEntry(qLog, logName, context, entry, arguments.maxLengthStackTrace);
 						row = [];
 						logCount++;
 					} else {
@@ -85,7 +86,7 @@ component hint="I parse log files " {
 			}
 		} catch (any){
 			reader.close();
-			dump(catch);
+			dump(cfcatch);
 			abort;
 		}
 		reader.close();
@@ -155,7 +156,8 @@ component hint="I parse log files " {
 	private void function insertLogEntry(required query q,
 			required string logFile,
 			required string context,
-			required struct entry){
+			required struct entry,
+			required numeric maxLengthStackTrace){
 
 		var row = queryAddRow(q);
 		try {
@@ -164,12 +166,22 @@ component hint="I parse log files " {
 			querySetCell(q, "app",          entry.app, row);
 			querySetCell(q, "thread",       entry.thread, row);
 			querySetCell(q, "logTimestamp", entry.timestamp, row);
-			querySetCell(q, "cfstack", entry.cfstack, row);
-			querySetCell(q, "log",        entry.log, row);
-			querySetCell(q, "stack",        entry.stack, row);
+			querySetCell(q, "cfstack", 		entry.cfstack, row);
+			querySetCell(q, "log",        	entry.log, row);
+			if (arguments.maxLengthStackTrace lt 1){
+				querySetCell(q, "stack",        entry.stack, row);
+			} else {
+				if (len(entry.stack) gt arguments.maxLengthStackTrace ){
+					querySetCell(q, "stack", left(entry.stack, arguments.maxLengthStackTrace)
+						& "#chr(10)# -- very long stack, omitted #(len(entry.stack)-arguments.maxLengthStackTrace)# bytes" , row);
+				} else {
+					querySetCell(q, "stack", entry.stack, row);
+				}
+
+			}
 		} catch (any){
 			dump(entry);
-			rethrow();
+			rethrow;
 		}
 	}
 }
