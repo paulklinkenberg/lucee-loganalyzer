@@ -13,7 +13,7 @@ th a {
 /* override admin styles */
 #innercontent {
 	margin: 5px;
-	padding 2px;
+	padding: 2px;
 }
 .box {
 	padding-top: 10px;
@@ -69,6 +69,13 @@ ul.stack {
 .log-severity-filter-type, .log-file-filter{
 	margin: 0 5px;
 	white-space: nowrap;
+	word-break: keep-all;
+	display: inline-block;
+	user-select: none;
+}
+
+label:hover {
+	border-bottom: none;
 }
 
 .log-severity-filter, .log-actions {
@@ -132,6 +139,14 @@ ul.stack {
 	overflow-y: scroll;
 	max-height: 400px;
 }
+
+.logs-loading {
+	padding: 10px;
+	color: white;
+	text-align: center;
+	background-color: darkcyan;
+}
+
 .logs-update {
 	text-align: center;
 	font-size: 1em;
@@ -148,4 +163,5 @@ ul.stack {
 
 .cfstack {
 	margin: 2px;
+	list-style-type: '-';
 }
