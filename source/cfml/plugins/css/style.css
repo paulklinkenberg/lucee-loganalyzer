@@ -165,3 +165,14 @@ label:hover {
 	margin: 2px;
 	list-style-type: '-';
 }
+
+.cfstack LI {
+	cursor: pointer;
+	color: #084081;
+}
+
+.daterangepicker TH {
+	background-color: white;
+	color: black;
+	font-weight: bolder;
+}

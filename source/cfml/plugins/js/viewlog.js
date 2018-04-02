@@ -108,6 +108,9 @@ var viewLog = {
 			case "search":
 				viewLog.doSearch();
 				break;
+			case "clear-search":
+				viewLog.doSearch("", true);
+				break;
 			case "auto-refresh":
 				viewLog.toggleAutoRefresh($(this));
 				break;
@@ -120,12 +123,26 @@ var viewLog = {
 				//console.warn("unsupported action: " + data.action);
 		};
 	},
-	toggleExpandLogEntry: function(ev){
+	searchSelect: function(ev){
+		var el = $(ev.target);
+		var sel = window.getSelection();
+		if (sel.toString().length > 0){
+			window.scrollTo(0, 0);
+			viewLog.doSearch(sel.toString());
+		}
+	},
+	clickLog: function(ev){
+		var el = $(ev.target);
 		var log = $(ev.target).closest(".log");
-		var collapsed = log.find(".collapsed-log");
-		var expanded = collapsed.is(":VISIBLE");
-		collapsed.toggle(!expanded);
-		log.find("a.log-expand").toggle(expanded);
+		if ( el[0].nodeName === "LI" ){
+			window.scrollTo(0, 0);
+			viewLog.doSearch($(el[0]).text());
+		} else {
+			var collapsed = log.find(".collapsed-log");
+			var expanded = collapsed.is(":VISIBLE");
+			collapsed.toggle(!expanded);
+			log.find("a.log-expand").toggle(expanded);
+		}
 	},
 	pollServerForUpdates: function(cb){
 		var $logs = $(".logs");
@@ -190,9 +207,12 @@ var viewLog = {
 		}
 		$(this).data("expanded", !state);
 	},
-	doSearch: function(){
+	doSearch: function(str, force){
 		var $el = $(".search-logs");
-		var str = $.trim($el.val()).toLowerCase();
+		if (str || force){
+			$el.val(str);
+		}
+		str = $.trim($el.val()).toLowerCase();
 		if (str.length === 0){
 			$(".logs .log.search-hidden").removeClass("search-hidden");
 		} else {
@@ -269,12 +289,54 @@ var viewLog = {
 $(function(){
 	$(".log-severity-filter INPUT").on("change", viewLog.updateSeverityFilter);
 	$(".log-file-filter INPUT").on("change", viewLog.updateFileFilter);
-	$(".log-actions INPUT").on("click", viewLog.logActions);
-	$(".logs").on("click", viewLog.toggleExpandLogEntry);
+	$(".log-actions INPUT:not('.daterange')").on("click", viewLog.logActions);
+	$(".logs").on("click", viewLog.clickLog);
+	$(".logs").on("mouseup", viewLog.searchSelect);
 	$(".search-logs").on("keyup", function(){
 		clearTimeout(viewLog.debounceTimer);
 		viewLog.debounceTimer = setTimeout(viewLog.doSearch, 250);
 	}).on("submit", function(){
 		return false;
 	});
+	/*
+	var midnght = moment().set('hour', 23).set('minute', 23);
+	$('.daterange').daterangepicker({
+		"ranges": {
+			"Today": [
+				midnght,
+				moment().startOf('day'),
+			],
+			"Yesterday": [
+				midnght,
+				moment().subtract('d',1).startOf('day'),
+			],
+			"Last 7 Days": [
+				midnght,
+				moment().subtract('d',7).startOf('day'),
+			],
+			"Last 30 Days": [
+				midnght,
+				moment().subtract('d',30).startOf('day'),
+			],
+			"This Month": [
+				midnght,
+				moment().startOf('month')
+			],
+			"Last Month": [
+				moment().subtract("m",1).endOf('month'),
+				moment().subtract("m",1).startOf('month')
+			]
+		},
+		"alwaysShowCalendars": false,
+		"startDate": "03/27/2018",
+		"endDate": "04/02/2018",
+		"minDate": "01/01/2016",
+		"opens": "left",
+		"timePicker": true
+	}, function(start, end, label) {
+	  console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to '
+	  	+ end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+	});
+	viewLog.daterangepicker =$('.daterange').data('daterangepicker');
+	*/
 });

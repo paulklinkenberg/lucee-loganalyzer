@@ -61,9 +61,11 @@
 <cfsavecontent variable="formControls">
 	<form action="#formAction#" method="post" class="log-actions">
 		<div class="log-controls">
-			<input class="submit" type="submit" value="#arguments.lang.Back#" name="mainAction"/>
-			Search: <input type="text" class="search-logs" size="25">
+			Search: <input type="text" class="search-logs" size="50">
 			<input class="button" data-action="search" type="button" value="Search"/>
+			<input class="button" data-action="clear-search" type="button" value="Clear"/>
+			<!---<input class="daterange" type="text" value="" size="20"> --->
+
 			<input class="button" data-action="poll" type="button" value="Poll"/>
 			<input class="button" data-action="reload" type="button" value="Reload"/>
 			<select class="poll-period" size=1>
@@ -180,9 +182,14 @@
 		<form action="#formAction#" method="post">
 			<input class="submit" type="submit" value="#arguments.lang.Back#" name="mainAction"/>
 		</form>
+		<!---
+		#renderUtils.includeCss("daterangepicker")#
+		#renderUtils.includeCss("bootstrap.min")#
 		#renderUtils.includeJavascript("bootstrap.min")#
 		#renderUtils.includeJavascript("moment-with-locales.min")#
 		#renderUtils.includeJavascript("daterangepicker")#
+		--->
 		#renderUtils.includeJavascript("viewlog")#
+
 	</cfif>
 </cfoutput>
