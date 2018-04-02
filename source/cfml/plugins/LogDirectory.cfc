@@ -38,9 +38,7 @@ component hint="I enumerate logs directories" {
 		var since = processDate(arguments.sinceDate);
 		var q_log_files = "";
 		var _filter = (len(arguments.filter) eq 0) ? logsFilter : arguments.filter;
-
 		directory filter=_filter, directory=getLogPath() listinfo="all" name="q_log_files" action="list";
-
 		// add log created date
 		QueryAddColumn( q_log_files, "created", "date" );
 		local.empty = [];
@@ -164,12 +162,16 @@ component hint="I enumerate logs directories" {
 	// Lucee doesn't return date created in cfdirectory or GetFileInfo
 	private string function getFileCreationDate(required string file) output=false {
    		// Get file attributes using NIO
+		//return now();
+		//
 		var nioPath = createObject("java", "java.nio.file.Paths").get( arguments.file, [] );
 		var nioAttributes = createObject("java", "java.nio.file.attribute.BasicFileAttributes");
 		var nioFiles = createObject("java", "java.nio.file.Files");
 		var fileAttr = nioFiles.readAttributes(nioPath, nioAttributes.getClass(), []);
+		var created = fileAttr.creationTime().toString();
+
    		// Display NIO results as date objects
-   		return parseDateTime(fileAttr.creationTime().toString());
+   		return parseDateTime(created);
 	}
 
 }

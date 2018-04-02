@@ -133,13 +133,13 @@
 	</cfscript>
 	<cfsetting enablecfoutputonly="true">
 	<cfloop query="q_log">
-		<cfoutput><div class="log log-severity-#q_log.severity# log-file-filter-#replace(q_log.logfile,".","_","all")# #num mod 2 ? 'odd':''#" data-log="#num#"></cfoutput>
+		<cfoutput><div class="log log-severity-#q_log.severity# log-file-filter-#replace(q_log.logfile,".","_","all")# #num mod 2 ? 'odd':''#"></cfoutput>
 		<Cfif len(q_log.stack) gt 0>
 			<cfoutput><a class="log-expand" data-log="#num#">expand</a></cfoutput>
 		</cfif>
 		<cfoutput><div class="log-header"><span class="log-fie">#q_log.logfile#</span></cfoutput>
 			<cfoutput><span class="log-severity">#q_log.severity#</span></cfoutput>
-			<cfoutput><span class="log-timestamp">#LSDateFormat(q_log.logtimestamp)# #LSTimeFormat(q_log.logtimestamp)#</span></cfoutput>
+			<cfoutput><span class="log-timestamp">#LSDateFormat(q_log.logtimestamp)# #LSTimeFormat(q_log.logtimestamp,"hh:mm:ss:l")#</span></cfoutput>
 		<cfoutput></div></cfoutput>
 		<cfoutput><div class="log-detail"></cfoutput>
 		<cfset r = 1>
@@ -155,10 +155,10 @@
 			<cfloop from="1" to="#maxrows#" index="s">
 				<cfoutput><li>#_stack[s]#</li></cfoutput>
 			</cfloop>
-			<cfoutput></ul></cfoutput>
+			<cfoutput></ol></cfoutput>
 		</cfif>
 		<Cfif len(q_log.stack) gt 0>
-			<cfoutput><div style="display:none;" class="collapsed-log long-log-#num#"></cfoutput>
+			<cfoutput><div style="display:none;" class="collapsed-log"></cfoutput>
 			<cfloop list="#q_log.stack#" item="item" delimiters="#chr(10)#">
 				<cfoutput>#htmleditformat(item)#<br></cfoutput>
 			</cfloop>

@@ -110,18 +110,18 @@ component hint="enumerate logs directories and lucee contexts" {
 			//cflog(text="#q_log_files.name#: #serializeJSON(timings[q_log_files.name])#");
 			rows = q_log.recordcount;
 		}
-		//cflog(text="finished getLogs: #arguments.files# in #getTickCount()-startTimeLog#ms");
 
+		QuerySort( q_log, "logTimestamp", "desc");
+		if (q_log.recordcount gt 500)
+			q_log = QuerySlice(q_log, 1, min(500, q_log.recordcount ));
+
+		//cflog(text="finished getLogs: #arguments.files# in #getTickCount()-startTimeLog#ms");
 		// sort the logs from multiple sources by timestamp
-		if (arguments.parseLogs){
-			QuerySort( q_log, "logTimestamp", "desc");
-			return {
-				timings: timings,
-				q_log: q_log,
-				q_log_files: q_log_files
-			};
-		} else {
-			return q_log_files;
-		}
+		return {
+			since: since,
+			timings: timings,
+			q_log: q_log,
+			q_log_files: q_log_files
+		};
 	}
 }

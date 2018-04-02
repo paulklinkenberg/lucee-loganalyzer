@@ -118,36 +118,41 @@ var viewLog = {
 				//console.warn("unsupported action: " + data.action);
 		};
 	},
-	toggleExpandLogEntry: function(){
-		var data = $(this).data();
-		var expanded = $(".long-log-" + data.log).is(":VISIBLE");
-		$(".long-log-" + data.log).toggle(!expanded);
-		if (viewLog.nodeName == "A"){
-			$(this).toggle(!expanded);
-		} else {
-			$(this).find("a.log-expand").toggle(expanded);
-		}
+	toggleExpandLogEntry: function(ev){
+		var log = $(ev.target).closest(".log");
+		var collapsed = log.find(".collapsed-log");
+		var expanded = collapsed.is(":VISIBLE");
+		collapsed.toggle(!expanded);
+		log.find("a.log-expand").toggle(expanded);
 	},
 	pollServerForUpdates: function(cb){
 		var $logs = $(".logs");
 		var fetched = $logs.data("fetched");
 		var url = viewLog.updateUrl(null, "since", fetched);
 		var $loading = $(".logs-loading").show();
+
+		var url = viewLog.updateUrl(url, "pluginAction", "getLogJson");
 		$.ajax({
 			url: url + "&xhr=true",
 			type: "GET"
 		}).done(function(data) {
 			$loading.hide();
+
+			var logs = viewLog.renderLog(data.Q_LOG);
+
+			/*
+
 			var $data = $(data);
 			var $newLogs = $data.find(".logs");
 			var fetched = $newLogs.data("fetched");
-
 			$logs.data("fetched", $newLogs.data("fetched") );
 			var $new = $newLogs.find(".log");
+			*/
+			$logs.data("fetched", data.FETCHED);
 			var $status = $("<div>").addClass("logs-update");
 
-			if ($newLogs.length > 0){
-				$logs.prepend($status.text("polled logs " + new Date()),$new);
+			if (logs.length > 0){
+				$logs.prepend($status.text("polled logs " + new Date()), logs);
 				viewLog.trimLogs();
 			} else {
 				$logs.prepend($status.text("polled logs, no updates, " + new Date()));
@@ -217,6 +222,45 @@ var viewLog = {
 				refreshTimer = setTimeout(viewLog.autoRefresh, viewLog.getRefreshPeriod());
 			});
 		}, 5000);
+	},
+	renderLog: function(q_logs){
+		var logs = [];
+		for ( var l = 0; l < q_logs.DATA.length; l++ ){
+			logs.push(
+				viewLog.renderLogEntry( viewLog.readLog(q_logs,l) )
+			);
+		}
+		return logs;
+	},
+	readLog: function (logs, l){
+		var log = {};
+		for ( var c = 0; c < logs.COLUMNS.length; c++)
+			log[logs.COLUMNS[c]]= logs.DATA[l][c];
+		return log;
+	},
+	renderLogEntry: function(log){
+		var el = $('<div>').addClass('log log-severity-' + log.SEVERITY + ' log-file-filter-' + log.LOGFILE );
+		el.append('<a class="log-expand">expand</a>');
+		var header = $('<div class="log-header">');
+		header.append( $('<span class="log-file">').text(log.LOGFILE) );
+		header.append( $('<span class="log-severity">').text(log.SEVERITY) );
+		header.append( $('<span class="log-timestamp">').text(log.LOGTIMESTAMP) ); // todo moment;
+
+		el.append(header);
+
+		var detail = $('<div class="log-detail">').text(log.LOG);
+		if (log.CFSTACK.length){
+			var cfstack = $('<ol class="cfstack">');
+			for (var c = 0; c < log.CFSTACK.length; c++)
+				cfstack.append( $('<li>').text(log.CFSTACK[c]) );
+			detail.append(cfstack);
+		}
+		el.append(detail);
+		if (log.STACK.length){
+			var stack  = $('<div style="display:none;" class="collapsed-log">').html(log.STACK.replace(viewLog.nl, "<br>"));
+			el.append(stack);
+		}
+		return el;
 	}
 };
 
@@ -224,7 +268,7 @@ $(function(){
 	$(".log-severity-filter INPUT").on("change", viewLog.updateSeverityFilter);
 	$(".log-file-filter INPUT").on("change", viewLog.updateFileFilter);
 	$(".log-actions INPUT").on("click", viewLog.logActions);
-	$(".log").on("click", viewLog.toggleExpandLogEntry);
+	$(".logs").on("click", viewLog.toggleExpandLogEntry);
 	$(".search-logs").on("keyup", function(){
 		clearTimeout(viewLog.debounceTimer);
 		viewLog.debounceTimer = setTimeout(viewLog.doSearch, 250);
