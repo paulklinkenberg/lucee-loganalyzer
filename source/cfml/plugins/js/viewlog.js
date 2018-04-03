@@ -356,6 +356,10 @@ var viewLog = {
 };
 
 $(function(){
+	if (!pluginLanguage)
+		console.warn("pluginLanguage missing, use #renderUtils.includeLang()#");
+	else
+		viewLog.importi18n(pluginLanguage);
 
 	$(".log-severity-filter INPUT").on("change", viewLog.updateSeverityFilter);
 	$(".log-file-filter INPUT").on("change", viewLog.updateFileFilter);

@@ -34,7 +34,7 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 	public void function init(required struct lang, required struct app) {
 		variables.logGateway = new logGateway();
 		variables.renderUtils = new RenderUtils(arguments.lang, action("asset"), this.action );		
-		variables._lang = arguments.lang;
+		variables._lang = arguments.lang;		
 	}
 
 	public void function _display(required string template, required struct lang, required struct app, required struct req) {
