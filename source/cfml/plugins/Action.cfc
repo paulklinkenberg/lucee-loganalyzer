@@ -33,14 +33,17 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 	 */
 	public void function init(required struct lang, required struct app) {
 		variables.logGateway = new logGateway();
-		variables.renderUtils = new RenderUtils(arguments.lang, action("asset"), action);
+		variables.renderUtils = new RenderUtils(arguments.lang, action("asset"), action);		
+		variables._lang = arguments.lang;
 	}
 
 	public void function _display(required string template, required struct lang, required struct app, required struct req) {
 		param name="url.xhr" default="false";
+		request._missing_lang = {};
 		if ( not url.xhr)
 			renderUtils.includeCSS("style");
-		super._display(argumentcollection=arguments);
+		super._display(argumentcollection=arguments);		
+		renderUtils.warnMissingLang(request._missing_lang);
 	}
 
 	/**
@@ -51,29 +54,14 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 		param default="", name="url.dir";
 		param default="", name="session.loganalyzer.webID";
 		//  web context chosen?
-		if ( request.admintype == "server" && structKeyExists(form, "webID") && len(form.webID) ) {
-			session.logAnalyzer.webID = form.webID;
+		if ( request.admintype == "server" && structKeyExists(req, "webID") && len(req.webID) ) {
+			session.logAnalyzer.webID = req.webID;
 		}
 		if ( request.admintype != "server" || len(session.loganalyzer.webID) ) {
 			arguments.req.logfiles = logGateway.listLogs(sort=url.sort, dir=url.dir);
 		} else {
 			location url=action("contextSelector", 'nextAction=admin') addtoken="false";
 		}
-	}
-
-	public function list(struct lang, struct app, struct req) output=false {
-		//  when viewing logs in the server admin, then a webID must be defined
-		if ( request.admintype == "server" ) {
-			param  default="" name="session.loganalyzer.webID";
-			if ( !len(session.loganalyzer.webID) ) {
-				var gotoUrl = rereplace(action('overview'), "^[[:space:]]+", "");
-				location( gotoUrl, false );
-			}
-		}
-		param  name="url.file" default="";
-		param  name="url.sort" default="date";
-		param  name="url.dir" default="desc";
-		req.result = logGateway.analyzeLog(url.file, url.sort, url.dir);
 	}
 
 	public function overview(struct lang, struct app, struct req) output=false {
@@ -94,11 +82,11 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 	}
 
 	public function setContext(struct lang, struct app, struct req) output=false {
-		if ( request.admintype == "server" && structKeyExists(form, "webID") && len(form.webID) ) {
-			session.logAnalyzer.webID = form.webID;
+		if ( request.admintype == "server" && structKeyExists(req, "webID") && len(req.webID) ) {
+			session.logAnalyzer.webID = req.webID;
 		}
-		param name="form.nextAction" default="overview";
-		location url=action(form.nextAction) addtoken="false";
+		param name="req.nextAction" default="overview";
+		location url=action(req.nextAction) addtoken="false";
 	}
 
 	public function getLogJson(struct lang, struct app, struct req) output=false {
@@ -125,6 +113,15 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 		abort;
 	}
 
+	public string function i18n(string key) output=false {		
+		if (structKeyExists(variables._lang, arguments.key)){
+			return variables._lang[arguments.key];
+		} else {			
+			request._missing_lang[arguments.key]="";
+			return arguments.key;
+		}
+	}
+
 	public function viewLog(struct lang, struct app, struct req) output=false {
 		location url=action("overview") addtoken="false";
 	}
@@ -149,7 +146,7 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 	}
 
 	public function asset(struct lang, struct app, struct req) output=false {
-		param name="url.asset";
+		param name="req.asset";
 		renderUtils.returnAsset(url.asset);
 	}
 }

@@ -70,6 +70,17 @@ component hint="various rendering related files"{
 		htmlbody text='<script src="#variables.action('getLang')#"></script>#chr(10)#';
 	}
 
+	public void function warnMissingLang(required struct missingLang) {
+		if (structCount(warnMissingLang) eq 0)
+			return;
+		var missing = [];
+		for (var k in arguments.missingLang)
+			missing.append("console.warn('missing language string: [#jsstringformat(k)#] from cfml');");		
+
+		writeOutput("<script>#ArrayToList(missing,chr(10))#</script>");		
+	}
+
+	
 
 	public void function returnAsset(required string asset) {
 		if (arguments.asset contains "..")

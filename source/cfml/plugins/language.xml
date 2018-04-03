@@ -95,7 +95,22 @@
 		<custom key="Xdaysago">%1d ago</custom>
 		<custom key="dateformatchart">Mmm. d, </custom>
 		<custom key="timeformatchart">HH:mm</custom>
-		<custom key="allinthesameminute">all in the same minute</custom>
+		<custom key="allinthesameminute">all in the same minute</custom>		
+		<custom key="go">Go</custom>
+		<custom key="webContext">Web context</custom>
+		<custom key="serverContext">Server context</custom>
+		<custom key="search">Search</custom>
+		<custom key="clear">Clear</custom>
+		<custom key="poll">Poll</custom>
+		<custom key="reload">Reload</custom>
+		<custom key="startAutoRefresh">Start Auto Refresh</custom>
+		<custom key="stopAutoRefresh">Stop Auto Refresh</custom>
+		<custom key="loadingLogs">Loading Logs.... please wait</custom>
+		<custom key="AdminLogFiles">Administer Log Files</custom>
+		<custom key="chooseLogLocation">Choose a log location:</custom>
+		<custom key="noNewLogs">no new logs</custom>
+		<custom key="noNewLogs">new log</custom>
+		<custom key="expand">Expand</custom>		
 	</language>
 	<language key="nl">
 		<title>Log analyzer</title>
@@ -142,6 +157,6 @@
 		<custom key="Xdaysago">%1 dagen geleden</custom>
 		<custom key="dateformatchart">Mmm. d, </custom>
 		<custom key="timeformatchart">HH:mm</custom>
-		<custom key="allinthesameminute">all in the same minute</custom>
+		<custom key="allinthesameminute">all in the same minute</custom>	
 	</language>
 </languages>

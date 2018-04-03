@@ -27,39 +27,26 @@
 
 <!--- show a select list of all the web contexts --->
 <cfif request.admintype eq "server">
-	<cfparam name="session.loganalyzer.webID" default="serverContext" />
-	<cfset var webContexts = logGateway.getWebContexts() />
-	<cfoutput><form action="#thispageaction#" method="post"></cfoutput>
-		Choose a log location:
-		<select name="webID">
-			<option value="serverContext">Server context</option>
-			<optgroup label="Web contexts">
-				<cfoutput query="webContexts">
-					<option value="#webContexts.id#"<cfif session.loganalyzer.webID eq webContexts.id> selected</cfif>><cfif len(webContexts.path) gt 68>#rereplace(webContexts.path, "^(.{25}).+(.{40})$", "\1...\2")#<cfelse>#webContexts.path#</cfif> - #webContexts.url#</option>
-				</cfoutput>
-			</optgroup>
-		</select>
-		<input type="submit" value="go" class="button" />
-	</form>
-	<cfif not len(session.loganalyzer.webID)>
-		<cfexit method="exittemplate" />
-	<cfelse>
-		<cfif session.loganalyzer.webID eq "serverContext">
-			<cfoutput><h3>Server context log files</h3></cfoutput>
-		<cfelse>
-			<cfoutput><h3>Web context <em>#getWebRootPathByWebID(session.loganalyzer.webID)#</em></h3></cfoutput>
-		</cfif>
-	</cfif>
+	<cfset url.nextAction="admin">
+	<cfinclude  template="contextSelector.cfm">
 </cfif>
 <cfoutput>
 	<table class="maintbl log-overview">
 	<thead>
 		<tr>
-			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=name<cfif url.sort eq 'name' and url.dir neq 'desc'>&amp;dir=desc</cfif>" title="#arguments.lang.Orderonthiscolumn#"<cfif url.sort eq 'name'> style="font-weight:bold"</cfif>>#arguments.lang.logfilename#</a></th>
-			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=datelastmodified<cfif url.sort neq 'datelastmodified' or url.dir neq 'desc'>&amp;dir=desc</cfif>" title="#arguments.lang.Orderonthiscolumn#"<cfif url.sort eq 'datelastmodified'> style="font-weight:bold"</cfif>>#arguments.lang.logfiledate#</a></th>
-			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=created<cfif url.sort neq 'created' or url.dir neq 'desc'>&amp;	dir=desc</cfif>" title="#arguments.lang.Orderonthiscolumn#"<cfif url.sort eq 'created'> style="font-weight:bold"</cfif>>#arguments.lang.logfilecreated#</a></th>
-			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=size<cfif url.sort neq 'size' or url.dir neq 'desc'>&amp;dir=desc</cfif>" title="#arguments.lang.Orderonthiscolumn#"<cfif url.sort eq 'size'> style="font-weight:bold"</cfif>>#arguments.lang.logfilesize#</a></th>
-			<th>#arguments.lang.actions#</th>
+			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=name<cfif url.sort eq 'name' and url.dir neq 'desc'>&amp;dir=desc</cfif>" 
+				title="#i18n('Orderonthiscolumn')#"<cfif url.sort eq 'name'> 
+				style="font-weight:bold"</cfif>>#i18n('logfilename')#</a></th>
+			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=datelastmodified<cfif url.sort neq 'datelastmodified' or url.dir neq 'desc'>&amp;dir=desc</cfif>" 
+				title="#i18n('Orderonthiscolumn')#"<cfif url.sort eq 'datelastmodified'> 
+				style="font-weight:bold"</cfif>>#i18n('logfiledate')#</a></th>
+			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=created<cfif url.sort neq 'created' or url.dir neq 'desc'>&amp;	dir=desc</cfif>" 	
+				title="#i18n('Orderonthiscolumn')#" <cfif url.sort eq 'created'> 
+				style="font-weight:bold"</cfif>>#i18n('logfilecreated')#</a></th>
+			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=size<cfif url.sort neq 'size' or url.dir neq 'desc'>&amp;dir=desc</cfif>" 
+				title="#i18n('Orderonthiscolumn')#"<cfif url.sort eq 'size'> 
+				style="font-weight:bold"</cfif>>#i18n('logfilesize')#</a></th>
+			<th>#i18n('actions')#</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -67,21 +54,22 @@
 		<cfloop query="q">
 			<tr data-logfile="#htmleditformat(q.name)#">
 				<td class="name"><a href=#action('overview',"file=#q.name#")#>#name#</a></td>
-				<td><abbr title="#dateformat(q.datelastmodified, arguments.lang.dateformat)# #timeformat(q.datelastmodified, arguments.lang.timeformatshort)#">	#renderUtils.getTextTimeSpan(q.datelastmodified)#</abbr></td>
-				<td><abbr title="#dateformat(q.created, arguments.lang.dateformat)# #timeformat(q.created, arguments.lang.timeformatshort)#">
+				<td><abbr title="#dateformat(q.datelastmodified, i18n('dateformat'))# #timeformat(q.datelastmodified, i18n('timeformatshort'))#">			
+					#renderUtils.getTextTimeSpan(q.datelastmodified)#</abbr></td>
+				<td><abbr title="#dateformat(q.created, i18n('dateformat'))# #timeformat(q.created, i18n('timeformatshort'))#">
 					#renderUtils.getTextTimeSpan(q.created)#</abbr></td>
-				<td><cfif q.size lt 1024>#size# #arguments.lang.bytes#<cfelse>#ceiling(q.size/1024)# #arguments.lang.KB#</cfif></td>
+				<td><cfif q.size lt 1024>#size# #i18n('bytes')#<cfelse>#ceiling(q.size/1024)# #i18n('KB')#</cfif></td>
 				<td style="text-align:right; white-space:nowrap; width:1%">
-					<!--<input type="submit" class="button" data-action="list" value="#arguments.lang.analyse#"/>-->
-					<input type="button" class="button" data-action="viewLog" value="#arguments.lang.viewlog#" />
-					<input type="button" class="button" data-action="download"value="#arguments.lang.download#" />
-					<input type="button" class="button" data-action="delete" value="#arguments.lang.delete#" />
+					<!--<input type="submit" class="button" data-action="list" value="#i18n('analyse')#"/>-->
+					<input type="button" class="button" data-action="overview" value="#i18n('viewlog')#" />
+					<input type="button" class="button" data-action="download"value="#i18n('download')#" />
+					<input type="button" class="button" data-action="delete" value="#i18n('delete')#" />
 				</td>
 			</tr>
 		</cfloop>
 	</tbody>
 	</table>
-	<p>#arguments.lang.logfilelocation#: <em>#arguments.req.logfiles.directory#</em></p>
+	<p>#i18n('logfilelocation')#: <em>#arguments.req.logfiles.directory#</em></p>
 	<div class="csrf-token" data-token="#renderUtils.getCSRF()#">
 	#renderUtils.includeJavascript("overview")#
 </cfoutput>

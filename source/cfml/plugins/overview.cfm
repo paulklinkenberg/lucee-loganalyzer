@@ -53,21 +53,23 @@
 <cfsavecontent variable="formControls">
 	<form action="#formAction#" method="post" class="log-actions">
 		<div class="log-controls">
-			Search: <input type="text" class="search-logs" size="50">
-			<input class="button" data-action="search" type="button" value="Search"/>
-			<input class="button" data-action="clear-search" type="button" value="Clear"/>
+			<input type="text" class="search-logs" size="50">
+			<input class="button" data-action="search" type="button" value="#i18n('Search')#"/>
+			<input class="button" data-action="clear-search" type="button" value="#i18n('Clear')#"/>
 			<!---<input class="daterange" type="text" value="" size="20"> --->
 
-			<input class="button" data-action="poll" type="button" value="Poll"/>
-			<input class="button" data-action="reload" type="button" value="Reload"/>
-			<select class="poll-period" size=1>
-				<option value="30">30s</option>
-				<option value="60">1m</option>
-				<option value="300" selected>5m</option>
-				<option value="900">15m</option>
-				<option value="1800">30m</option>
-			</select>
-			<input class="button" data-action="auto-refresh" type="button" value="Start Auto Refresh"/>
+			<input class="button" data-action="poll" type="button" value="#i18n('Poll')#"/>
+			<input class="button" data-action="reload" type="button" value="#i18n('Reload')#"/>
+			<div class="log-toolbar-group">
+				<select class="poll-period" size=1>
+					<option value="30">30s</option>
+					<option value="60">1m</option>
+					<option value="300" selected>5m</option>
+					<option value="900">15m</option>
+					<option value="1800">30m</option>
+				</select>
+				<input class="button" data-action="auto-refresh" type="button" value="#i18n('StartAutoRefresh')#"/>
+			</div>
 
 			<div class="log-severity-filter">
 				<cfloop list="INFO,INFORMATION|WARN,WARNING|ERROR|FATAL|DEBUG|TRACE" index="severity" delimiters="|">
@@ -78,7 +80,7 @@
 						</label>
 					</span>
 				</cfloop>
-				<input class="button" data-action="admin" type="button" value="Administer Log Files"/>
+				<input class="button" data-action="admin" type="button" value="#i18n('AdminLogFiles')#"/>
 			</div>
 
 		</div>
@@ -116,11 +118,12 @@
 <cfif url.xhr>
 	<Cfcontent reset="yes">
 </cfif>
-<div class="logs-error" style="display:none;"></div>
-<div class="logs-loading" style="display:none;">Loading Logs.... please wait</div>
 <cfset num=0/>
 <cfset limit=5/>
 <cfoutput>
+	<div class="logs-error" style="display:none;"></div>
+	<div class="logs-loading" style="display:none;">#i18n('LoadingLogs')#</div>
+
 	<div class="longwords logs" data-fetched="#DateTimeFormat(now(),"yyyy-mm-dd'T'HH:nn:ss")#"
 		data-files="#url.file#">
 </cfoutput>
@@ -172,7 +175,7 @@
 		<cfabort>
 	<cfelse>
 		<form action="#formAction#" method="post">
-			<input class="submit" type="submit" value="#arguments.lang.Back#" name="mainAction"/>
+			<input class="submit" type="submit" value="#i18n('Back')#" name="mainAction"/>
 		</form>
 		#renderUtils.includeLang()#		
 		#renderUtils.includeJavascript("moment-with-locales.min")#

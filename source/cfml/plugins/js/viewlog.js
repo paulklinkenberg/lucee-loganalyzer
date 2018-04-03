@@ -1,8 +1,23 @@
 'use strict';
-
 var viewLog = {
 	nl: String.fromCharCode(10),
 	crlf: String.fromCharCode(10) + String.fromCharCode(13),
+	i18n: function(key){
+		key = key.toLowerCase();
+		if (viewLog.langBundle[key]){
+			return viewLog.langBundle[key];
+		} else {
+			console.warn("missing language string: [" + key + "] for locale: [" + viewLog.locale + "] from javascript");
+			return key;	
+		}
+	},
+	langBundle: {},
+	locale: "en",
+	importi18n: function(pluginLanguage){
+		for (var str in pluginLanguage.STRINGS)
+			viewLog.langBundle[(String(str).toLowerCase())] = pluginLanguage.STRINGS[str];
+		viewLog.locale = pluginLanguage.locale;
+	},
 	updateSeverityFilter: function(){
 		var css = "";
 		var hidden = [];
@@ -170,13 +185,16 @@ var viewLog = {
 			*/
 			$logs.data("fetched", data.FETCHED);
 			var $status = $("<div>").addClass("logs-update");
-
+			var now = moment().format("HH:MM:ss");
 			if (logs.length > 0){
-				$logs.prepend($status.text("polled logs " + new Date()), logs);
+				$logs.prepend(
+					$status.text("" + now + ", " + logs.length + viewLog.i18n('newLogs') + ((logs.length > 1) ? "s":"") )
+				);
+				$logs.prepend(logs);
 				viewLog.updateTitleCount(logs.length);
 				viewLog.trimLogs();
 			} else {
-				$logs.prepend($status.text("polled logs, no updates, " + new Date()));
+				$logs.prepend($status.text(viewLog.i18n('noNewLogs') + ", " + now));
 			}
 			if (cb)
 				cb();
@@ -199,7 +217,7 @@ var viewLog = {
 			console.log("removed " + removed + " logs for performance");
 	},
 	updateTitleCount: function(newLogCount){
-		var title =document.title.split(/[(/(/)\)]+/);
+		var title = document.title.split(/[(/(/)\)]+/);
 		if (title.length > 2)
 			title.shift();
 		if (document.hasFocus())	
@@ -252,10 +270,10 @@ var viewLog = {
 	toggleAutoRefresh: function($el){
 		if (viewLog.refreshTimer){
 			clearTimeout(viewLog.refreshTimer);
-			$el.val("Auto-refresh");
+			$el.val(viewLog.i18n('StartAutoRefresh'));
 			viewLog.refreshTimer = null;
 		} else {
-			$el.val("Stop Auto-refresh");
+			$el.val(viewLog.i18n('StopAutoRefresh'));
 			viewLog.refreshTimer = setTimeout(viewLog.autoRefresh(), viewLog.getRefreshPeriod());
 		}
 	},
@@ -286,7 +304,7 @@ var viewLog = {
 	},
 	renderLogEntry: function(log){
 		var el = $('<div>').addClass('log log-severity-' + log.SEVERITY + ' log-file-filter-' + log.LOGFILE.replace(".","_") );
-		el.append('<a class="log-expand">expand</a>');
+		el.append('<a class="log-expand"></a>').text( viewLog.i18n('expand') );
 		var header = $('<div class="log-header">');
 		header.append( $('<span class="log-file">').text(log.LOGFILE) );
 		header.append( $('<span class="log-severity">').text(log.SEVERITY) );
@@ -327,8 +345,7 @@ $(function(){
 		return false;
 	});
 	$(window).on("focus", function(){
-		viewLog.updateTitleCount(null);
-		console.log("window focussed");
+		viewLog.updateTitleCount(null);		
 	});
 	/*
 	var midnght = moment().set('hour', 23).set('minute', 23);
