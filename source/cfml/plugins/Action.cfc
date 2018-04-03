@@ -108,6 +108,7 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 		var logs = logGateway.getLog(url.file, url.since, 7, true);
 		logs.FETCHED = dateTimeFormat(now(), "yyyy-mm-dd HH:nn:ss");
 		variables.renderUtils.renderServerTimingHeaders(logs.timings);
+		setting showdebugoutput="false";
 		content type="application/json" reset="yes";
 		writeOutput(serializeJson(logs));
 		abort;
