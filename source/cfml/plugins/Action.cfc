@@ -33,7 +33,7 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 	 */
 	public void function init(required struct lang, required struct app) {
 		variables.logGateway = new logGateway();
-		variables.renderUtils = new RenderUtils(arguments.lang, action("asset"), action);		
+		variables.renderUtils = new RenderUtils(arguments.lang, action("asset"), this.action );		
 		variables._lang = arguments.lang;
 	}
 
@@ -147,6 +147,9 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 
 	public function asset(struct lang, struct app, struct req) output=false {
 		param name="req.asset";
+		// dunno why, sometimes this doesn't exist and throws an error
+		if (not structKeyExists(variables, "renderUtils") )
+			variables.renderUtils = new RenderUtils(arguments.lang, action("asset"), this.action );		
 		renderUtils.returnAsset(url.asset);
 	}
 }

@@ -136,9 +136,20 @@
 		<Cfif len(q_log.stack) gt 0>
 			<cfoutput><a class="log-expand" data-log="#num#">expand</a></cfoutput>
 		</cfif>
-		<cfoutput><div class="log-header"><span class="log-fie">#q_log.logfile#</span></cfoutput>
+		<cfset hideRow = "">
+		<cfif q_log.currentrow gt 1>
+			<cfset lastRow = q_log.currentrow-1>
+			<cfif q_log.logfile eq q_log.logfile[lastrow]
+					and q_log.severity eq q_log.severity[lastrow]
+					and q_log.thread eq q_log.thread[lastrow]
+					and q_log.logtimestamp eq q_log.logtimestamp[lastrow]>
+				<cfset hideRow = ' style="display:none" '>							
+			</cfif>
+		</cfif>
+		<cfoutput><div class="log-header" #hideRow#><span class="log-fie">#q_log.logfile#</span></cfoutput>
 			<cfoutput><span class="log-severity">#q_log.severity#</span></cfoutput>
 			<cfoutput><span class="log-timestamp">#LSDateFormat(q_log.logtimestamp, i18n("dateformat"))# #LSTimeFormat(q_log.logtimestamp, i18n("timeformat") )#</span></cfoutput>
+			<cfoutput><span class="log-thread">#q_log.thread#</span></cfoutput>
 		<cfoutput></div></cfoutput>
 		<cfoutput><div class="log-detail"></cfoutput>
 		<cfset r = 1>

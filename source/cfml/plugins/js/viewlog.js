@@ -295,7 +295,7 @@ var viewLog = {
 		var logs = [];
 		for ( var l = 0; l < q_logs.DATA.length; l++ ){
 			logs.push(
-				viewLog.renderLogEntry( viewLog.readLog(q_logs,l) )
+				viewLog.renderLogEntry( viewLog.readLog(q_logs, l), l )
 			);
 		}
 		return logs;
@@ -307,10 +307,22 @@ var viewLog = {
 		return log;
 	},
 	jsonDateFormat: "MMMM, Do YYYY, h:mm:ss ZZ",
-	renderLogEntry: function(log){
+	renderLogEntry: function(log, l){
+		var hideHeader = false;
+		if (l > 0) {
+			if ( log.LOGFILE === log.LOGFILE[l-1] &&
+					log.SEVERITY === log.SEVERITY[l-1] &&
+					log.THREAD === log.THREAD[l-1] &&
+					log.LOGTIMESTAMP === log.LOGTIMESTAMP[l-1] )
+			var hideHeader = true;						
+		}
+
 		var el = $('<div>').addClass('log log-severity-' + log.SEVERITY + ' log-file-filter-' + log.LOGFILE.replace(".","_") );
 		el.append('<a class="log-expand"></a>').text( viewLog.i18n('expand') );
 		var header = $('<div class="log-header">');
+		if (hideHeader)
+			header.hide();
+		
 		header.append( $('<span class="log-file">').text(log.LOGFILE) );
 		header.append( $('<span class="log-severity">').text(log.SEVERITY) );
 		header.append( 
@@ -320,6 +332,7 @@ var viewLog = {
 				)  
 			)
 		); 
+		header.append( $('<span class="log-thread">').text("(" + log.THREAD) + ")" );
 
 		el.append(header);
 
