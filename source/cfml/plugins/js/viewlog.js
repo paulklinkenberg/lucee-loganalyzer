@@ -202,6 +202,8 @@ var viewLog = {
 		var title =document.title.split(/[(/(/)\)]+/);
 		if (title.length > 2)
 			title.shift();
+		if (document.hasFocus())	
+		newLogCount = null;
 		if (newLogCount === null){
 			// on focus reset title
 			if (title.length === 1){
@@ -283,7 +285,7 @@ var viewLog = {
 		return log;
 	},
 	renderLogEntry: function(log){
-		var el = $('<div>').addClass('log log-severity-' + log.SEVERITY + ' log-file-filter-' + log.LOGFILE );
+		var el = $('<div>').addClass('log log-severity-' + log.SEVERITY + ' log-file-filter-' + log.LOGFILE.replace(".","_") );
 		el.append('<a class="log-expand">expand</a>');
 		var header = $('<div class="log-header">');
 		header.append( $('<span class="log-file">').text(log.LOGFILE) );
