@@ -60,7 +60,8 @@
 		<custom key="Lastoccurence">Last occurence</custom>
 		<custom key="threadname">Thread name</custom>
 		<custom key="type">Type</custom>
-		<custom key="dateformat">d Mmm. yyyy</custom>
+		<custom key="dateformat">d Mmm, yyyy</custom>
+		<custom key="momentDateformat">D MMM YYYY</custom>
 		<custom key="timeformat">HH:mm:ss</custom>
 		<custom key="timeformatshort">HH:mm</custom>
 		<custom key="file">File</custom>

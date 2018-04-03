@@ -2,13 +2,16 @@
 var viewLog = {
 	nl: String.fromCharCode(10),
 	crlf: String.fromCharCode(10) + String.fromCharCode(13),
-	i18n: function(key){
+	i18n: function(key, _default){
 		key = key.toLowerCase();
 		if (viewLog.langBundle[key]){
 			return viewLog.langBundle[key];
 		} else {
 			console.warn("missing language string: [" + key + "] for locale: [" + viewLog.locale + "] from javascript");
-			return key;	
+			if (_default)
+				return _default;
+			else 
+				return key;	
 		}
 	},
 	langBundle: {},
@@ -154,7 +157,7 @@ var viewLog = {
 			window.scrollTo(0, 0);
 			viewLog.doSearch($(el[0]).text());
 		} else {
-			var collapsed = log.find(".collapsed-log");
+			var collapsed = log.find(".log-stacktrace");
 			var expanded = collapsed.is(":VISIBLE");
 			collapsed.toggle(!expanded);
 			log.find("a.log-expand").toggle(expanded);
@@ -241,7 +244,7 @@ var viewLog = {
 	},
 	expandAll: function(){
 		var state = $(this).data("expanded");
-		$(".collapsed-log").toggle(!state);
+		$(".log-stacktrace").toggle(!state);
 		$("a.log-expand").toggle(!state);
 		if (state){
 			$(this).val("Collapse All");
@@ -303,13 +306,20 @@ var viewLog = {
 			log[logs.COLUMNS[c]]= logs.DATA[l][c];
 		return log;
 	},
+	jsonDateFormat: "MMMM, Do YYYY, h:mm:ss ZZ",
 	renderLogEntry: function(log){
 		var el = $('<div>').addClass('log log-severity-' + log.SEVERITY + ' log-file-filter-' + log.LOGFILE.replace(".","_") );
 		el.append('<a class="log-expand"></a>').text( viewLog.i18n('expand') );
 		var header = $('<div class="log-header">');
 		header.append( $('<span class="log-file">').text(log.LOGFILE) );
 		header.append( $('<span class="log-severity">').text(log.SEVERITY) );
-		header.append( $('<span class="log-timestamp">').text(log.LOGTIMESTAMP) ); // todo moment;
+		header.append( 
+			$('<span class="log-timestamp">').text( 
+				moment(log.LOGTIMESTAMP, viewLog.jsonDateFormat).format(
+					viewLog.i18n('momentdateformat', 'D MMM, YYYY') + ' ' + viewLog.i18n('timeformat','HH:mm:ss') 
+				)  
+			)
+		); 
 
 		el.append(header);
 
@@ -322,7 +332,7 @@ var viewLog = {
 		}
 		
 		if (log.STACK.length){
-			var stack  = $('<div style="display:none;" class="collapsed-log">').html(
+			var stack  = $('<div style="display:none;" class="log-stacktrace">').html(
 				log.STACK.replace(viewLog.crlf,"<br>").replace(viewLog.nl, "<br>")
 			);
 			detail.append(stack);

@@ -50,11 +50,6 @@ ul.stack {
 	padding-left: 20px;
 }
 
-.log-header {
-	padding: 8px;
-	padding-bottom: 4px;
-}
-
 .log-actions::after, .log-controls::after {
 	clear: both;
 	content: "";
@@ -64,6 +59,11 @@ ul.stack {
 .logs {
 	border:1px solid #999;
 	padding: 5px 0px;
+}
+
+.log {	
+	border:1px solid white;
+	padding: 4px 0px;
 }
 
 .log-severity-filter-type, .log-file-filter, .log-toolbar-group {
@@ -87,13 +87,19 @@ label:hover {
 	padding-bottom: 4px;
 }
 
-.log-header {
-	font-weight: 600;
+.log-header {	
 	display: inline;
+	padding: 8px;
+	padding-bottom: 4px;
 }
 
-.log PRE {
-	display: inline;
+.log-detail {
+	font-weight: 600;
+}
+
+.log-stacktrace {
+	padding-top: 4px;
+	font-weight: normal;
 }
 
 .log-header SPAN {
@@ -101,7 +107,7 @@ label:hover {
 }
 
 .log-severity-INFO, log-severity-INFORMATION {
-	background-color: #a6cee3;
+	background-color: white;
 	color: black;
 }
 .log-severity-WARN, log-severity-WARNING {

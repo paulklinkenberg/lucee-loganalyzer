@@ -138,7 +138,7 @@
 		</cfif>
 		<cfoutput><div class="log-header"><span class="log-fie">#q_log.logfile#</span></cfoutput>
 			<cfoutput><span class="log-severity">#q_log.severity#</span></cfoutput>
-			<cfoutput><span class="log-timestamp">#LSDateFormat(q_log.logtimestamp)# #LSTimeFormat(q_log.logtimestamp,"hh:mm:ss:l")#</span></cfoutput>
+			<cfoutput><span class="log-timestamp">#LSDateFormat(q_log.logtimestamp, i18n("dateformat"))# #LSTimeFormat(q_log.logtimestamp, i18n("timeformat") )#</span></cfoutput>
 		<cfoutput></div></cfoutput>
 		<cfoutput><div class="log-detail"></cfoutput>
 		<cfset r = 1>
@@ -157,7 +157,7 @@
 			<cfoutput></ol></cfoutput>
 		</cfif>
 		<Cfif len(q_log.stack) gt 0>
-			<cfoutput><div style="display:none;" class="collapsed-log"></cfoutput>
+			<cfoutput><div style="display:none;" class="log-stacktrace"></cfoutput>
 			<cfloop list="#q_log.stack#" item="item" delimiters="#chr(10)#">
 				<cfoutput>#htmleditformat(item)#<br></cfoutput>
 			</cfloop>
