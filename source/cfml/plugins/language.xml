@@ -1,53 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <languages>
-	<language key="de">
-		<title>Log Analyzer</title>
-		<description></description>
-		<custom key="logfilename">Logfile Name</custom>
-		<custom key="logfilelocation">Log Verzeichnis</custom>
-		<custom key="logfiledate">Datum</custom>
-		<custom key="logfilesize">Filesize</custom>
-		<custom key="logfilesize">logfilecreated</custom>
-		<custom key="message">Message</custom>
-		<custom key="Lastoccurence">Last occurence</custom>
-		<custom key="threadname">Thread name</custom>
-		<custom key="type">Type</custom>
-		<custom key="dateformat">d Mmm. yyyy</custom>
-		<custom key="timeformat">HH:mm:ss</custom>
-		<custom key="timeformatshort">HH:mm</custom>
-		<custom key="file">File</custom>
-		<custom key="line">line</custom>
-		<custom key="occurences">Occurences</custom>
-		<custom key="from">from</custom>
-		<custom key="untill">untill</custom>
-		<custom key="date">Date</custom>
-		<custom key="Back">Back</custom>
-		<custom key="detail">Detail</custom>
-		<custom key="actions">actions</custom>
-		<custom key="delete">Delete</custom>
-		<custom key="download">Download</custom>
-		<custom key="viewlog">View</custom>
-		<custom key="details">Details</custom>
-		<custom key="analyse">Analyse</custom>
-		<custom key="to">to</custom>
-		<custom key="perpage">per page</custom>
-		<custom key="page">page</custom>
-		<custom key="Orderonthiscolumn">Order on this column</custom>
-		<custom key="Errormessage">Error message</custom>
-		<custom key="Count">Count</custom>
-		<custom key="Nologentriesfound">No log entries found</custom>
-		<custom key="logfilehasbeencleared">The log file %1 has been cleared.</custom>
-		<custom key="logfilehasbeendeleted">The log file %1 has been deleted.</custom>
-		<custom key="bytes">bytes</custom>
-		<custom key="KB">KB</custom>
-		<custom key="Xsecondsago">%1s ago</custom>
-		<custom key="Xminutesago">%1m ago</custom>
-		<custom key="Xhoursago">%1h ago</custom>
-		<custom key="Xdaysago">%1d ago</custom>
-		<custom key="dateformatchart">Mmm. d, </custom>
-		<custom key="timeformatchart">HH:mm</custom>
-		<custom key="allinthesameminute">all in the same minute</custom>
-	</language>
 	<language key="en">
 		<title>Log analyzer</title>
 		<description></description>
@@ -61,7 +13,7 @@
 		<custom key="threadname">Thread name</custom>
 		<custom key="type">Type</custom>
 		<custom key="dateformat">d Mmm, yyyy</custom>
-		<custom key="momentDateformat">D MMM YYYY</custom>
+		<custom key="momentDateformat">D MMM, YYYY</custom>
 		<custom key="timeformat">HH:mm:ss</custom>
 		<custom key="timeformatshort">HH:mm</custom>
 		<custom key="file">File</custom>
@@ -112,6 +64,54 @@
 		<custom key="noNewLogs">no new logs</custom>
 		<custom key="newLogs">new log</custom>
 		<custom key="expand">Expand</custom>		
+	</language>
+	<language key="de">
+		<title>Log Analyzer</title>
+		<description></description>
+		<custom key="logfilename">Logfile Name</custom>
+		<custom key="logfilelocation">Log Verzeichnis</custom>
+		<custom key="logfiledate">Datum</custom>
+		<custom key="logfilesize">Filesize</custom>
+		<custom key="logfilesize">logfilecreated</custom>
+		<custom key="message">Message</custom>
+		<custom key="Lastoccurence">Last occurence</custom>
+		<custom key="threadname">Thread name</custom>
+		<custom key="type">Type</custom>
+		<custom key="dateformat">d Mmm. yyyy</custom>
+		<custom key="timeformat">HH:mm:ss</custom>
+		<custom key="timeformatshort">HH:mm</custom>
+		<custom key="file">File</custom>
+		<custom key="line">line</custom>
+		<custom key="occurences">Occurences</custom>
+		<custom key="from">from</custom>
+		<custom key="untill">untill</custom>
+		<custom key="date">Date</custom>
+		<custom key="Back">Back</custom>
+		<custom key="detail">Detail</custom>
+		<custom key="actions">actions</custom>
+		<custom key="delete">Delete</custom>
+		<custom key="download">Download</custom>
+		<custom key="viewlog">View</custom>
+		<custom key="details">Details</custom>
+		<custom key="analyse">Analyse</custom>
+		<custom key="to">to</custom>
+		<custom key="perpage">per page</custom>
+		<custom key="page">page</custom>
+		<custom key="Orderonthiscolumn">Order on this column</custom>
+		<custom key="Errormessage">Error message</custom>
+		<custom key="Count">Count</custom>
+		<custom key="Nologentriesfound">No log entries found</custom>
+		<custom key="logfilehasbeencleared">The log file %1 has been cleared.</custom>
+		<custom key="logfilehasbeendeleted">The log file %1 has been deleted.</custom>
+		<custom key="bytes">bytes</custom>
+		<custom key="KB">KB</custom>
+		<custom key="Xsecondsago">%1s ago</custom>
+		<custom key="Xminutesago">%1m ago</custom>
+		<custom key="Xhoursago">%1h ago</custom>
+		<custom key="Xdaysago">%1d ago</custom>
+		<custom key="dateformatchart">Mmm. d, </custom>
+		<custom key="timeformatchart">HH:mm</custom>
+		<custom key="allinthesameminute">all in the same minute</custom>
 	</language>
 	<language key="nl">
 		<title>Log analyzer</title>
