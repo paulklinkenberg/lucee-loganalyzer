@@ -34,7 +34,7 @@ component hint="I parse log files " {
 			required string logName,
 			required string context,
 			required query qLog,
-			any since="",
+			any start="",
 			numeric maxLengthStackTrace = 4000,
 			numeric maxLogLines = 1000,
 			numeric maxLogRows = 1000 ) output=false {
@@ -66,8 +66,8 @@ component hint="I parse log files " {
 								throw (text="entry had #structCount(entry)# items, expected 7");
 						}
 
-						if (arguments.since neq false){
-							if (dateCompare(entry.timeStamp, arguments.since) eq -1)  {
+						if (arguments.start neq false){
+							if (dateCompare(entry.timeStamp, arguments.start) eq -1)  {
 								row = [];
 								break;
 							}
@@ -141,7 +141,7 @@ component hint="I parse log files " {
 			var ls = StructNew('linked');
 			for (var s in logstack)
 				ls[listFirst(s,"[]")]="";
-			logStack = StructKeyList(ls);	
+			logStack = StructKeyList(ls);
 			ArrayAppend(entry.cfstack, logStack, true);
 		}
 

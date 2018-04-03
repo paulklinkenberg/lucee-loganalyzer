@@ -10,8 +10,8 @@ var viewLog = {
 			console.warn("missing language string: [" + key + "] for locale: [" + viewLog.locale + "] from javascript");
 			if (_default)
 				return _default;
-			else 
-				return key;	
+			else
+				return key;
 		}
 	},
 	langBundle: {},
@@ -77,7 +77,7 @@ var viewLog = {
 			//console.log("reloading");
 			$(".logs-loading").show();
 			setTimeout(function(){
-				document.location = newUrl;// updateUrl(newUrl, "since", ""); // start over
+				document.location = newUrl;// updateUrl(newUrl, "start", ""); // start over
 			}, 100);
 		} else {
 			history.pushState({},"", viewLog.updateUrl(newUrl, "file", urlParam) );
@@ -166,7 +166,7 @@ var viewLog = {
 	pollServerForUpdates: function(cb){
 		var $logs = $(".logs");
 		var fetched = $logs.data("fetched");
-		var url = viewLog.updateUrl(null, "since", fetched);
+		var url = viewLog.updateUrl(null, "start", fetched);
 		var $loading = $(".logs-loading").show();
 
 		var url = viewLog.updateUrl(url, "pluginAction", "getLogJson");
@@ -194,7 +194,7 @@ var viewLog = {
 				$logs.prepend(
 					$status.text("" + now + ", " + logs.length + ' ' + viewLog.i18n('newLogs') + ' ' + ((logs.length > 1) ? "s":"") )
 				);
-				
+
 				viewLog.updateTitleCount(logs.length);
 				viewLog.trimLogs();
 			} else {
@@ -224,7 +224,7 @@ var viewLog = {
 		var title = document.title.split(/[(/(/)\)]+/);
 		if (title.length > 2)
 			title.shift();
-		if (document.hasFocus())	
+		if (document.hasFocus())
 		newLogCount = null;
 		if (newLogCount === null){
 			// on focus reset title
@@ -314,7 +314,7 @@ var viewLog = {
 					log.SEVERITY === log.SEVERITY[l-1] &&
 					log.THREAD === log.THREAD[l-1] &&
 					log.LOGTIMESTAMP === log.LOGTIMESTAMP[l-1] )
-			var hideHeader = true;						
+			var hideHeader = true;
 		}
 
 		var el = $('<div>').addClass('log log-severity-' + log.SEVERITY + ' log-file-filter-' + log.LOGFILE.replace(".","_") );
@@ -322,16 +322,16 @@ var viewLog = {
 		var header = $('<div class="log-header">');
 		if (hideHeader)
 			header.hide();
-		
+
 		header.append( $('<span class="log-file">').text(log.LOGFILE) );
 		header.append( $('<span class="log-severity">').text(log.SEVERITY) );
-		header.append( 
-			$('<span class="log-timestamp">').text( 
+		header.append(
+			$('<span class="log-timestamp">').text(
 				moment(log.LOGTIMESTAMP, viewLog.jsonDateFormat).format(
-					viewLog.i18n('momentdateformat', 'D MMM, YYYY') + ' ' + viewLog.i18n('timeformat','HH:mm:ss') 
-				)  
+					viewLog.i18n('timeformat','HH:mm:ss') + ', ' + viewLog.i18n('momentdateformat', 'D MMM, YYYY')
+				)
 			)
-		); 
+		);
 		header.append( $('<span class="log-thread">').text("(" + log.THREAD) + ")" );
 
 		el.append(header);
@@ -343,7 +343,7 @@ var viewLog = {
 				cfstack.append( $('<li>').append($("<a>").text(log.CFSTACK[c]) ) );
 			detail.append(cfstack);
 		}
-		
+
 		if (log.STACK.length){
 			var stack  = $('<div style="display:none;" class="log-stacktrace">').html(
 				log.STACK.replace(viewLog.crlf,"<br>").replace(viewLog.nl, "<br>")
@@ -373,7 +373,7 @@ $(function(){
 		return false;
 	});
 	$(window).on("focus", function(){
-		viewLog.updateTitleCount(null);		
+		viewLog.updateTitleCount(null);
 	});
 	/*
 	var midnght = moment().set('hour', 23).set('minute', 23);

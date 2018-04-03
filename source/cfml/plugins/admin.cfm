@@ -34,17 +34,17 @@
 	<table class="maintbl log-overview">
 	<thead>
 		<tr>
-			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=name<cfif url.sort eq 'name' and url.dir neq 'desc'>&amp;dir=desc</cfif>" 
-				title="#i18n('Orderonthiscolumn')#"<cfif url.sort eq 'name'> 
+			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=name<cfif url.sort eq 'name' and url.dir neq 'desc'>&amp;dir=desc</cfif>"
+				title="#i18n('Orderonthiscolumn')#"<cfif url.sort eq 'name'>
 				style="font-weight:bold"</cfif>>#i18n('logfilename')#</a></th>
-			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=datelastmodified<cfif url.sort neq 'datelastmodified' or url.dir neq 'desc'>&amp;dir=desc</cfif>" 
-				title="#i18n('Orderonthiscolumn')#"<cfif url.sort eq 'datelastmodified'> 
+			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=datelastmodified<cfif url.sort neq 'datelastmodified' or url.dir neq 'desc'>&amp;dir=desc</cfif>"
+				title="#i18n('Orderonthiscolumn')#"<cfif url.sort eq 'datelastmodified'>
 				style="font-weight:bold"</cfif>>#i18n('logfiledate')#</a></th>
-			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=created<cfif url.sort neq 'created' or url.dir neq 'desc'>&amp;	dir=desc</cfif>" 	
-				title="#i18n('Orderonthiscolumn')#" <cfif url.sort eq 'created'> 
+			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=created<cfif url.sort neq 'created' or url.dir neq 'desc'>&amp;	dir=desc</cfif>"
+				title="#i18n('Orderonthiscolumn')#" <cfif url.sort eq 'created'>
 				style="font-weight:bold"</cfif>>#i18n('logfilecreated')#</a></th>
-			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=size<cfif url.sort neq 'size' or url.dir neq 'desc'>&amp;dir=desc</cfif>" 
-				title="#i18n('Orderonthiscolumn')#"<cfif url.sort eq 'size'> 
+			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=size<cfif url.sort neq 'size' or url.dir neq 'desc'>&amp;dir=desc</cfif>"
+				title="#i18n('Orderonthiscolumn')#"<cfif url.sort eq 'size'>
 				style="font-weight:bold"</cfif>>#i18n('logfilesize')#</a></th>
 			<th>#i18n('actions')#</th>
 		</tr>
@@ -53,15 +53,24 @@
 		<cfset q =arguments.req.logfiles>
 		<cfloop query="q">
 			<tr data-logfile="#htmleditformat(q.name)#">
-				<td class="name"><a href=#action('overview',"file=#q.name#")#>#name#</a></td>
-				<td><abbr title="#dateformat(q.datelastmodified, i18n('dateformat'))# #timeformat(q.datelastmodified, i18n('timeformatshort'))#">			
+				<td class="name">
+				<cfif q.supportedFormat>
+					<a href=#action('overview',"file=#q.name#")#>#name#</a>
+				<cfelse>
+					#name#
+					<p class="log-unsupported">#i18n('unsupportedLogformat')#</p>
+				</cfif>
+				</td>
+				<td><abbr title="#dateformat(q.datelastmodified, i18n('dateformat'))# #timeformat(q.datelastmodified, i18n('timeformatshort'))#">
 					#renderUtils.getTextTimeSpan(q.datelastmodified)#</abbr></td>
 				<td><abbr title="#dateformat(q.created, i18n('dateformat'))# #timeformat(q.created, i18n('timeformatshort'))#">
 					#renderUtils.getTextTimeSpan(q.created)#</abbr></td>
 				<td><cfif q.size lt 1024>#size# #i18n('bytes')#<cfelse>#ceiling(q.size/1024)# #i18n('KB')#</cfif></td>
 				<td style="text-align:right; white-space:nowrap; width:1%">
 					<!--<input type="submit" class="button" data-action="list" value="#i18n('analyse')#"/>-->
-					<input type="button" class="button" data-action="overview" value="#i18n('viewlog')#" />
+					<cfif q.supportedFormat>
+						<input type="button" class="button" data-action="overview" value="#i18n('viewlog')#" />
+					</cfif>
 					<input type="button" class="button" data-action="download"value="#i18n('download')#" />
 					<input type="button" class="button" data-action="delete" value="#i18n('delete')#" />
 				</td>

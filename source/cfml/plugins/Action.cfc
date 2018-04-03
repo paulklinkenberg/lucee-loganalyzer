@@ -33,8 +33,8 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 	 */
 	public void function init(required struct lang, required struct app) {
 		variables.logGateway = new logGateway();
-		variables.renderUtils = new RenderUtils(arguments.lang, action("asset"), this.action );		
-		variables._lang = arguments.lang;		
+		variables.renderUtils = new RenderUtils(arguments.lang, action("asset"), this.action );
+		variables._lang = arguments.lang;
 	}
 
 	public void function _display(required string template, required struct lang, required struct app, required struct req) {
@@ -42,7 +42,7 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 		request._missing_lang = {};
 		if ( not url.xhr)
 			renderUtils.includeCSS("style");
-		super._display(argumentcollection=arguments);		
+		super._display(argumentcollection=arguments);
 		renderUtils.warnMissingLang(request._missing_lang);
 	}
 
@@ -58,7 +58,7 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 			session.logAnalyzer.webID = req.webID;
 		}
 		if ( request.admintype != "server" || len(session.loganalyzer.webID) ) {
-			arguments.req.logfiles = logGateway.listLogs(sort=url.sort, dir=url.dir);
+			arguments.req.logfiles = logGateway.listLogs(sort=url.sort, dir=url.dir, listOnly=true);
 		} else {
 			location url=action("contextSelector", 'nextAction=admin') addtoken="false";
 		}
@@ -66,11 +66,11 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 
 	public function overview(struct lang, struct app, struct req) output=false {
 		param name="url.file" default="";
-		param name="url.since" default="";
+		param name="url.start" default="";
 		param default="", name="session.loganalyzer.webID";
 
 		if ( request.admintype != "server" || len(session.loganalyzer.webID) ) {
-			var logs = logGateway.getLog(url.file, url.since, 7, true);
+			var logs = logGateway.getLog(url.file, url.start, 7, true);
 			variables.renderUtils.renderServerTimingHeaders(logs.timings);
 			arguments.req.logs = logs;
 		} else {
@@ -91,9 +91,9 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 
 	public function getLogJson(struct lang, struct app, struct req) output=false {
 		param name="url.file" default="";
-		param name="url.since" default="";
+		param name="url.start" default="";
 
-		var logs = logGateway.getLog(url.file, url.since, 7, true);
+		var logs = logGateway.getLog(url.file, url.start, 7, true);
 		logs.FETCHED = dateTimeFormat(now(), "yyyy-mm-dd HH:nn:ss");
 		variables.renderUtils.renderServerTimingHeaders(logs.timings);
 		setting showdebugoutput="false";
@@ -105,18 +105,18 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 	public function getLang(struct lang, struct app, struct req) output=false {
 		var pluginLanguage = {
 			strings: arguments.lang,
-			locale: session.LUCEE_ADMIN_LANG			
+			locale: session.LUCEE_ADMIN_LANG
 		};
-		setting showdebugoutput="false";		
+		setting showdebugoutput="false";
 		content type="text/javascript" reset="yes";
 		writeOutput("var pluginLanguage = #serializeJson(pluginLanguage)#;");
 		abort;
 	}
 
-	public string function i18n(string key) output=false {		
+	public string function i18n(string key) output=false {
 		if (structKeyExists(variables._lang, arguments.key)){
 			return variables._lang[arguments.key];
-		} else {			
+		} else {
 			request._missing_lang[arguments.key]="";
 			return arguments.key;
 		}
@@ -149,7 +149,7 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 		param name="req.asset";
 		// dunno why, sometimes this doesn't exist and throws an error
 		if (not structKeyExists(variables, "renderUtils") )
-			variables.renderUtils = new RenderUtils(arguments.lang, action("asset"), this.action );		
+			variables.renderUtils = new RenderUtils(arguments.lang, action("asset"), this.action );
 		renderUtils.returnAsset(url.asset);
 	}
 }

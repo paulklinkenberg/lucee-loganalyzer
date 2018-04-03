@@ -48,7 +48,7 @@
 		<custom key="Xdaysago">%1d ago</custom>
 		<custom key="dateformatchart">Mmm. d, </custom>
 		<custom key="timeformatchart">HH:mm</custom>
-		<custom key="allinthesameminute">all in the same minute</custom>		
+		<custom key="allinthesameminute">all in the same minute</custom>
 		<custom key="go">Go</custom>
 		<custom key="webContext">Web context</custom>
 		<custom key="serverContext">Server context</custom>
@@ -63,7 +63,8 @@
 		<custom key="chooseLogLocation">Choose a log location:</custom>
 		<custom key="noNewLogs">no new logs</custom>
 		<custom key="newLogs">new log</custom>
-		<custom key="expand">Expand</custom>		
+		<custom key="expand">Expand</custom>
+		<custom key="unsupportedLogformat">Sorry, unsupported log format, only the classic log format is supported</custom>
 	</language>
 	<language key="de">
 		<title>Log Analyzer</title>
@@ -158,6 +159,6 @@
 		<custom key="Xdaysago">%1 dagen geleden</custom>
 		<custom key="dateformatchart">Mmm. d, </custom>
 		<custom key="timeformatchart">HH:mm</custom>
-		<custom key="allinthesameminute">all in the same minute</custom>	
+		<custom key="allinthesameminute">all in the same minute</custom>
 	</language>
 </languages>

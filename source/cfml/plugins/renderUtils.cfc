@@ -62,7 +62,7 @@ component hint="various rendering related files"{
 		htmlhead text='<link rel="stylesheet" href="#variables.AssetHrefPath#?asset=#arguments.template#.css&#variables.AssetHrefParams#">#chr(10)#';
 	}
 
-	public void function includeJavascript(required string template) {		
+	public void function includeJavascript(required string template) {
 		htmlbody text='<script src="#variables.AssetHrefPath#?asset=#arguments.template#.js&#variables.AssetHrefParams#"></script>#chr(10)#';
 	}
 
@@ -75,12 +75,12 @@ component hint="various rendering related files"{
 			return;
 		var missing = [];
 		for (var k in arguments.missingLang)
-			missing.append("console.warn('missing language string: [#jsstringformat(k)#] from cfml');");		
+			missing.append("console.warn('missing language string: [#jsstringformat(k)#] from cfml');");
 
-		writeOutput("<script>#ArrayToList(missing,chr(10))#</script>");		
+		writeOutput("<script>#ArrayToList(missing,chr(10))#</script>");
 	}
 
-	
+
 
 	public void function returnAsset(required string asset) {
 		if (arguments.asset contains "..")

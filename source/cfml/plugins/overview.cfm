@@ -69,8 +69,7 @@
 					<option value="1800">30m</option>
 				</select>
 				<input class="button" data-action="auto-refresh" type="button" value="#i18n('StartAutoRefresh')#"/>
-			</div>
-
+			</div>			
 			<div class="log-severity-filter">
 				<cfloop list="INFO,INFORMATION|WARN,WARNING|ERROR|FATAL|DEBUG|TRACE" index="severity" delimiters="|">
 					<span class="log-severity-filter-type">
@@ -148,7 +147,8 @@
 		</cfif>
 		<cfoutput><div class="log-header" #hideRow#><span class="log-fie">#q_log.logfile#</span></cfoutput>
 			<cfoutput><span class="log-severity">#q_log.severity#</span></cfoutput>
-			<cfoutput><span class="log-timestamp">#LSDateFormat(q_log.logtimestamp, i18n("dateformat"))# #LSTimeFormat(q_log.logtimestamp, i18n("timeformat") )#</span></cfoutput>
+			<cfoutput><span class="log-timestamp"> #LSTimeFormat(q_log.logtimestamp, i18n("timeformat") )#, 
+			#LSDateFormat(q_log.logtimestamp, i18n("dateformat"))#</span></cfoutput>
 			<cfoutput><span class="log-thread">#q_log.thread#</span></cfoutput>
 		<cfoutput></div></cfoutput>
 		<cfoutput><div class="log-detail"></cfoutput>

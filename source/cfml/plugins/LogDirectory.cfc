@@ -31,26 +31,42 @@ component hint="I enumerate logs directories" {
 	 * this function will be called to initalize
 	 */
 	public void function init() {
+		variables.classicHeader = '"Severity","ThreadID","Date","Time","Application","Message"';
 	}
 
 	public query function listLogs(string sort="name", string dir="asc",
-			any sinceDate="", string filter="") output=false {
-		var since = processDate(arguments.sinceDate);
+			any startDate="", string filter="", boolean listOnly="false") output=false {
+		var start = processDate(arguments.startDate);
 		var q_log_files = "";
 		var _filter = (len(arguments.filter) eq 0) ? logsFilter : arguments.filter;
 		directory filter=_filter, directory=getLogPath() listinfo="all" name="q_log_files" action="list";
+
 		// add log created date
 		QueryAddColumn( q_log_files, "created", "date" );
+		QueryAddColumn( q_log_files, "supportedFormat", "boolean" );
 		local.empty = [];
 		loop query=q_log_files{
 			QuerySetCell(q_log_files, "created",
 				getFileCreationDate(q_log_files.directory & "/" & q_log_files.name),
 				q_log_files.currentrow
 			);
-			if (q_log_files.size lt 100)
+			if (q_log_files.size lt 70){ // just a header row
 				local.empty.append(q_log_files.currentrow);
+			} else {
+				// check the log file has the classic format log header
+				var fileObj = FileOpen(getLogPath(q_log_files.name));
+				var header = FileReadLine( fileObj );
+				FileClose(fileObj);
+				if (header neq variables.classicHeader){
+					// not our supported log format
+					QuerySetCell(q_log_files, "supportedFormat", false, q_log_files.currentrow );
+					if (not arguments.listOnly)
+						local.empty.append(q_log_files.currentrow);
+				} else {
+					QuerySetCell(q_log_files, "supportedFormat", true, q_log_files.currentrow );
+				}
+			}
 		}
-
 		for (var row in local.empty.reverse())
 			QueryDeleteRow(q_log_files, row); // just headers,  effectively empty
 		QuerySort( q_log_files, arguments.sort, arguments.dir );
@@ -141,7 +157,7 @@ component hint="I enumerate logs directories" {
 		return local.d;
 	}
 
-	public date function getDefaultSince(required query q_log_files,
+	public date function getDefaultstart(required query q_log_files,
 			required struct files, required numeric defaultDays){
 		if (arguments.q_log_files.recordcount eq 0)
 			return DateAdd("d", -arguments.defaultDays, now());

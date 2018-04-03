@@ -54,28 +54,28 @@ component hint="enumerate logs directories and lucee contexts" {
 		return variables.logDirectory.getWebRootPathByWebID(arguments.webID);
 	}
 
-	public query function readLog(required string file, any sinceDate) output=false {
+	public query function readLog(required string file, any startDate) output=false {
 		var log = logDirectory.getLogPath(arguments.file);
 		var qLog = logDirectory.logParser.createLogQuery();
-		var since = processDate(arguments.sinceDate);
+		var start = processDate(arguments.startDate);
 
-		logParser.readLog(log, arguments.file, "", qLog, since);
+		logParser.readLog(log, arguments.file, "", qLog, start);
 		return qLog;
 	}
 
 	public query function listLogs(string sort="name", string dir="asc",
-			any sinceDate="", string filter="") output=false {
-		return	variables.logDirectory.listLogs(argument.collection=arguments);
+			any startDate="", string filter="", required boolean listOnly="true") output=false {
+		return	variables.logDirectory.listLogs(argumentCollection=arguments);
 	}
 
-	public struct function getLog(string files, any sinceDate, numeric defaultDays=1, required boolean parseLogs) output=false {
-		var since = logDirectory.processDate(arguments.sinceDate);
+	public struct function getLog(string files, any startDate, numeric defaultDays=1, required boolean parseLogs) output=false {
+		var start = logDirectory.processDate(arguments.startDate);
 		var q_log = logParser.createLogQuery();
 		var rows = 0;
 		var st_files = {};
 		var timings = [];
 		var startTimeLog = getTickCount();
-		var q_log_files = logDirectory.listLogs(filter="*.log");
+		var q_log_files = logDirectory.listLogs(filter="*.log", listOnly=arguments.parseLogs);
 		timings.append({
 			name: "list-logs",
 			metric: "enumerate",
@@ -87,14 +87,14 @@ component hint="enumerate logs directories and lucee contexts" {
 			for (var file in _files)
 				st_files[file] = true;
 		}
-		if (since eq false)
-			since = logDirectory.getDefaultSince(q_log_files, st_files, defaultDays);
+		if (start eq false)
+			start = logDirectory.getDefaultstart(q_log_files, st_files, defaultDays);
 
 		startTimeLog = getTickCount();
 		//cflog(text="start getLogs: #arguments.files#");
 		loop query=q_log_files {
-			if (dateCompare(q_log_files.dateLastModified, since) eq -1)
-				continue; // log file hasn't been updated since last request
+			if (dateCompare(q_log_files.dateLastModified, start) eq -1)
+				continue; // log file hasn't been updated start last request
 			if (structCount(st_files) gt 0
 					and not structKeyExists(st_files, q_log_files.name))
 				continue; // this file wasn't requested
@@ -102,7 +102,7 @@ component hint="enumerate logs directories and lucee contexts" {
 				var startTimeLog = getTickCount();
 				//cflog(text="parsing #q_log_files.name#");
 
-				logParser.readLog(logDirectory.getLogPath(q_log_files.name), q_log_files.name, "", q_log, since);
+				logParser.readLog(logDirectory.getLogPath(q_log_files.name), q_log_files.name, "", q_log, start);
 				timings.append({
 					name: q_log_files.name,
 					metric: "parse",
@@ -127,7 +127,7 @@ component hint="enumerate logs directories and lucee contexts" {
 		//cflog(text="finished getLogs: #arguments.files# in #getTickCount()-startTimeLog#ms");
 		// sort the logs from multiple sources by timestamp
 		return {
-			since: since,
+			start: start,
 			timings: timings,
 			q_log: q_log,
 			q_log_files: q_log_files
