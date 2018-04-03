@@ -134,16 +134,6 @@ component hint="I parse log files " {
 			entry.log = str;
 			entry.stack = "";
 		}
-		// https://regex101.com/r/Fd8qCi/1/
-		var logStack = REMatch("(\[[\:\/\\a-zA-Z\_\-\.\$]*\])", entry.log);
-		if (logStack.len() gt 0){
-			// de dup
-			var ls = StructNew('linked');
-			for (var s in logstack)
-				ls[listFirst(s,"[]")]="";
-			logStack = StructKeyList(ls);	
-			ArrayAppend(entry.cfstack, logStack, true);
-		}
 
 		// sanity checking
 		if (entry.stack contains '"ERROR","'

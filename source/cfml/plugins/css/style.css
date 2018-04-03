@@ -58,16 +58,12 @@ ul.stack {
 
 .logs {
 	border:1px solid #999;
-	padding: 5px 5px;	
+	padding: 5px 0px;
 }
 
 .log {	
-	border:1px solid white;	
-	padding-top: 5px
-}
-
-.logs .log, {
-	margin: 5px 2px;
+	border:1px solid white;
+	padding: 4px 0px;
 }
 
 .log-severity-filter-type, .log-file-filter, .log-toolbar-group {
@@ -88,23 +84,19 @@ label:hover {
 }
 .log-severity-filter-type LABEL{
 	padding: 8px;
-	padding-bottom: 4px ;
+	padding-bottom: 4px;
 }
 
 .log-header {	
 	display: inline;
 	padding: 8px;
 	padding-bottom: 4px;
-	padding: 6px 4px 4px 4px;
 }
 
 .log-detail {
-	font-weight: 500;
+	font-weight: 600;
 }
 
-.log-thread, .log-timestamp {
-	margin-left: 40px;
-}
 .log-stacktrace {
 	padding-top: 4px;
 	font-weight: normal;
@@ -118,11 +110,6 @@ label:hover {
 	background-color: white;
 	color: black;
 }
-
-.log-severity-INFO .log-header, log-severity-INFORMATION .log-header {
-	border-top: 1px lightgrey solid;
-}
-
 .log-severity-WARN, log-severity-WARNING {
 	background-color: #fdbf6f;
 	color: black;
@@ -169,6 +156,9 @@ label:hover {
 .logs-update {
 	text-align: center;
 	font-size: 1em;
+}
+.logs .log, {
+	padding: 5px;
 }
 
 .log-detail {
