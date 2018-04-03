@@ -29,10 +29,12 @@ component hint="various rendering related files"{
 	/**
 	 * this function will be called to initalize
 	 */
-	public void function init(required struct lang, required string href) {
+	public void function init(required struct lang, required string href, required any action) {
 		variables.AssetHrefPath = listFirst(arguments.href,"?");
 		variables.AssetHrefParams = listLast(arguments.href,"?");;
 		variables.lang = arguments.lang;
+		variables.action = arguments.action;
+
 	}
 
 	public string function getCSRF(){
@@ -60,9 +62,14 @@ component hint="various rendering related files"{
 		htmlhead text='<link rel="stylesheet" href="#variables.AssetHrefPath#?asset=#arguments.template#.css&#variables.AssetHrefParams#">#chr(10)#';
 	}
 
-	public void function includeJavascript(required string template) {
+	public void function includeJavascript(required string template) {		
 		htmlbody text='<script src="#variables.AssetHrefPath#?asset=#arguments.template#.js&#variables.AssetHrefParams#"></script>#chr(10)#';
 	}
+
+	public void function includeLang() {
+		htmlbody text='<script src="#variables.action('getLang')#"></script>#chr(10)#';
+	}
+
 
 	public void function returnAsset(required string asset) {
 		if (arguments.asset contains "..")

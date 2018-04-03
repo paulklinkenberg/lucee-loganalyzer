@@ -33,7 +33,7 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 	 */
 	public void function init(required struct lang, required struct app) {
 		variables.logGateway = new logGateway();
-		variables.renderUtils = new RenderUtils(arguments.lang, action("asset"));
+		variables.renderUtils = new RenderUtils(arguments.lang, action("asset"), action);
 	}
 
 	public void function _display(required string template, required struct lang, required struct app, required struct req) {
@@ -111,6 +111,17 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 		setting showdebugoutput="false";
 		content type="application/json" reset="yes";
 		writeOutput(serializeJson(logs));
+		abort;
+	}
+
+	public function getLang(struct lang, struct app, struct req) output=false {
+		var pluginLanguage = {
+			strings: arguments.lang,
+			locale: session.LUCEE_ADMIN_LANG			
+		};
+		setting showdebugoutput="false";		
+		content type="text/javascript" reset="yes";
+		writeOutput("var pluginLanguage = #serializeJson(pluginLanguage)#;");
 		abort;
 	}
 
