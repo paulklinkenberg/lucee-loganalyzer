@@ -114,7 +114,7 @@ component hint="I parse log files " {
 			entry.timestamp = parseDateTime(header[3] & " " & header[4]);
 			entry.app = header[5];
 			// extract out all the cfml source paths, far more interesting at a glance for cfml developers
-			entry.cfstack = REMatch("\(([\/a-zA-Z\_\-]*\.(cfc|cfm|lucee)\:\d*\))", str);
+			entry.cfstack = REMatch("(\([\/a-zA-Z\_\-\.\$]*[\.cfc|\.cfm|\.lucee)]\:\d+\))", str);
 			for (var cf = 1; cf <= entry.cfstack.len(); cf++){
 				// strip out the wrapping braces
 				entry.cfstack[cf] = ListFirst(entry.cfstack[cf],"()");
