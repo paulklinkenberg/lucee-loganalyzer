@@ -150,7 +150,7 @@ var viewLog = {
 	clickLog: function(ev){
 		var el = $(ev.target);
 		var log = $(ev.target).closest(".log");
-		if ( el[0].nodeName === "LI" ){
+		if ( el[0].nodeName === "A" ){
 			window.scrollTo(0, 0);
 			viewLog.doSearch($(el[0]).text());
 		} else {
@@ -187,10 +187,11 @@ var viewLog = {
 			var $status = $("<div>").addClass("logs-update");
 			var now = moment().format("HH:MM:ss");
 			if (logs.length > 0){
-				$logs.prepend(
-					$status.text("" + now + ", " + logs.length + viewLog.i18n('newLogs') + ((logs.length > 1) ? "s":"") )
-				);
 				$logs.prepend(logs);
+				$logs.prepend(
+					$status.text("" + now + ", " + logs.length + ' ' + viewLog.i18n('newLogs') + ' ' + ((logs.length > 1) ? "s":"") )
+				);
+				
 				viewLog.updateTitleCount(logs.length);
 				viewLog.trimLogs();
 			} else {
@@ -316,7 +317,7 @@ var viewLog = {
 		if (log.CFSTACK.length){
 			var cfstack = $('<ol class="cfstack">');
 			for (var c = 0; c < log.CFSTACK.length; c++)
-				cfstack.append( $('<li>').text(log.CFSTACK[c]) );
+				cfstack.append( $('<li>').append($("<a>").text(log.CFSTACK[c]) ) );
 			detail.append(cfstack);
 		}
 		

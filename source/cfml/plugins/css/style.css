@@ -166,7 +166,7 @@ label:hover {
 	list-style-type: '-';
 }
 
-.cfstack LI {
+.cfstack A {
 	cursor: pointer;
 	color: #084081;
 }

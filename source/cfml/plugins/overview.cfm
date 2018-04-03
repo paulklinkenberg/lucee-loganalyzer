@@ -152,7 +152,7 @@
 			<cfoutput><ol class="cfstack"></cfoutput>
 			<Cfset maxrows = Min(ArrayLen(_stack),15)>
 			<cfloop from="1" to="#maxrows#" index="s">
-				<cfoutput><li>#_stack[s]#</li></cfoutput>
+				<cfoutput><li><a>#_stack[s]#</a></li></cfoutput>
 			</cfloop>
 			<cfoutput></ol></cfoutput>
 		</cfif>
