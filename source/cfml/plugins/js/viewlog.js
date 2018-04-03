@@ -2,6 +2,7 @@
 
 var viewLog = {
 	nl: String.fromCharCode(10),
+	crlf: String.fromCharCode(10) + String.fromCharCode(13),
 	updateSeverityFilter: function(){
 		var css = "";
 		var hidden = [];
@@ -172,6 +173,7 @@ var viewLog = {
 
 			if (logs.length > 0){
 				$logs.prepend($status.text("polled logs " + new Date()), logs);
+				viewLog.updateTitleCount(logs.length);
 				viewLog.trimLogs();
 			} else {
 				$logs.prepend($status.text("polled logs, no updates, " + new Date()));
@@ -195,6 +197,26 @@ var viewLog = {
 		var removed = (total-$logs.length);
 		if (removed)
 			console.log("removed " + removed + " logs for performance");
+	},
+	updateTitleCount: function(newLogCount){
+		var title =document.title.split(/[(/(/)\)]+/);
+		if (title.length > 2)
+			title.shift();
+		if (newLogCount === null){
+			// on focus reset title
+			if (title.length === 1){
+				return;
+			} else {
+				document.title = title[1];
+				return;
+			}
+		}
+		if (title.length > 1){
+			document.title = "(" + (newLogCount + Number(title[0])) + ") " + title[1];
+		} else {
+			document.title = "(" + newLogCount + ") " + title[0];
+		}
+		console.log(document.title);
 	},
 	expandAll: function(){
 		var state = $(this).data("expanded");
@@ -277,16 +299,20 @@ var viewLog = {
 				cfstack.append( $('<li>').text(log.CFSTACK[c]) );
 			detail.append(cfstack);
 		}
-		el.append(detail);
+		
 		if (log.STACK.length){
-			var stack  = $('<div style="display:none;" class="collapsed-log">').html(log.STACK.replace(viewLog.nl, "<br>"));
-			el.append(stack);
+			var stack  = $('<div style="display:none;" class="collapsed-log">').html(
+				log.STACK.replace(viewLog.crlf,"<br>").replace(viewLog.nl, "<br>")
+			);
+			detail.append(stack);
 		}
+		el.append(detail);
 		return el;
 	}
 };
 
 $(function(){
+
 	$(".log-severity-filter INPUT").on("change", viewLog.updateSeverityFilter);
 	$(".log-file-filter INPUT").on("change", viewLog.updateFileFilter);
 	$(".log-actions INPUT:not('.daterange')").on("click", viewLog.logActions);
@@ -297,6 +323,10 @@ $(function(){
 		viewLog.debounceTimer = setTimeout(viewLog.doSearch, 250);
 	}).on("submit", function(){
 		return false;
+	});
+	$(window).on("focus", function(){
+		viewLog.updateTitleCount(null);
+		console.log("window focussed");
 	});
 	/*
 	var midnght = moment().set('hour', 23).set('minute', 23);
