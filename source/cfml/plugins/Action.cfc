@@ -74,7 +74,7 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 			var logs = logGateway.getLog(files=req.file, startDate=req.start,
 				defaultDays=7, parseLogs=true, search=req.q);
 			variables.renderUtils.renderServerTimingHeaders(logs.timings);
-			logs.deleteKey("timings");
+			logs.delete("timings");
 			arguments.req.logs = logs;
 		} else {
 			location url=action("contextSelector", 'nextAction=overview') addtoken="false";
