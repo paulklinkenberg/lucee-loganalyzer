@@ -65,6 +65,7 @@
 		<custom key="newLogs">new log</custom>
 		<custom key="expand">Expand</custom>
 		<custom key="unsupportedLogformat">Sorry, unsupported log format, only the classic log format is supported</custom>
+		<custom key="searchHint">search works automatically on the displayed logs, press search to search server logs</custom>
 	</language>
 	<language key="de">
 		<title>Log Analyzer</title>

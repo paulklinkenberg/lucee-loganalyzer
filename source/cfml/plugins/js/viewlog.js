@@ -125,7 +125,7 @@ var viewLog = {
 				document.location.reload();
 				break;
 			case "search":
-				viewLog.doSearch();
+				viewLog.doSearchSubmit();
 				break;
 			case "clear-search":
 				viewLog.doSearch("", true);
@@ -253,11 +253,14 @@ var viewLog = {
 		}
 		$(this).data("expanded", !state);
 	},
-	doSearch: function(str, force){
+	doSearch: function(str, force){ // force is for clear
 		var $el = $(".search-logs");
 		if (str || force){
 			$el.val(str);
 		}
+		if (String($(".logs").data("search")).length > 0)
+			viewLog.doSearchSubmit(); // was a server side search, need to reset
+
 		str = $.trim($el.val()).toLowerCase();
 		if (str.length === 0){
 			$(".logs .log.search-hidden").removeClass("search-hidden");
@@ -268,6 +271,17 @@ var viewLog = {
 				$(this).toggleClass("search-hidden", match);
 			});
 		}
+	},
+	doSearchSubmit: function(ev){
+		var $frm = $("form.log-actions");
+		// need to reverse the check box state of severity, it works in reverse
+		$(".log-severity-filter input").each(function(){
+			var checked = $(this).is(":checked");
+			$(this).attr("checked", !checked);
+		});
+		var newUrl = $frm.serialize();
+		document.location = "?" + newUrl;
+		return false;
 	},
 	debounceTimer: null,
 	refreshTimer: null,

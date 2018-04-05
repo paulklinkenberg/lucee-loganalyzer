@@ -32,8 +32,8 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 	 * this function will be called to initalize
 	 */
 	public void function init(required struct lang, required struct app) {
-		variables.logGateway = new logGateway();
 		variables.renderUtils = new RenderUtils(arguments.lang, action("asset"), this.action );
+		variables.logGateway = new logGateway();
 		variables._lang = arguments.lang;
 	}
 
@@ -65,13 +65,16 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 	}
 
 	public function overview(struct lang, struct app, struct req) output=false {
-		param name="url.file" default="";
-		param name="url.start" default="";
+		param name="req.file" default="";
+		param name="req.start" default="";
+		param name="req.q" default="";
 		param default="", name="session.loganalyzer.webID";
 
 		if ( request.admintype != "server" || len(session.loganalyzer.webID) ) {
-			var logs = logGateway.getLog(url.file, url.start, 7, true);
+			var logs = logGateway.getLog(files=req.file, startDate=req.start,
+				defaultDays=7, parseLogs=true, search=req.q);
 			variables.renderUtils.renderServerTimingHeaders(logs.timings);
+			logs.deleteKey("timings");
 			arguments.req.logs = logs;
 		} else {
 			location url=action("contextSelector", 'nextAction=overview') addtoken="false";

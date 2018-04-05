@@ -68,18 +68,21 @@ component hint="enumerate logs directories and lucee contexts" {
 		return	variables.logDirectory.listLogs(argumentCollection=arguments);
 	}
 
-	public struct function getLog(string files, any startDate, numeric defaultDays=1, required boolean parseLogs) output=false {
+	public struct function getLog(string files, any startDate, numeric defaultDays=1,
+		required boolean parseLogs, string search="") output=false {
 		var start = logDirectory.processDate(arguments.startDate);
 		var q_log = logParser.createLogQuery();
 		var rows = 0;
 		var st_files = {};
+		var file_stats = {};
 		var timings = [];
-		var startTimeLog = getTickCount();
+		var startTime = getTickCount();
 		var q_log_files = logDirectory.listLogs(filter="*.log", listOnly=arguments.parseLogs);
+
 		timings.append({
 			name: "list-logs",
 			metric: "enumerate",
-			data:  getTickCount()-startTimeLog
+			data:  getTickCount()-startTime
 		});
 
 		if (len(arguments.files) gt 0){
@@ -87,38 +90,36 @@ component hint="enumerate logs directories and lucee contexts" {
 			for (var file in _files)
 				st_files[file] = true;
 		}
+		//if (len(arguments.search) gt 0)
+		//	defaultDays = 14;
 		if (start eq false)
 			start = logDirectory.getDefaultstart(q_log_files, st_files, defaultDays);
 
-		startTimeLog = getTickCount();
-		//cflog(text="start getLogs: #arguments.files#");
 		loop query=q_log_files {
-			if (dateCompare(q_log_files.dateLastModified, start) eq -1)
-				continue; // log file hasn't been updated start last request
+			if (start neq false){
+				if (dateCompare(q_log_files.dateLastModified, start) eq -1)
+					continue; // log file hasn't been updated start last request
+			}
 			if (structCount(st_files) gt 0
 					and not structKeyExists(st_files, q_log_files.name))
 				continue; // this file wasn't requested
 			if (arguments.parseLogs){
-				var startTimeLog = getTickCount();
-				//cflog(text="parsing #q_log_files.name#");
 
-				logParser.readLog(logDirectory.getLogPath(q_log_files.name), q_log_files.name, "", q_log, start);
+				file_stats[q_log_files.name] = logParser.readLog(logPath=logDirectory.getLogPath(q_log_files.name),
+					logName=q_log_files.name, context="", qLog=q_log, start=start, search=arguments.search);
 				timings.append({
 					name: q_log_files.name,
 					metric: "parse",
-					data:  getTickCount()-startTimeLog
+					data:  file_stats[q_log_files.name].executionTime
 				});
-				/*
-				timings.append({
-					name: local.name,
-					metric: "records",
-					data:  (q_log.recordcount - rows)
-				});
-				*/
+				// TODO cache file timings use them to avoid searching files which don't contain the search string
 			}
-			//cflog(text="#q_log_files.name#: #serializeJSON(timings[q_log_files.name])#");
 			rows = q_log.recordcount;
 		}
+
+		QueryDeleteColumn( q_log_files, "TYPE");
+		QueryDeleteColumn( q_log_files, "ATTRIBUTES");
+		QueryDeleteColumn( q_log_files, "MODE");
 
 		QuerySort( q_log, "logTimestamp", "desc");
 		if (q_log.recordcount gt 500)
@@ -128,9 +129,12 @@ component hint="enumerate logs directories and lucee contexts" {
 		// sort the logs from multiple sources by timestamp
 		return {
 			start: start,
+			search: arguments.search,
 			timings: timings,
+			stats: file_stats,
 			q_log: q_log,
-			q_log_files: q_log_files
+			q_log_files: q_log_files,
+			totalTime:  getTickCount()-startTime
 		};
 	}
 }

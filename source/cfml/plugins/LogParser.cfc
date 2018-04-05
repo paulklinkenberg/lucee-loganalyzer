@@ -30,51 +30,79 @@ component hint="I parse log files " {
 	public void function init() {
 	}
 
-	public void function readLog(required string logPath,
+	public struct function readLog(required string logPath,
 			required string logName,
 			required string context,
-			required query qLog,
+			required query qLog, // pass by reference
 			any start="",
-			numeric maxLengthStackTrace = 4000,
-			numeric maxLogLines = 1000,
-			numeric maxLogRows = 1000 ) output=false {
+			required string search,
+			//required string singleFile,
+			numeric maxStackTrace = 4000,
+			numeric maxLines = 1000,
+			numeric maxLogs = 1000 ) output=false {
+
 		var line = "";
 		var row = [];
 		var timestamp = "";
 		var javaFile   = createObject("java", "java.io.File").init(logPath);
 		var reader = createObject("java", "org.apache.commons.io.input.ReversedLinesFileReader").init(javaFile);
 
-		var logCount = 0; // number of logs counted
-		var lineCount = 0; // number of lines processed
+		var stats = structNew("linked");
+		stats.logs = 0; // number of logs counted
+		stats.lines = 0; // number of lines processed
+		stats.search = arguments.search;
+		stats.lastDateScanned = "";
+		stats.logScanned = 0;
+		stats.maxLogs = arguments.maxLogs;
+		stats.maxLines = arguments.maxLines;
+		stats.maxStackTrace = arguments.maxStackTrace;
+		stats.executionTime = getTickCount();
+
+		if (arguments.search.len() gt 0){
+			stats.maxLogs = 50;
+			stats.maxLines = 10000;
+		}
+		var entry = {
+			timeStamp: ""
+		};
+
 		// reading the log files in reverse
 		try {
-			LineLoop: while (logCount < maxLogRows) {
+			LineLoop: while (stats.logs < stats.maxLogs) {
 				line = reader.readLine();
-				if (isNull(line))
+				stats.lines++;
+				if (isNull(line)){
+					writeOutput("null");
 					break; // start of file
+				}
+				if (stats.lines > stats.maxLines )
+					break;
 				if (len(line) gt 0 and left(line, 1) eq '"'){
 					// double quotes are escaped, don't get tripped up by wierd logs
 					if (line neq '"' and left(line,2) neq '""' ){ // new log row
-						var entry = parseLogEntry(line, row.reverse().toList( chr(10) ) );
+						stats.logScanned++
+						entry = parseLogEntry(log=line, stack=row.reverse().toList( chr(10) ),
+							search=arguments.search );
 						switch(structCount(entry)){
 							case 0:
-								break LineLoop;
+								continue LineLoop;
+							case 1:  // search no match
+								continue LineLoop;
 							case 7:
 								break; // normal
 							default:
 								dump (entry); // shouldn't ever get this far
 								throw (text="entry had #structCount(entry)# items, expected 7");
 						}
-
 						if (arguments.start neq false){
 							if (dateCompare(entry.timeStamp, arguments.start) eq -1)  {
 								row = [];
 								break;
 							}
 						}
-						insertLogEntry(qLog, logName, context, entry, arguments.maxLengthStackTrace);
+						stats.logs++;
+						insertLogEntry(qLog, logName, context, entry, stats.maxStackTrace);
 						row = [];
-						logCount++;
 					} else {
 						arrayAppend(row, line);
 					}
@@ -82,7 +110,6 @@ component hint="I parse log files " {
 				} else {
 					arrayAppend(row, line);
 				}
-				lineCount++;
 			}
 		} catch (any){
 			reader.close();
@@ -90,11 +117,16 @@ component hint="I parse log files " {
 			abort;
 		}
 		reader.close();
+		stats.lastDateScanned = entry.timestamp ?: "";
+		stats.executionTime = getTickCount()-stats.executionTime;
+		return stats;
 	}
 
-	private struct function parseLogEntry(required string log, string stack=""){
+	private struct function parseLogEntry(required string log, string stack="", required string search){
 		if (arguments.log.startsWith('"Severity"'))
 			return {}; // header row, ignore it
+
+
 		var entry = {};
 		var str = arguments.log;
 		if ( len(arguments.stack) )
@@ -134,6 +166,13 @@ component hint="I parse log files " {
 			entry.log = str;
 			entry.stack = "";
 		}
+		if (arguments.search.len() gt 0){
+			if ( FindNoCase(arguments.search, entry.log) eq 0 and
+				 FindNoCase(arguments.search, entry.stack) eq 0 ){
+				return { search: false };
+			}
+		}
+
 		// https://regex101.com/r/Fd8qCi/1/
 		var logStack = REMatch("(\[[\:\/\\a-zA-Z\_\-\.\$]*\])", entry.log);
 		if (logStack.len() gt 0){
@@ -167,7 +206,7 @@ component hint="I parse log files " {
 			required string logFile,
 			required string context,
 			required struct entry,
-			required numeric maxLengthStackTrace){
+			required numeric maxStackTrace){
 
 		var row = queryAddRow(q);
 		try {
@@ -178,12 +217,12 @@ component hint="I parse log files " {
 			querySetCell(q, "logTimestamp", entry.timestamp, row);
 			querySetCell(q, "cfstack", 		entry.cfstack, row);
 			querySetCell(q, "log",        	entry.log, row);
-			if (arguments.maxLengthStackTrace lt 1){
+			if (arguments.maxStackTrace lt 1){
 				querySetCell(q, "stack",        entry.stack, row);
 			} else {
-				if (len(entry.stack) gt arguments.maxLengthStackTrace ){
-					querySetCell(q, "stack", left(entry.stack, arguments.maxLengthStackTrace)
-						& "#chr(10)# -- very long stack, omitted #(len(entry.stack)-arguments.maxLengthStackTrace)# bytes" , row);
+				if (len(entry.stack) gt arguments.maxStackTrace ){
+					querySetCell(q, "stack", left(entry.stack, arguments.maxStackTrace)
+						& "#chr(10)# -- very long stack, omitted #(len(entry.stack)-arguments.maxStackTrace)# bytes" , row);
 				} else {
 					querySetCell(q, "stack", entry.stack, row);
 				}

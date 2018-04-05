@@ -27,34 +27,53 @@
 <cfscript>
 	request.title = "Log Monitor";
 	request.subtitle = "";
-	param name="url.xhr" default="false";
-	param name="url.severity"  default="";
+	param name="req.xhr" default="false";
+	param name="req.severity"  default="";
+	param name="req.q"  default="";
+	formAction = trim(action('overview'))
+
 	st_severity = {};
-	if (len(url.severity) gt 0){
-		var _severity = ListToArray(url.severity);
+	if (len(req.severity) gt 0){
+		var _severity = ListToArray(req.severity);
 		for (var h in _severity)
 			st_severity[h] = true;
 	}
-	param name="url.file"  default="";
+	param name="req.file"  default="";
 	st_files = {};
-	if (len(url.file) gt 0){
-		var _file = ListToArray(url.file);
+	if (len(req.file) gt 0){
+		var _file = ListToArray(req.file);
 		for (var f in _file)
 			st_files[f] = true;
 	}
 	st_all_files = {};
+
+	var info = {};
+	for (var f in req.logs){
+		if (f neq "Q_LOG")
+			info[f]=req.logs[f];
+	}
 </cfscript>
 
 <cfif request.admintype eq "server">
 	<cfinclude  template="contextSelector.cfm">
 </cfif>
-<cfset formAction = trim(action('overview'))>
 <cfoutput>
+<script>
+	var logAnalyzerStats = #serializeJSON(info)#;
+	console.table(logAnalyzerStats.STATS);
+	console.log(logAnalyzerStats);
+
+</script>
+
 <cfsavecontent variable="formControls">
-	<form action="#formAction#" method="post" class="log-actions">
+	<form action="#formAction#" method="get" class="log-actions">
+		<input type="hidden" name="plugin" value="#req.plugin#">
+		<input type="hidden" name="action" value="#req.action#">
+		<input type="hidden" name="pluginAction" value="#req.pluginAction#">
 		<div class="log-controls">
-			<input type="text" class="search-logs" size="50">
-			<input class="button" data-action="search" type="button" value="#i18n('Search')#"/>
+			<input type="text" name="q" class="search-logs" size="50" value="#htmleditformat(req.q)#">
+			<input class="button" data-action="search" type="button" value="#i18n('Search')#"
+				title="#htmleditformat(i18n('searchHint'))#"/>
 			<input class="button" data-action="clear-search" type="button" value="#i18n('Clear')#"/>
 			<!---<input class="daterange" type="text" value="" size="20"> --->
 
@@ -69,7 +88,7 @@
 					<option value="1800">30m</option>
 				</select>
 				<input class="button" data-action="auto-refresh" type="button" value="#i18n('StartAutoRefresh')#"/>
-			</div>			
+			</div>
 			<div class="log-severity-filter">
 				<cfloop list="INFO,INFORMATION|WARN,WARNING|ERROR|FATAL|DEBUG|TRACE" index="severity" delimiters="|">
 					<span class="log-severity-filter-type">
@@ -114,7 +133,7 @@
 </cfsavecontent>
 	#renderUtils.cleanHtml(formControls)# <!--- avoid lots of whitespace --->
 </cfoutput>
-<cfif url.xhr>
+<cfif req.xhr>
 	<Cfcontent reset="yes">
 </cfif>
 <cfset num=0/>
@@ -124,7 +143,8 @@
 	<div class="logs-loading" style="display:none;">#i18n('LoadingLogs')#</div>
 
 	<div class="longwords logs" data-fetched="#DateTimeFormat(now(),"yyyy-mm-dd'T'HH:nn:ss")#"
-		data-files="#url.file#">
+		data-search="#htmleditformat(req.q)#"
+		data-files="#req.file#">
 </cfoutput>
 	<cfscript>
 		q_log = req.logs.q_log;
@@ -142,12 +162,12 @@
 					and q_log.severity eq q_log.severity[lastrow]
 					and q_log.thread eq q_log.thread[lastrow]
 					and q_log.logtimestamp eq q_log.logtimestamp[lastrow]>
-				<cfset hideRow = ' style="display:none" '>							
+				<cfset hideRow = ' style="display:none" '>
 			</cfif>
 		</cfif>
 		<cfoutput><div class="log-header" #hideRow#><span class="log-fie">#q_log.logfile#</span></cfoutput>
 			<cfoutput><span class="log-severity">#q_log.severity#</span></cfoutput>
-			<cfoutput><span class="log-timestamp"> #LSTimeFormat(q_log.logtimestamp, i18n("timeformat") )#, 
+			<cfoutput><span class="log-timestamp"> #LSTimeFormat(q_log.logtimestamp, i18n("timeformat") )#,
 			#LSDateFormat(q_log.logtimestamp, i18n("dateformat"))#</span></cfoutput>
 			<cfoutput><span class="log-thread">#q_log.thread#</span></cfoutput>
 		<cfoutput></div></cfoutput>
@@ -188,13 +208,13 @@
 		<form action="#formAction#" method="post">
 			<input class="submit" type="submit" value="#i18n('Back')#" name="mainAction"/>
 		</form>
-		#renderUtils.includeLang()#		
+		#renderUtils.includeLang()#
 		#renderUtils.includeJavascript("moment-with-locales.min")#
 		<!---
 		#renderUtils.includeCss("daterangepicker")#
 		#renderUtils.includeCss("bootstrap.min")#
 		#renderUtils.includeJavascript("bootstrap.min")#
-		
+
 		#renderUtils.includeJavascript("daterangepicker")#
 		--->
 
