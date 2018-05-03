@@ -132,7 +132,7 @@ component hint="I parse log files " {
 		if ( len(arguments.stack) )
 			str = str & chr(10) & arguments.stack;
 		try {
-			// the start of the log entry is very structed, extract the first 5 quoted items
+			// the start of the log entry is very structured, extract the first 5 quoted items
 			var header =  REMatch('\A(?:[^\"]*\"){11}', str);
 			if (header.len() eq 0)
 				throw "couldn't parse header";

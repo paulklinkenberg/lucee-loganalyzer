@@ -27,10 +27,6 @@
  */
 component hint="I contain the main functions for the log Analyzer plugin" extends="lucee.admin.plugin.Plugin" {
 
-
-	/**
-	 * this function will be called to initalize
-	 */
 	public void function init(required struct lang, required struct app) {
 		variables.renderUtils = new RenderUtils(arguments.lang, action("asset"), this.action );
 		variables.logGateway = new logGateway();
@@ -58,7 +54,7 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 			session.logAnalyzer.webID = req.webID;
 		}
 		if ( request.admintype != "server" || len(session.loganalyzer.webID) ) {
-			arguments.req.logfiles = logGateway.listLogs(sort=req.sort, dir=req.dir, listOnly=true);
+			req.logfiles = logGateway.listLogs(sort=req.sort, dir=req.dir, listOnly=true);
 		} else {
 			location url=action("contextSelector", 'nextAction=admin') addtoken="false";
 		}
@@ -75,7 +71,7 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 				defaultDays=7, parseLogs=true, search=req.q);
 			variables.renderUtils.renderServerTimingHeaders(logs.timings);
 			logs.delete("timings");
-			arguments.req.logs = logs;
+			req.logs = logs;
 		} else {
 			location url=action("contextSelector", 'nextAction=overview') addtoken="false";
 		}
@@ -136,11 +132,11 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 			//if (checkCSRF( req.token))
 			//	throw message="access denied";
 
-			var tempFilePath = logGateway.getLogPath(file=req.file);
+			local.tempFilePath = logGateway.getLogPath(file=req.file);
 			try {
-				file action="delete" file="#tempFilePath#";
+				file action="delete" file="#local.tempFilePath#";
 			} catch (any){
-				file action="write" file="#tempFilePath#" output="";
+				file action="write" file="#local.tempFilePath#" output="";
 			}
 			location url=action("overview");
 		} else {

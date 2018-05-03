@@ -9,7 +9,7 @@
 		<custom key="logfilecreated">Created</custom>
 		<custom key="logfilesize">Filesize</custom>
 		<custom key="message">Message</custom>
-		<custom key="Lastoccurence">Last occurence</custom>
+		<custom key="Lastoccurence">Last occurrence</custom>
 		<custom key="threadname">Thread name</custom>
 		<custom key="type">Type</custom>
 		<custom key="dateformat">d Mmm, yyyy</custom>
@@ -18,9 +18,9 @@
 		<custom key="timeformatshort">HH:mm</custom>
 		<custom key="file">File</custom>
 		<custom key="line">line</custom>
-		<custom key="occurences">Occurences</custom>
+		<custom key="occurences">Occurrences</custom>
 		<custom key="from">from</custom>
-		<custom key="untill">untill</custom>
+		<custom key="untill">until</custom>
 		<custom key="date">Date</custom>
 		<custom key="Back">Back</custom>
 		<custom key="detail">Detail</custom>
@@ -76,7 +76,7 @@
 		<custom key="logfilesize">Filesize</custom>
 		<custom key="logfilesize">logfilecreated</custom>
 		<custom key="message">Message</custom>
-		<custom key="Lastoccurence">Last occurence</custom>
+		<custom key="Lastoccurence">Last occurrence</custom>
 		<custom key="threadname">Thread name</custom>
 		<custom key="type">Type</custom>
 		<custom key="dateformat">d Mmm. yyyy</custom>
@@ -84,7 +84,7 @@
 		<custom key="timeformatshort">HH:mm</custom>
 		<custom key="file">File</custom>
 		<custom key="line">line</custom>
-		<custom key="occurences">Occurences</custom>
+		<custom key="occurences">Occurrences</custom>
 		<custom key="from">from</custom>
 		<custom key="untill">untill</custom>
 		<custom key="date">Date</custom>

@@ -80,8 +80,6 @@ component hint="various rendering related files"{
 		writeOutput("<script>#ArrayToList(missing,chr(10))#</script>");
 	}
 
-
-
 	public void function returnAsset(required string asset) {
 		if (arguments.asset contains "..")
 			throw "invalid asset request #htmleditformat(arguments.asset)#";
