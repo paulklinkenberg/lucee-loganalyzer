@@ -28,6 +28,10 @@ abbr {
 	text-decoration: none;
 }
 
+.warning {
+	color: red;
+}
+
 .maintbl TH.row { width:auto; }
 
 .black { color: black;}
@@ -58,11 +62,11 @@ ul.stack {
 
 .logs {
 	border:1px solid #999;
-	padding: 5px 5px;	
+	padding: 5px 5px;
 }
 
-.log {	
-	border:1px solid white;	
+.log {
+	border:1px solid white;
 	padding-top: 5px
 }
 
@@ -91,7 +95,7 @@ label:hover {
 	padding-bottom: 4px ;
 }
 
-.log-header {	
+.log-header {
 	display: inline;
 	padding: 8px;
 	padding-bottom: 4px;

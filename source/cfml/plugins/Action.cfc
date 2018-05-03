@@ -50,15 +50,15 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 	 * list all files from the local web
 	 */
 	public function admin(struct lang, struct app, struct req) output=true {
-		param default="name", name="url.sort";
-		param default="", name="url.dir";
-		param default="", name="session.loganalyzer.webID";
+		param name="req.sort" default="name";
+		param name="req.dir" default="";
+		param name="session.loganalyzer.webID" default="serverContext";
 		//  web context chosen?
 		if ( request.admintype == "server" && structKeyExists(req, "webID") && len(req.webID) ) {
 			session.logAnalyzer.webID = req.webID;
 		}
 		if ( request.admintype != "server" || len(session.loganalyzer.webID) ) {
-			arguments.req.logfiles = logGateway.listLogs(sort=url.sort, dir=url.dir, listOnly=true);
+			arguments.req.logfiles = logGateway.listLogs(sort=req.sort, dir=req.dir, listOnly=true);
 		} else {
 			location url=action("contextSelector", 'nextAction=admin') addtoken="false";
 		}
@@ -68,7 +68,7 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 		param name="req.file" default="";
 		param name="req.start" default="";
 		param name="req.q" default="";
-		param default="", name="session.loganalyzer.webID";
+		param name="session.loganalyzer.webID" default="serverContext";
 
 		if ( request.admintype != "server" || len(session.loganalyzer.webID) ) {
 			var logs = logGateway.getLog(files=req.file, startDate=req.start,
@@ -130,13 +130,13 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 	}
 
 	public function deleteLog(struct lang, struct app, struct req) output=false {
-		if (structKeyExists(url, "delete")){
-			param name="url.token" default="";
-			param name="url.file" default="";
-			//if (checkCSRF( url.token))
+		if (structKeyExists(req, "delete")){
+			param name="req.token" default="";
+			param name="req.file" default="";
+			//if (checkCSRF( req.token))
 			//	throw message="access denied";
 
-			var tempFilePath = logGateway.getLogPath(file=url.file);
+			var tempFilePath = logGateway.getLogPath(file=req.file);
 			try {
 				file action="delete" file="#tempFilePath#";
 			} catch (any){
