@@ -35,11 +35,12 @@ component hint="I parse log files " {
 			required string context,
 			required query qLog, // pass by reference
 			any start="",
+			any end="",
 			required string search,
 			//required string singleFile,
 			numeric maxStackTrace = 4000,
-			numeric maxLines = 1000,
-			numeric maxLogs = 1000 ) output=false {
+			numeric maxLines = 50000,
+			numeric maxLogs = 1000 ) output=true {
 
 		var line = "";
 		var row = [];
@@ -57,6 +58,7 @@ component hint="I parse log files " {
 		stats.maxLines = arguments.maxLines;
 		stats.maxStackTrace = arguments.maxStackTrace;
 		stats.executionTime = getTickCount();
+		stats.skipped = [];
 
 		if (arguments.search.len() gt 0){
 			stats.maxLogs = 50;
@@ -94,7 +96,24 @@ component hint="I parse log files " {
 								dump (entry); // shouldn't ever get this far
 								throw (text="entry had #structCount(entry)# items, expected 7");
 						}
-						if (arguments.start neq false){
+
+						if (arguments.start neq false and arguments.end neq false){
+							// request for specific date range
+							if (dateCompare(entry.timeStamp, arguments.end,'d') eq 1){
+								// log entry is more recent than end date
+								row = [];
+								stats.skipped= entry.timeStamp;
+								stats._skipped = dateCompare(entry.timeStamp, arguments.end,'d');
+								continue;
+							}
+							if (dateCompare(entry.timeStamp, arguments.start,'d') eq -1)  {
+								// log entry is before  start date, stop
+								row = [];
+								stats.bailed = entry.timeStamp;
+								break;
+							}
+						} else if (arguments.start neq false){
+							// polling for updated since last fetch
 							if (dateCompare(entry.timeStamp, arguments.start) eq -1)  {
 								row = [];
 								break;
@@ -119,6 +138,7 @@ component hint="I parse log files " {
 		reader.close();
 		stats.lastDateScanned = entry.timestamp ?: "";
 		stats.executionTime = getTickCount()-stats.executionTime;
+		//dump(qLog);		dump(arguments);		dump(stats);		abort;
 		return stats;
 	}
 
@@ -146,10 +166,10 @@ component hint="I parse log files " {
 			entry.timestamp = parseDateTime(header[3] & " " & header[4]);
 			entry.app = header[5];
 			// extract out all the cfml source paths, far more interesting at a glance for cfml developers
-			entry.cfstack = REMatch("(\([\/a-zA-Z\_\-\.\$]*[\.cfc|\.cfm|\.lucee)]\:\d+\))", str);
-			for (var cf = 1; cf <= entry.cfstack.len(); cf++){
+			entry.cfStack = REMatch("(\([\/a-zA-Z\_\-\.\$]*[\.cfc|\.cfm|\.lucee)]\:\d+\))", str);
+			for (var cf = 1; cf <= entry.cfStack.len(); cf++){
 				// strip out the wrapping braces
-				entry.cfstack[cf] = ListFirst(entry.cfstack[cf],"()");
+				entry.cfStack[cf] = ListFirst(entry.cfStack[cf],"()");
 			}
 		} catch (any){
 			dump(left(str,500));
@@ -162,7 +182,7 @@ component hint="I parse log files " {
 			entry.log = mid(str, 1, firstTab);
 			entry.stack = mid(str, firstTab);
 		} else {
-			// no stack strace
+			// no stack trace
 			entry.log = str;
 			entry.stack = "";
 		}
@@ -181,7 +201,7 @@ component hint="I parse log files " {
 			for (var s in logstack)
 				ls[listFirst(s,"[]")]="";
 			logStack = StructKeyList(ls);
-			ArrayAppend(entry.cfstack, logStack, true);
+			ArrayAppend(entry.cfStack, logStack, true);
 		}
 
 		// sanity checking
@@ -197,7 +217,7 @@ component hint="I parse log files " {
 
 	public query function createLogQuery(){
 		return QueryNew(
-			"context, logFile, logDate,  logTimestamp, thread, app,     severity, log,    stack,    cfstack",
+			"context, logFile, logDate,  logTimestamp, thread, app,     severity, log,    stack,    cfStack",
 			"varchar, varchar, date,     timestamp,    varchar,varchar, varchar,  varchar, varchar, array"
 		);
 	}
@@ -215,7 +235,7 @@ component hint="I parse log files " {
 			querySetCell(q, "app",          entry.app, row);
 			querySetCell(q, "thread",       entry.thread, row);
 			querySetCell(q, "logTimestamp", entry.timestamp, row);
-			querySetCell(q, "cfstack", 		entry.cfstack, row);
+			querySetCell(q, "cfStack", 		entry.cfStack, row);
 			querySetCell(q, "log",        	entry.log, row);
 			if (arguments.maxStackTrace lt 1){
 				querySetCell(q, "stack",        entry.stack, row);

@@ -28,7 +28,7 @@
 component hint="enumerate logs directories and lucee contexts" {
 
 	/**
-	 * this function will be called to initalize
+	 * this function will be called to initialize
 	 */
 	public void function init() {
 		variables.logParser = new LogParser();
@@ -68,16 +68,19 @@ component hint="enumerate logs directories and lucee contexts" {
 		return	variables.logDirectory.listLogs(argumentCollection=arguments);
 	}
 
-	public struct function getLog(string files, any startDate, numeric defaultDays=1,
+	public struct function getLog(string files, any startDate, any endDate, numeric defaultDays=1,
 		required boolean parseLogs, string search="") output=false {
 		var start = logDirectory.processDate(arguments.startDate);
+		var end = logDirectory.processDate(arguments.endDate);
 		var q_log = logParser.createLogQuery();
 		var rows = 0;
 		var st_files = {};
 		var file_stats = {};
 		var timings = [];
 		var startTime = getTickCount();
+		// TODO need to handle rotated log files
 		var q_log_files = logDirectory.listLogs(filter="*.log", listOnly=arguments.parseLogs);
+		var firstLogDate = "";
 
 		timings.append({
 			name: "list-logs",
@@ -96,6 +99,11 @@ component hint="enumerate logs directories and lucee contexts" {
 			start = logDirectory.getDefaultstart(q_log_files, st_files, defaultDays);
 
 		loop query=q_log_files {
+			if (firstLogDate eq "")
+				firstLogDate = q_log_files.created;
+			else if (DateCompare(firstLogDate, q_log_files.created) eq 1 )
+				firstLogDate= q_log_files.created;
+
 			if (start neq false){
 				if (dateCompare(q_log_files.dateLastModified, start) eq -1)
 					continue; // log file hasn't been updated start last request
@@ -106,7 +114,7 @@ component hint="enumerate logs directories and lucee contexts" {
 			if (arguments.parseLogs){
 
 				file_stats[q_log_files.name] = logParser.readLog(logPath=logDirectory.getLogPath(q_log_files.name),
-					logName=q_log_files.name, context="", qLog=q_log, start=start, search=arguments.search);
+					logName=q_log_files.name, context="", qLog=q_log, start=start, end=end, search=arguments.search);
 				timings.append({
 					name: q_log_files.name,
 					metric: "parse",
@@ -115,6 +123,8 @@ component hint="enumerate logs directories and lucee contexts" {
 				// TODO cache file timings use them to avoid searching files which don't contain the search string
 			}
 			rows = q_log.recordcount;
+
+
 		}
 
 		QueryDeleteColumn( q_log_files, "TYPE");
@@ -128,6 +138,7 @@ component hint="enumerate logs directories and lucee contexts" {
 		//cflog(text="finished getLogs: #arguments.files# in #getTickCount()-startTimeLog#ms");
 		// sort the logs from multiple sources by timestamp
 		return {
+			firstLogDate: DateFormat(firstLogDate,"yyyy-mm-dd"),
 			start: start,
 			search: arguments.search,
 			timings: timings,

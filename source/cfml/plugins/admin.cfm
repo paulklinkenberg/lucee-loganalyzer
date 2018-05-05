@@ -22,7 +22,7 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  --->
-<cfparam name="url.file" default="">
+<cfparam name="req.file" default="">
 <cfset thispageaction = rereplace(action('overview'), "^[[:space:]]+", "") />
 
 <!--- show a select list of all the web contexts --->
@@ -34,17 +34,17 @@
 	<table class="maintbl log-overview">
 	<thead>
 		<tr>
-			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=name<cfif url.sort eq 'name' and url.dir neq 'desc'>&amp;dir=desc</cfif>"
-				title="#i18n('Orderonthiscolumn')#"<cfif url.sort eq 'name'>
+			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=name<cfif req.sort eq 'name' and req.dir neq 'desc'>&amp;dir=desc</cfif>"
+				title="#i18n('Orderonthiscolumn')#"<cfif req.sort eq 'name'>
 				style="font-weight:bold"</cfif>>#i18n('logfilename')#</a></th>
-			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=datelastmodified<cfif url.sort neq 'datelastmodified' or url.dir neq 'desc'>&amp;dir=desc</cfif>"
-				title="#i18n('Orderonthiscolumn')#"<cfif url.sort eq 'datelastmodified'>
+			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=datelastmodified<cfif req.sort neq 'datelastmodified' or req.dir neq 'desc'>&amp;dir=desc</cfif>"
+				title="#i18n('Orderonthiscolumn')#"<cfif req.sort eq 'datelastmodified'>
 				style="font-weight:bold"</cfif>>#i18n('logfiledate')#</a></th>
-			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=created<cfif url.sort neq 'created' or url.dir neq 'desc'>&amp;	dir=desc</cfif>"
-				title="#i18n('Orderonthiscolumn')#" <cfif url.sort eq 'created'>
+			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=created<cfif req.sort neq 'created' or req.dir neq 'desc'>&amp;	dir=desc</cfif>"
+				title="#i18n('Orderonthiscolumn')#" <cfif req.sort eq 'created'>
 				style="font-weight:bold"</cfif>>#i18n('logfilecreated')#</a></th>
-			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=size<cfif url.sort neq 'size' or url.dir neq 'desc'>&amp;dir=desc</cfif>"
-				title="#i18n('Orderonthiscolumn')#"<cfif url.sort eq 'size'>
+			<th><a class="tooltipMe" href="#thispageaction#&amp;sort=size<cfif req.sort neq 'size' or req.dir neq 'desc'>&amp;dir=desc</cfif>"
+				title="#i18n('Orderonthiscolumn')#"<cfif req.sort eq 'size'>
 				style="font-weight:bold"</cfif>>#i18n('logfilesize')#</a></th>
 			<th>#i18n('actions')#</th>
 		</tr>

@@ -60,14 +60,16 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 		}
 	}
 
-	public function overview(struct lang, struct app, struct req) output=false {
+	public function overview(struct lang, struct app, struct req) output=true {
 		param name="req.file" default="";
-		param name="req.start" default="";
+		param name="req.start" default=""; // default="#dateFormat(now(),'yyyy-mm-dd')#";
+		param name="req.end" default=""; //default="#dateFormat(DateAdd('d',-7,now()),'yyyy-mm-dd')#";
 		param name="req.q" default="";
 		param name="session.loganalyzer.webID" default="serverContext";
 
 		if ( request.admintype != "server" || len(session.loganalyzer.webID) ) {
 			var logs = logGateway.getLog(files=req.file, startDate=req.start,
+				endDate=req.end,
 				defaultDays=7, parseLogs=true, search=req.q);
 			variables.renderUtils.renderServerTimingHeaders(logs.timings);
 			logs.delete("timings");
@@ -89,10 +91,13 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 	}
 
 	public function getLogJson(struct lang, struct app, struct req) output=false {
-		param name="url.file" default="";
-		param name="url.start" default="";
+		param name="req.file" default="";
+		param name="req.start" default="";
+		param name="req.end" default="";
+		param name="req.q" default="";
 
-		var logs = logGateway.getLog(url.file, url.start, 7, true);
+		var logs = logGateway.getLog(files=req.file, startDate=req.start, endDate=req.end,
+			defaultDays=7, parseLogs=true, search=req.q);
 		logs.FETCHED = dateTimeFormat(now(), "yyyy-mm-dd HH:nn:ss");
 		variables.renderUtils.renderServerTimingHeaders(logs.timings);
 		setting showdebugoutput="false";

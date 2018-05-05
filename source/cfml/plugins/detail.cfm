@@ -37,18 +37,18 @@
 	<cfset request.Title = "">
 	<cfset request.subTitle = "Log Entry from #htmleditformat(url.file)#">
 
-	<cfset stOccurences = {} />
+	<cfset stOccurrences = {} />
 	<cfloop from="1" to="#arrayLen(stData.dateTime)#" index="i">
 		<cfset tempdate = dateFormat(stData.dateTime[i], "yyyy-mm-dd ") & timeformat(stData.dateTime[i], "HH:mm") />
-		<cfif not structKeyExists(stOccurences, tempdate)>
-			<cfset stOccurences[tempdate] = 1 />
+		<cfif not structKeyExists(stOccurrences, tempdate)>
+			<cfset stOccurrences[tempdate] = 1 />
 		<cfelse>
-			<cfset stOccurences[tempdate]++ />
+			<cfset stOccurrences[tempdate]++ />
 		</cfif>
 	</cfloop>
 
-	<cfset qValues = queryNew("logdate,datedisplay,occurences", "timestamp,varchar,integer") />
-	<cfloop collection="#stOccurences#" item="i">
+	<cfset qValues = queryNew("logdate,datedisplay,Occurrences", "timestamp,varchar,integer") />
+	<cfloop collection="#stOccurrences#" item="i">
 		<cfscript>
 			queryAddRow(qValues);
 			querySetCell(qValues, "logdate", parseDateTime(i));
@@ -56,7 +56,7 @@
 				dateformat(parseDateTime(i), arguments.lang.dateformatchart)
 				& timeformat(parseDateTime(i), arguments.lang.timeformatchart)
 			);
-			querySetCell(qValues, "occurences", stOccurences[i]);
+			querySetCell(qValues, "Occurrences", stOccurrences[i]);
 		</cfscript>
 	</cfloop>
 	<cfquery name="qValues" dbtype="query">
@@ -74,7 +74,7 @@
 				<td><h2 class="black">#htmlEditFormat(rereplace(stData.message, "([^[:space:]]{50}.*?[,\.\(\)\{\}\[\]])", "\1 ", "all"))#</h2></td>
 			</tr>
 			<tr>
-				<th class="row" style="white-space:nowrap">#arguments.lang.Lastoccurence#</th>
+				<th class="row" style="white-space:nowrap">#arguments.lang.lastOccurrence#</th>
 				<td>#getTextTimeSpan(dMax, arguments.lang)#: #dateFormat(dMax, arguments.lang.dateformat)# #timeFormat(dMax, arguments.lang.timeformat)#</td>
 			</tr>
 			<tr>
@@ -92,20 +92,20 @@
 				</tr>
 			</cfif>
 			<tr>
-				<th class="row" style="vertical-align:top;">#arguments.lang.Occurences#</th>
+				<th class="row" style="vertical-align:top;">#arguments.lang.Occurrences#</th>
 				<td>#stData.iCount#<!---
 					---><cfif stData.iCount gt 1>,
 						<cfif dMin eq dMax>#arguments.lang.allinthesameminute#: #DateFormat(dMin, arguments.lang.dateformat)# #TimeFormat(dMin, arguments.lang.timeformatshort)#
 						<cfelse>
-							#arguments.lang.from# #DateFormat(dMin, arguments.lang.dateformat)# #TimeFormat(dMin, arguments.lang.timeformatshort)# #arguments.lang.untill#
+							#arguments.lang.from# #DateFormat(dMin, arguments.lang.dateformat)# #TimeFormat(dMin, arguments.lang.timeformatshort)# #arguments.lang.until#
 							#DateFormat(dMax, arguments.lang.dateformat)# #TimeFormat(dMax, arguments.lang.timeformatshort)#
 							<br /><br />
-							<cfset maxOccurences = listFirst(listSort(valueList(qValues.occurences), "numeric", "desc")) />
-							<cfset chartMax = ceiling(maxOccurences/8)*8 />
+							<cfset maxOccurrences = listFirst(listSort(valueList(qValues.Occurrences), "numeric", "desc")) />
+							<cfset chartMax = ceiling(maxOccurrences/8)*8 />
 							<cfchart format="png" chartheight="200" chartwidth="500" showygridlines="no" backgroundcolor="##FFFFFF"
-							seriesplacement="default" labelformat="number" xaxistitle="#arguments.lang.date#" yaxistitle="#arguments.lang.Occurences#"
+							seriesplacement="default" labelformat="number" xaxistitle="#arguments.lang.date#" yaxistitle="#arguments.lang.Occurrences#"
 							xaxistype="date" yaxistype="scale" sortxaxis="no" scalefrom="0" scaleto="#chartMax#" gridlines="9">
-								<cfchartseries type="line" itemcolumn="datedisplay" valuecolumn="occurences" query="qValues" seriescolor="##00F000" markerstyle="circle"></cfchartseries>
+								<cfchartseries type="line" itemcolumn="datedisplay" valuecolumn="Occurrences" query="qValues" seriescolor="##00F000" markerstyle="circle"></cfchartseries>
 							</cfchart>
 						</cfif>
 					</cfif>

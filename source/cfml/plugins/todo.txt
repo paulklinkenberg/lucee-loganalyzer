@@ -1,0 +1,1 @@
+merge all rotated log files under the same name, only show the un-rotated name

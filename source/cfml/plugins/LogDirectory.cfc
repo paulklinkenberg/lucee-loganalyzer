@@ -187,7 +187,7 @@ component hint="I enumerate logs directories" {
 		var created = fileAttr.creationTime().toString();
 
    		// Display NIO results as date objects
-   		return parseDateTime(created);
+   		return CreateODBCDateTime(parseDateTime(created));
 	}
 
 }

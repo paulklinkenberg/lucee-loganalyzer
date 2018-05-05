@@ -167,6 +167,7 @@ var viewLog = {
 		var $logs = $(".logs");
 		var fetched = $logs.data("fetched");
 		var url = viewLog.updateUrl(null, "start", fetched);
+		url = viewLog.updateUrl(url, "end", "");
 		var $loading = $(".logs-loading").show();
 
 		var url = viewLog.updateUrl(url, "pluginAction", "getLogJson");
@@ -389,45 +390,58 @@ $(function(){
 	$(window).on("focus", function(){
 		viewLog.updateTitleCount(null);
 	});
-	/*
-	var midnght = moment().set('hour', 23).set('minute', 23);
+
+	var midnight = moment().set('hour', 23).set('minute', 23);
+	var ranges = {
+		"Today": [
+			moment().startOf('day'),
+			midnight
+		],
+		"Yesterday": [
+			moment().subtract("days", 1).startOf('day'),
+			moment().subtract("days", 1).endOf('day'),
+		],
+		"Last 7 Days": [
+			moment().subtract(7,'days').startOf('day'),
+			midnight
+		],
+		"Last 30 Days": [
+			moment().subtract(30,'days').startOf('day'),
+			midnight
+		],
+		"This Month": [
+			moment().startOf('month'),
+			midnight
+		],
+		"Last Month": [
+			moment().startOf('month').subtract(1, "months"),
+			moment().startOf('month').subtract(1, "months").endOf('month')
+		]
+	};
 	$('.daterange').daterangepicker({
-		"ranges": {
-			"Today": [
-				midnght,
-				moment().startOf('day'),
-			],
-			"Yesterday": [
-				midnght,
-				moment().subtract('d',1).startOf('day'),
-			],
-			"Last 7 Days": [
-				midnght,
-				moment().subtract('d',7).startOf('day'),
-			],
-			"Last 30 Days": [
-				midnght,
-				moment().subtract('d',30).startOf('day'),
-			],
-			"This Month": [
-				midnght,
-				moment().startOf('month')
-			],
-			"Last Month": [
-				moment().subtract("m",1).endOf('month'),
-				moment().subtract("m",1).startOf('month')
-			]
-		},
+		"ranges": ranges,
 		"alwaysShowCalendars": false,
-		"startDate": "03/27/2018",
-		"endDate": "04/02/2018",
-		"minDate": "01/01/2016",
+		"startDate": (logAnalyzerDates.start == "") ? null : moment(logAnalyzerDates.start, 'YYYY-MM-DD'),
+		"endDate": (logAnalyzerDates.end == "") ? null : moment(logAnalyzerDates.end, 'YYYY-MM-DD'),
+		"minDate": moment(logAnalyzerDates.firstLogDate, 'YYYY-MM-DD'),
+		"maxDate": moment(),
 		"opens": "left",
-		"timePicker": true
+		"timePicker": true,
+		"timePickerSeconds": false,
+		"timePicker24Hour": true,
+		"showDropdowns": true,
+		"autoUpdateInput": true,
+		locale: {
+			format: 'MMMM D, YYYY'
+		  }
 	}, function(start, end, label) {
-	  console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to '
-	  	+ end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+	  	console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to '
+			 + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+		if (!start.isValid() || !end.isValid() )
+			return;
+		var newUrl = viewLog.updateUrl(null, "start", start.format('YYYY-MM-DD') );
+		newUrl = viewLog.updateUrl(newUrl, "end", end.format('YYYY-MM-DD') );
+		document.location = newUrl;
 	});
-	viewLog.daterangepicker =$('.daterange').data('daterangepicker');
-	*/
+	viewLog.daterangepicker = $('.daterange').data('daterangepicker');
 });

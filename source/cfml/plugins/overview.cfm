@@ -30,7 +30,9 @@
 	param name="req.xhr" default="false";
 	param name="req.severity"  default="";
 	param name="req.q"  default="";
-	formAction = trim(action('overview'))
+	param name="req.start"  default="";
+	param name="req.end"  default="";
+	formAction = trim(action('overview'));
 
 	st_severity = {};
 	if (len(req.severity) gt 0){
@@ -52,6 +54,10 @@
 		if (f neq "Q_LOG")
 			info[f]=req.logs[f];
 	}
+	if (req.start eq "")
+		req.start = DateFormat(req.logs.q_log.LOGTIMESTAMP, "yyyy-mm-dd");
+	if (req.end eq "")
+		req.end = DateFormat(req.logs.q_log.LOGTIMESTAMP[req.logs.q_log.recordcount], "yyyy-mm-dd");
 </cfscript>
 
 <cfif request.admintype eq "server">
@@ -63,6 +69,11 @@
 	console.table(logAnalyzerStats.STATS);
 	console.log(logAnalyzerStats);
 
+	var logAnalyzerDates = {
+		start: '#req.start#',
+		end: '#req.end#',
+		firstLogDate: '#req.logs.firstLogDate#'
+	};
 </script>
 
 <cfsavecontent variable="formControls">
@@ -75,20 +86,19 @@
 			<input class="button" data-action="search" type="button" value="#i18n('Search')#"
 				title="#htmleditformat(i18n('searchHint'))#"/>
 			<input class="button" data-action="clear-search" type="button" value="#i18n('Clear')#"/>
-			<!---<input class="daterange" type="text" value="" size="20"> --->
-
 			<input class="button" data-action="poll" type="button" value="#i18n('Poll')#"/>
 			<input class="button" data-action="reload" type="button" value="#i18n('Reload')#"/>
 			<div class="log-toolbar-group">
 				<select class="poll-period" size=1>
-					<option value="30">30s</option>
+					<option value="30" selected>30s</option>
 					<option value="60">1m</option>
-					<option value="300" selected>5m</option>
+					<option value="300" >5m</option>
 					<option value="900">15m</option>
 					<option value="1800">30m</option>
 				</select>
 				<input class="button" data-action="auto-refresh" type="button" value="#i18n('StartAutoRefresh')#"/>
 			</div>
+			<input class="daterange" type="text" value="" size="30">
 			<div class="log-severity-filter">
 				<cfloop list="INFO,INFORMATION|WARN,WARNING|ERROR|FATAL|DEBUG|TRACE" index="severity" delimiters="|">
 					<span class="log-severity-filter-type">
@@ -112,6 +122,7 @@
 				</label>
 			</cfloop>
 		</div>
+
 	</form>
 	<style class="log-severity-filter-css">
 		<cfsetting enablecfoutputonly="true">
@@ -210,15 +221,8 @@
 		</form>
 		#renderUtils.includeLang()#
 		#renderUtils.includeJavascript("moment-with-locales.min")#
-		<!---
 		#renderUtils.includeCss("daterangepicker")#
-		#renderUtils.includeCss("bootstrap.min")#
-		#renderUtils.includeJavascript("bootstrap.min")#
-
 		#renderUtils.includeJavascript("daterangepicker")#
-		--->
-
 		#renderUtils.includeJavascript("viewlog")#
-
 	</cfif>
 </cfoutput>

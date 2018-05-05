@@ -26,9 +26,7 @@
  * I contain the main functions for the log Analyzer plugin
  */
 component hint="various rendering related files"{
-	/**
-	 * this function will be called to initalize
-	 */
+
 	public void function init(required struct lang, required string href, required any action) {
 		variables.AssetHrefPath = listFirst(arguments.href,"?");
 		variables.AssetHrefParams = listLast(arguments.href,"?");;
@@ -122,13 +120,13 @@ component hint="various rendering related files"{
 	public function getTextTimeSpan(required date date) output=false {
 		var diffSecs = dateDiff('s', arguments.date, now());
 		if ( diffSecs < 60 ) {
-			return replace(variables.lang.Xsecondsago, '%1', diffSecs);
+			return replace(variables.lang.xSecondsAgo, '%1', diffSecs);
 		} else if ( diffSecs < 3600 ) {
-			return replace(variables.lang.Xminutesago, '%1', int(diffSecs/60));
+			return replace(variables.lang.xMinutesAgo, '%1', int(diffSecs/60));
 		} else if ( diffSecs < 86400 ) {
-			return replace(variables.lang.Xhoursago, '%1', int(diffSecs/3600));
+			return replace(variables.lang.xHoursAgo, '%1', int(diffSecs/3600));
 		} else {
-			return replace(variables.lang.Xdaysago, '%1', int(diffSecs/86400));
+			return replace(variables.lang.xDaysAgo, '%1', int(diffSecs/86400));
 		}
 	}
 
