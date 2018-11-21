@@ -127,6 +127,18 @@
 		<cfparam name="url.sort" default="name" />
 		<cfparam name="url.dir" default="" />
 		<cfparam name="session.loganalyzer.webID" default="" />
+		<cfif structKeyExists(url, "delfile")>
+			<cfset var tempFilePath = getLogPath(file=url.delfile) />
+			<cftry>
+				<cffile action="delete" file="#tempFilePath#" />
+				<cfoutput><p class="message">#replace(arguments.lang.logfilehasbeendeleted, "%1", listLast(tempFilePath, '/\'))#</p></cfoutput>
+				<cfcatch>
+					<p class="error">The file could not be deleted; instead we will erase the contents:</p>
+					<cffile action="write" file="#tempFilePath#" output="" />
+					<cfoutput><p class="message">#replace(arguments.lang.logfilehasbeencleared, "%1", listLast(tempFilePath, '/\'))#</p></cfoutput>
+				</cfcatch>
+			</cftry>
+		</cfif>
 		<!--- web context chosen? --->
 		<cfif request.admintype eq "server" and structKeyExists(form, "webID") and len(form.webID)>
 			<cfset session.logAnalyzer.webID = form.webID />
