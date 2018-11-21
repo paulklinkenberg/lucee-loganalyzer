@@ -1,4 +1,4 @@
-<!--- 
+<!---
  *
  * Copyright (c) 2016, Paul Klinkenberg, Utrecht, The Netherlands.
  * Originally written by Gert Franz, Switzerland.
@@ -36,7 +36,7 @@
 			<option value="serverContext">Server context</option>
 			<optgroup label="Web contexts">
 				<cfoutput query="webContexts">
-					<option value="#webContexts.id#"<cfif session.loganalyzer.webID eq webContexts.id> selected</cfif>><cfif len(webContexts.path) gt 68>#rereplace(webContexts.path, "^(.{25}).+(.{40})$", "\1...\2")#<cfelse>#webContexts.path#</cfif></option>
+					<option value="#webContexts.id#"<cfif session.loganalyzer.webID eq webContexts.id> selected</cfif>><cfif len(webContexts.path) gt 68>#rereplace(webContexts.path, "^(.{25}).+(.{40})$", "\1...\2")#<cfelse>#webContexts.path#</cfif> - #webContexts.url#</option>
 				</cfoutput>
 			</optgroup>
 		</select>
@@ -74,7 +74,7 @@
 				<td class="tblContent"><cfif size lt 1024>#size# #arguments.lang.bytes#<cfelse>#ceiling(size/1024)# #arguments.lang.KB#</cfif></td>
 				<td class="tblContent" style="text-align:right; white-space:nowrap; width:1%"><form action="#frmaction#" method="post" style="display:inline;margin:0;padding:0;">
 					<input type="hidden" name="logfile" value="#name#" />
-					<input type="submit" value="#arguments.lang.details#" class="button" />
+					<input type="submit" value="#arguments.lang.analyse#" class="button" />
 					<input type="button" class="button" onclick="self.location.href='#viewlogaction#&amp;file=#name#'" value="#arguments.lang.viewlog#" />
 					<input type="button" class="button" onclick="self.location.href='#downloadaction#&amp;file=#name#'" value="#arguments.lang.download#" />
 					<input type="button" class="button" onclick="self.location.href='#thispageaction#&amp;delfile=#name#'" value="#arguments.lang.delete#" />

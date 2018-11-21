@@ -35,14 +35,16 @@
 			<cfoutput><h3>Web context <em>#getWebRootPathByWebID(session.loganalyzer.webID)#</em></h3></cfoutput>
 		</cfif>
 	</cfif>
-
-	<cfset stData = evaluate(form.data)>
+	
+	<cfset stData = deserializeJSON(form.data)>
 	<cfset dMin = stData.firstdate />
 	<cfset dMax = stData.lastdate />
 	
 	<!--- to fix any problems with urlencoding etc. for logfile paths, we just use the filename of 'form.logfile'.
 	The rest of the path is always recalculated anyway. --->
 	<cfset form.logfile = listLast(form.logfile, "/\") />
+
+	<cfset request.subTitle = "Detail from #htmleditformat(form.logfile)#">
 	
 	<cfset stOccurences = {} />
 	<cfloop from="1" to="#arrayLen(stData.dateTime)#" index="i">
@@ -65,35 +67,37 @@
 		SELECT *
 		FROM qValues
 		ORDER BY date
-	</cfquery>
-	
-	<h3>#form.logfile# - <em>#htmlEditFormat(rereplace(stData.message, "([^[:space:]]{50}.*?[,\.\(\)\{\}\[\]])", "\1 ", "all"))#</em></h3>
+	</cfquery>	
+	<form action="#action('list')#" method="post">
+		<input type="hidden" name="logfile" value="#form.logfile#" />
+		<input class="button submit" type="submit" value="#arguments.lang.Back#" name="mainAction" />
+	</form>
 	<table class="maintbl">
-		<tbody>
+		<tbody>						
 			<tr>
-				<th scope="row">#arguments.lang.Message#</th>
-				<td>#htmlEditFormat(rereplace(stData.message, "([^[:space:]]{50}.*?[,\.\(\)\{\}\[\]])", "\1 ", "all"))#</td>
-			</tr>
+				<th class="row">#arguments.lang.Message#</th>
+				<td><h2 class="black">#htmlEditFormat(rereplace(stData.message, "([^[:space:]]{50}.*?[,\.\(\)\{\}\[\]])", "\1 ", "all"))#</h2></td>
+			</tr>			
 			<tr>
-				<th scope="row" style="white-space:nowrap">#arguments.lang.Lastoccurence#</th>
+				<th class="row" style="white-space:nowrap">#arguments.lang.Lastoccurence#</th>
 				<td>#getTextTimeSpan(dMax, arguments.lang)#: #dateFormat(dMax, arguments.lang.dateformat)# #timeFormat(dMax, arguments.lang.timeformat)#</td>
 			</tr>
 			<tr>
-				<th scope="row">#arguments.lang.Threadname#</th>
+				<th class="row">#arguments.lang.Threadname#</th>
 				<td>#stData.thread#</td>
 			</tr>
 			<tr>
-				<th scope="row">#arguments.lang.Type#</th>
+				<th class="row">#arguments.lang.Type#</th>
 				<td>#stData.type#</td>
 			</tr>
 			<cfif len(trim(stData.file))>
 				<tr>
-					<th scope="row">#arguments.lang.File#</th>
+					<th class="row">#arguments.lang.File#</th>
 					<td>#stData.file#, #arguments.lang.line# #stData.line#</td>
 				</tr>
 			</cfif>
 			<tr>
-				<th scope="row" style="vertical-align:top;">#arguments.lang.Occurences#</th>
+				<th class="row" style="vertical-align:top;">#arguments.lang.Occurences#</th>
 				<td>#stData.iCount#<!---
 					---><cfif stData.iCount gt 1>,
 						<cfif dMin eq dMax>#arguments.lang.allinthesameminute#: #DateFormat(dMin, arguments.lang.dateformat)# #TimeFormat(dMin, arguments.lang.timeformatshort)#
@@ -113,7 +117,7 @@
 				</td>
 			</tr>
 			<tr>
-				<th scope="row">#arguments.lang.Detail#</th>
+				<th class="row">#arguments.lang.Detail#</th>
 				<td class="longwords">#replace(rereplace(htmlEditFormat(rereplace(stData.detail, "([^[:space:]]{90}.*?[,\.\(\)\{\}\[\]])", "\1 ", "all")), "\(([^\(\)]+\. ?cf[cm]:[0-9]+)\)", "(<strong style='background-color:##FF3'>\1</strong>)", "all"), chr(10), '<br />', 'all')#</td>
 			</tr>
 		</tbody>

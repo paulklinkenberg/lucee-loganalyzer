@@ -1,4 +1,4 @@
-<!--- 
+<!---
  *
  * Copyright (c) 2016, Paul Klinkenberg, Utrecht, The Netherlands.
  * Originally written by Gert Franz, Switzerland.
@@ -26,16 +26,23 @@
 	<cffunction name="init" hint="this function will be called to initalize">
 		<cfargument name="lang" type="struct">
 		<cfargument name="app" type="struct">
-
-		<cfhtmlhead text='<style type="text/css">#fileRead(getDirectoryFromPath(getCurrentTemplatePath()) & "style.css")#</style>' />
-
 	</cffunction>
-	
-	
+
+	<cffunction name="_display">
+		<cfargument name="template" type="string">
+		<cfargument name="lang" type="struct">
+		<cfargument name="app" type="struct">
+		<cfargument name="req" type="struct">
+		<cfhtmlhead text='<style id="log-analyzer" type="text/css">#fileRead(getDirectoryFromPath(getCurrentTemplatePath()) & "style.css")#</style>' />
+		<cfscript>
+			super._display(argumentcollection=arguments);
+		</cfscript>
+	</cffunction>
+
 	<cffunction name="getWebContexts" returntype="query" access="public" output="no">
 		<cfargument name="fromCache" type="boolean" default="true" />
 		<cfset var qWebContexts = "" />
-		
+
 		<cfif not structKeyExists(variables, "qWebContexts") or not arguments.fromCache>
 			<!--- get all web contexts --->
 			<cfadmin
@@ -43,12 +50,17 @@
 				type="server"
 				password="#session.passwordserver#"
 				returnVariable="qWebContexts" />
+			<cfquery name="qWebContexts" dbtype="query">
+				select 	*
+				from 	qWebContexts
+				order 	by path
+			</cfquery>
 			<cfset variables.qWebContexts = qWebContexts />
 		</cfif>
 		<cfreturn variables.qWebContexts />
 	</cffunction>
-	
-	
+
+
 	<cffunction name="getLogPath" returntype="string" output="no" hint="This function returns the full log file path, and does some security checking">
 		<cfargument name="file" type="string" required="false" hint="When given, we check and return the full path to this file. Otherwise, we just return the log files directory" />
 		<cfif request.admintype eq "web">
@@ -67,6 +79,46 @@
 		<cfreturn logDir />
 	</cffunction>
 
+	<cffunction name="getLog" returntype="struct" output="no" hint="read a log file and parse into an array">
+		<cfargument name="file" type="string" required="false" hint="" />
+		<cfscript>
+			var line = "";
+			var logs = [];
+			var row = [];
+			var num = 0;
+			var columns = "";
+			var log = getLogPath(arguments.file);
+		</cfscript>
+		<cfloop file="#log#" index="line">
+			<cfscript>
+				if (num eq 0){
+					columns = line;
+					num++;
+					row = [];
+				} else {
+					if (len(line) gt 150){ // split super long lines
+						ArrayAppend(row, ListToArray(wrap(line, 150),"#chr(13)##chr(10)#"), true);
+					} else {
+						arrayAppend(row, line);
+					}
+					if (find('"', right(line, 2))){ // new log row
+						arrayAppend(logs, row);
+						row = [];
+						num++;
+					}
+				}
+			</cfscript>
+		</cfloop>
+		<cfscript>
+			if (arrayLen(row)){
+				arrayAppend(logs, row);
+			}
+			return {
+				columns: columns,
+				logs: logs
+			};
+		</cfscript>
+	</cffunction>
 
 	<cffunction name="getLogPathByWebID" returntype="string" output="no" hint="I return the path to the log directory for a given web context">
 		<cfargument name="webID" type="string" required="true" />
@@ -118,12 +170,12 @@
 			<cfreturn replace(lang.Xdaysago, '%1', int(diffSecs/86400)) />
 		</cfif>
 	</cffunction>
-	
+
 	<cffunction name="overview" output="yes" hint="list all files from the local web">
 		<cfargument name="lang" type="struct">
 		<cfargument name="app" type="struct">
 		<cfargument name="req" type="struct">
-		
+
 		<cfparam name="url.sort" default="name" />
 		<cfparam name="url.dir" default="" />
 		<cfparam name="session.loganalyzer.webID" default="" />
@@ -143,12 +195,12 @@
 		<cfif request.admintype eq "server" and structKeyExists(form, "webID") and len(form.webID)>
 			<cfset session.logAnalyzer.webID = form.webID />
 		</cfif>
-		
+
 		<cfif request.admintype neq "server" or len(session.loganalyzer.webID)>
 			<cfset arguments.req.logfiles = getLogs(sort="#url.sort# #url.dir#") />
 		</cfif>
 	</cffunction>
-	
+
 	<cffunction name="getLogs" output="Yes" returntype="query">
 		<cfargument name="sort" default="name asc" />
 		<cfset var qGetLogs = ""/>
@@ -162,7 +214,7 @@
 		<cfargument name="path"/>
 		<cfreturn listfindNoCase("log,bak", right(path,3)) />
 	</cffunction>
-	
+
 	<cffunction name="list" output="no" hint="analyze the logfile">
 		<cfargument name="lang" type="struct">
 		<cfargument name="app" type="struct">
@@ -174,7 +226,7 @@
 		<cfset var aDump    = ArrayNew(1)>
 		<cfset var sTmp     = "">
 		<cfset var st       = arrayNew(1)>
-		
+
 		<!--- when viewing logs in the server admin, then a webID must be defined --->
 		<cfif request.admintype eq "server">
 			<cfparam name="session.loganalyzer.webID" default="" />
@@ -183,14 +235,14 @@
 				<cflocation url="#gotoUrl#" addtoken="no" />
 			</cfif>
 		</cfif>
-		
+
 		<cfparam name="url.logfile" default="" />
 		<cfparam name="form.logfile" default="#url.logfile#" />
 		<cfset form.logfile = getLogPath(file=form.logfile) />
-		
+
 		<cfparam name="url.sort" default="date" />
 		<cfparam name="url.dir" default="desc" />
-		
+
 		<cfloop file="#form.logfile#" index="sLine">
 			<!--- If line starts with a quote, then it is either an error line, or the end of a dump--->
 			<cfif left(sLine, 1) eq '"'>
@@ -263,7 +315,7 @@
 		<cfset req.result.sortOrder = st>
 		<cfset req.result.stErrors  = stErrors>
 	</cffunction>
-	
+
 	<cffunction name="__addError" access="public" returntype="void" output="no">
 		<cfargument name="aDump" type="array" />
 		<cfargument name="stErrors" type="struct" />
@@ -276,6 +328,8 @@
 			</cfif>
 			<cfset var sHash = Hash(aDump[6].error)>
 			<cfset var tempdate = parsedatetime(aDump[3] & " " & aDump[4]) />
+
+
 			<cfif structKeyExists(stErrors, sHash)>
 				<cfset stErrors[sHash].iCount++ />
 				<cfset ArrayAppend(stErrors[sHash].datetime, tempdate) />
@@ -297,5 +351,5 @@
 			<cfcatch></cfcatch>
 		</cftry>
 	</cffunction>
-	
+
 </cfcomponent>
