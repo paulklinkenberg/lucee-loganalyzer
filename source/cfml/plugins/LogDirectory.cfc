@@ -162,9 +162,9 @@ component hint="I enumerate logs directories" {
 		if (arguments.q_log_files.recordcount eq 0)
 			return DateAdd("d", -arguments.defaultDays, now());
 		var q = duplicate(arguments.q_log_files);
-		if (structCount(files) gt 0){
+		if (structCount(arguments.files) gt 0){
 			loop query=q {
-				if (not (structKeyExists(files, q.name))) // exclude this log file from check
+				if (not (structKeyExists(arguments.files, q.name))) // exclude this log file from check
 					querySetCell(q, "dateLastModified", createDate(2000,1,1), q.currentrow);
 			}
 		}

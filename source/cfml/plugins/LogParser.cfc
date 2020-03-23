@@ -45,7 +45,7 @@ component hint="I parse log files " {
 		var line = "";
 		var row = [];
 		var timestamp = "";
-		var javaFile   = createObject("java", "java.io.File").init(logPath);
+		var javaFile   = createObject("java", "java.io.File").init(arguments.logPath);
 		var reader = createObject("java", "org.apache.commons.io.input.ReversedLinesFileReader").init(javaFile);
 
 		var stats = structNew("linked");
@@ -67,7 +67,7 @@ component hint="I parse log files " {
 		var entry = {
 			timeStamp: ""
 		};
-
+		
 		// reading the log files in reverse
 		try {
 			LineLoop: while (stats.logs < stats.maxLogs) {
@@ -120,7 +120,7 @@ component hint="I parse log files " {
 							}
 						}
 						stats.logs++;
-						insertLogEntry(qLog, logName, context, entry, stats.maxStackTrace);
+						insertLogEntry(arguments.qLog, arguments.logName, arguments.context, entry, stats.maxStackTrace);
 						row = [];
 					} else {
 						arrayAppend(row, line);
@@ -135,6 +135,9 @@ component hint="I parse log files " {
 			dump(cfcatch);
 			abort;
 		}
+
+		//throw message="zac";
+
 		reader.close();
 		stats.lastDateScanned = entry.timestamp ?: "";
 		stats.executionTime = getTickCount()-stats.executionTime;
@@ -228,23 +231,23 @@ component hint="I parse log files " {
 			required struct entry,
 			required numeric maxStackTrace){
 
-		var row = queryAddRow(q);
+		var row = queryAddRow(arguments.q);
 		try {
-			querySetCell(q, "logfile",      arguments.logFile, row);
-			querySetCell(q, "severity",     entry.severity, row);
-			querySetCell(q, "app",          entry.app, row);
-			querySetCell(q, "thread",       entry.thread, row);
-			querySetCell(q, "logTimestamp", entry.timestamp, row);
-			querySetCell(q, "cfStack", 		entry.cfStack, row);
-			querySetCell(q, "log",        	entry.log, row);
+			querySetCell(arguments.q, "logfile",      arguments.logFile, row);
+			querySetCell(arguments.q, "severity",     arguments.entry.severity, row);
+			querySetCell(arguments.q, "app",          arguments.entry.app, row);
+			querySetCell(arguments.q, "thread",       arguments.entry.thread, row);
+			querySetCell(arguments.q, "logTimestamp", arguments.entry.timestamp, row);
+			querySetCell(arguments.q, "cfStack", 		arguments.entry.cfStack, row);
+			querySetCell(arguments.q, "log",        	arguments.entry.log, row);
 			if (arguments.maxStackTrace lt 1){
-				querySetCell(q, "stack",        entry.stack, row);
+				querySetCell(arguments.q, "stack",        arguments.entry.stack, row);
 			} else {
-				if (len(entry.stack) gt arguments.maxStackTrace ){
-					querySetCell(q, "stack", left(entry.stack, arguments.maxStackTrace)
-						& "#chr(10)# -- very long stack, omitted #(len(entry.stack)-arguments.maxStackTrace)# bytes" , row);
+				if (len(arguments.entry.stack) gt arguments.maxStackTrace ){
+					querySetCell(arguments.q, "stack", left(arguments.entry.stack, arguments.maxStackTrace)
+						& "#chr(10)# -- very long stack, omitted #(len(arguments.entry.stack)-arguments.maxStackTrace)# bytes" , row);
 				} else {
-					querySetCell(q, "stack", entry.stack, row);
+					querySetCell(arguments.q, "stack", arguments.entry.stack, row);
 				}
 
 			}

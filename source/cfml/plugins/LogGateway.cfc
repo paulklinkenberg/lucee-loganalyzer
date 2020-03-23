@@ -70,16 +70,16 @@ component hint="enumerate logs directories and lucee contexts" {
 
 	public struct function getLog(string files, any startDate, any endDate, numeric defaultDays=1,
 		required boolean parseLogs, string search="") output=false {
-		var start = logDirectory.processDate(arguments.startDate);
-		var end = logDirectory.processDate(arguments.endDate);
-		var q_log = logParser.createLogQuery();
+		var start = variables.logDirectory.processDate(arguments.startDate);
+		var end = variables.logDirectory.processDate(arguments.endDate);
+		var q_log = variables.logParser.createLogQuery();
 		var rows = 0;
 		var st_files = {};
 		var file_stats = {};
 		var timings = [];
 		var startTime = getTickCount();
 		// TODO need to handle rotated log files
-		var q_log_files = logDirectory.listLogs(filter="*.log", listOnly=arguments.parseLogs);
+		var q_log_files = variables.logDirectory.listLogs(filter="*.log", listOnly=arguments.parseLogs);
 		var firstLogDate = "";
 
 		timings.append({
@@ -96,7 +96,7 @@ component hint="enumerate logs directories and lucee contexts" {
 		//if (len(arguments.search) gt 0)
 		//	defaultDays = 14;
 		if (start eq false)
-			start = logDirectory.getDefaultstart(q_log_files, st_files, defaultDays);
+			start = variables.logDirectory.getDefaultstart(q_log_files, st_files, arguments.defaultDays);
 
 		loop query=q_log_files {
 			if (firstLogDate eq "")
@@ -113,7 +113,9 @@ component hint="enumerate logs directories and lucee contexts" {
 				continue; // this file wasn't requested
 			if (arguments.parseLogs){
 
-				file_stats[q_log_files.name] = logParser.readLog(logPath=logDirectory.getLogPath(q_log_files.name),
+				cflog(text=q_log_files.name);
+
+				file_stats[q_log_files.name] = variables.logParser.readLog(logPath=variables.logDirectory.getLogPath(q_log_files.name),
 					logName=q_log_files.name, context="", qLog=q_log, start=start, end=end, search=arguments.search);
 				timings.append({
 					name: q_log_files.name,
@@ -123,8 +125,6 @@ component hint="enumerate logs directories and lucee contexts" {
 				// TODO cache file timings use them to avoid searching files which don't contain the search string
 			}
 			rows = q_log.recordcount;
-
-
 		}
 
 		QueryDeleteColumn( q_log_files, "TYPE");

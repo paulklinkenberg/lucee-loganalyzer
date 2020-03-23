@@ -31,6 +31,7 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 		variables.renderUtils = new RenderUtils(arguments.lang, action("asset"), this.action );
 		variables.logGateway = new logGateway();
 		variables._lang = arguments.lang;
+		setting showdebugoutput="true";
 	}
 
 	public void function _display(required string template, required struct lang, required struct app, required struct req) {
@@ -61,19 +62,19 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 	}
 
 	public function overview(struct lang, struct app, struct req) output=true {
-		param name="req.file" default="";
-		param name="req.start" default=""; // default="#dateFormat(now(),'yyyy-mm-dd')#";
-		param name="req.end" default=""; //default="#dateFormat(DateAdd('d',-7,now()),'yyyy-mm-dd')#";
-		param name="req.q" default="";
+		param name="arguments.req.file" default="";
+		param name="arguments.req.start" default=""; // default="#dateFormat(now(),'yyyy-mm-dd')#";
+		param name="arguments.req.end" default=""; //default="#dateFormat(DateAdd('d',-7,now()),'yyyy-mm-dd')#";
+		param name="arguments.req.q" default="";
 		param name="session.loganalyzer.webID" default="serverContext";
 
 		if ( request.admintype != "server" || len(session.loganalyzer.webID) ) {
-			var logs = logGateway.getLog(files=req.file, startDate=req.start,
-				endDate=req.end,
-				defaultDays=7, parseLogs=true, search=req.q);
+			var logs = variables.logGateway.getLog(files=arguments.req.file, startDate=arguments.req.start,
+				endDate=arguments.req.end,
+				defaultDays=7, parseLogs=true, search=arguments.req.q);
 			variables.renderUtils.renderServerTimingHeaders(logs.timings);
 			logs.delete("timings");
-			req.logs = logs;
+			arguments.req.logs = logs;
 		} else {
 			location url=action("contextSelector", 'nextAction=overview') addtoken="false";
 		}
