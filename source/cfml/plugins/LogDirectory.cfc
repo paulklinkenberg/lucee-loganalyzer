@@ -92,10 +92,10 @@ component hint="I enumerate logs directories" {
 	public string function getLogPath(string file="") output=false {
 		if ( request.admintype == "web" ) {
 			local.logDir = expandPath("{lucee-web}/logs/");
-		} else if ( session.logAnalyzer.webID == "serverContext" ) {
+		} else if ( session.logViewer.webID == "serverContext" ) {
 			local.logDir = expandPath("{lucee-server}/logs/");
 		} else {
-			local.logDir = getLogPathByWebID(session.logAnalyzer.webID);
+			local.logDir = getLogPathByWebID(session.logViewer.webID);
 		}
 		if ( structKeyExists(arguments, "file") && len(arguments.file) ) {
 			local.logDir = rereplace(local.logDir, "\#server.separator.file#$", "") & server.separator.file & listLast(arguments.file, "/\");

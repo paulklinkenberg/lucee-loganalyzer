@@ -421,9 +421,9 @@ $(function(){
 	$('.daterange').daterangepicker({
 		"ranges": ranges,
 		"alwaysShowCalendars": false,
-		"startDate": (logAnalyzerDates.start == "") ? null : moment(logAnalyzerDates.start, 'YYYY-MM-DD'),
-		"endDate": (logAnalyzerDates.end == "") ? null : moment(logAnalyzerDates.end, 'YYYY-MM-DD'),
-		"minDate": moment(logAnalyzerDates.firstLogDate, 'YYYY-MM-DD'),
+		"startDate": (logViewerDates.start == "") ? null : moment(logViewerDates.start, 'YYYY-MM-DD'),
+		"endDate": (logViewerDates.end == "") ? null : moment(logViewerDates.end, 'YYYY-MM-DD'),
+		"minDate": moment(logViewerDates.firstLogDate, 'YYYY-MM-DD'),
 		"maxDate": moment(),
 		"opens": "left",
 		"timePicker": true,

@@ -11,7 +11,7 @@
 		</cfif>
 		<!--- assume admintype=server --->
 		<cfparam name="req.nextAction" default="overview">
-		<cfparam name="session.loganalyzer.webID" default="serverContext" />
+		<cfparam name="session.logViewer.webID" default="serverContext" />
 		<cfset var webContexts = logGateway.getWebContexts() />
 		<cfoutput><form action="#action('setContext', '&nextAction=#req.nextAction#')#" method="post"></cfoutput>
 			<cfoutput>#i18n('chooseLogLocation')#</cfoutput>
@@ -19,7 +19,7 @@
 				<cfoutput><option value="serverContext">#i18n('serverContext')#</option></cfoutput>
 				<optgroup label="Web contexts">
 					<cfoutput query="webContexts">
-						<option value="#webContexts.id#"<cfif session.loganalyzer.webID eq webContexts.id> selected</cfif>>
+						<option value="#webContexts.id#"<cfif session.logViewer.webID eq webContexts.id> selected</cfif>>
 							<cfif len(webContexts.path) gt 68>
 								#rereplace(webContexts.path, "^(.{25}).+(.{40})$", "\1...\2")#
 							<cfelse>
@@ -33,13 +33,13 @@
 				<input type="submit" value="#i18n('Go')#" class="button" />
 			</cfoutput>
 		</form>
-		<cfif not len(session.loganalyzer.webID)>
+		<cfif not len(session.logViewer.webID)>
 			<cfexit method="exittemplate" />
 		<cfelse>
-			<cfif session.loganalyzer.webID eq "serverContext">
+			<cfif session.logViewer.webID eq "serverContext">
 				<cfoutput><h3>#i18n('ServerContextLogFiles')#</h3></cfoutput>
 			<cfelse>
-				<cfoutput><h3>#i18n('webContext')# <em>#logGateway.getWebRootPathByWebID(session.loganalyzer.webID)#</em></h3></cfoutput>
+				<cfoutput><h3>#i18n('webContext')# <em>#logGateway.getWebRootPathByWebID(session.logViewer.webID)#</em></h3></cfoutput>
 			</cfif>
 		</cfif>
 	</cfdefaultcase>

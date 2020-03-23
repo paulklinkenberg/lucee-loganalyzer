@@ -1,7 +1,7 @@
 $(function(){
 	var doAction = function(data, logfile){
 		var token = $(".csrf-token").data('token');
-		var actionUrl = "?action=plugin&plugin=loganalyzer&file=" + logfile;
+		var actionUrl = "?action=plugin&plugin=logViewer&file=" + logfile;
 
 		switch (data.action){
 			case  "delete":

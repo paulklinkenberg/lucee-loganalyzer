@@ -58,18 +58,20 @@
 		req.start = DateFormat(req.logs.q_log.LOGTIMESTAMP, "yyyy-mm-dd");
 	if (req.end eq "")
 		req.end = DateFormat(req.logs.q_log.LOGTIMESTAMP[req.logs.q_log.recordcount], "yyyy-mm-dd");
+
 </cfscript>
 
 <cfif request.admintype eq "server">
 	<cfinclude  template="contextSelector.cfm">
 </cfif>
 <cfoutput>
-<script>
-	var logAnalyzerStats = #serializeJSON(info)#;
-	console.table(logAnalyzerStats.STATS);
-	console.log(logAnalyzerStats);
 
-	var logAnalyzerDates = {
+<script>
+	var logViewerStats = #serializeJSON(info)#;
+	console.table(logViewerStats.STATS);
+	console.log(logViewerStats);
+
+	var logViewerDates = {
 		start: '#req.start#',
 		end: '#req.end#',
 		firstLogDate: '#req.logs.firstLogDate#'

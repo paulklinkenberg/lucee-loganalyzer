@@ -49,12 +49,12 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 	public function admin(struct lang, struct app, struct req) output=true {
 		param name="req.sort" default="name";
 		param name="req.dir" default="";
-		param name="session.loganalyzer.webID" default="serverContext";
+		param name="session.logViewer.webID" default="serverContext";
 		//  web context chosen?
 		if ( request.admintype == "server" && structKeyExists(req, "webID") && len(req.webID) ) {
-			session.logAnalyzer.webID = req.webID;
+			session.logViewer.webID = req.webID;
 		}
-		if ( request.admintype != "server" || len(session.loganalyzer.webID) ) {
+		if ( request.admintype != "server" || len(session.logViewer.webID) ) {
 			req.logfiles = logGateway.listLogs(sort=req.sort, dir=req.dir, listOnly=true);
 		} else {
 			location url=action("contextSelector", 'nextAction=admin') addtoken="false";
@@ -66,9 +66,9 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 		param name="arguments.req.start" default=""; // default="#dateFormat(now(),'yyyy-mm-dd')#";
 		param name="arguments.req.end" default=""; //default="#dateFormat(DateAdd('d',-7,now()),'yyyy-mm-dd')#";
 		param name="arguments.req.q" default="";
-		param name="session.loganalyzer.webID" default="serverContext";
+		param name="session.logViewer.webID" default="serverContext";
 
-		if ( request.admintype != "server" || len(session.loganalyzer.webID) ) {
+		if ( request.admintype != "server" || len(session.logViewer.webID) ) {
 			var logs = variables.logGateway.getLog(files=arguments.req.file, startDate=arguments.req.start,
 				endDate=arguments.req.end,
 				defaultDays=7, parseLogs=true, search=arguments.req.q);
@@ -85,7 +85,7 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 
 	public function setContext(struct lang, struct app, struct req) output=false {
 		if ( request.admintype == "server" && structKeyExists(req, "webID") && len(req.webID) ) {
-			session.logAnalyzer.webID = req.webID;
+			session.logViewer.webID = req.webID;
 		}
 		param name="req.nextAction" default="overview";
 		location url=action(req.nextAction) addtoken="false";
