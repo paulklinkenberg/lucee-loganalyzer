@@ -5,7 +5,11 @@ By Zac Spitzer https://twitter.com/zackster/
 
 Based on https://github.com/paulklinkenberg/lucee-loganalyzer
 
-- It's published on [ForgeBox](https://www.forgebox.io/view/LuceeLogViewer) and available via the Lucee Administrator
+It's published on [ForgeBox](https://www.forgebox.io/view/LuceeLogViewer) and available via the Lucee Administrator 
+
+![install count](https://www.forgebox.io/api/v1/entry/LuceeLogViewer/badges/downloads)
+
+Supports Lucee 5.3.4 and later
 
 ## Features
 - Aggregrates all logs into a single combined view
@@ -25,4 +29,5 @@ Once installed, all the source cfml and js files can be found under the server o
 - web context: under the \WEB-INF\context\admin\plugin\logViewer
 - server: C:\lucee\tomcat\lucee-server\context\context\admin\plugin\logViewer
 
+## Screenshot
 ![Sample Screenshot](https://github.com/zspitzer/lucee-logviewer/blob/refactoring/screenshot.jpg)
