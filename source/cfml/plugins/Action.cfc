@@ -22,10 +22,7 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-/**
- * I contain the main functions for the log Analyzer plugin
- */
-component hint="I contain the main functions for the log Analyzer plugin" extends="lucee.admin.plugin.Plugin" {
+component hint="Actions for the log Viewer plugin" extends="lucee.admin.plugin.Plugin" {
 
 	public void function init(required struct lang, required struct app) {
 		variables.renderUtils = new RenderUtils(arguments.lang, action("asset"), this.action );

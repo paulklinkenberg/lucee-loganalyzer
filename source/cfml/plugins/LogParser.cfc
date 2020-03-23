@@ -22,9 +22,6 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-/**
- * I contain the main functions for the log Analyzer plugin
- */
 component hint="I parse log files " {
 
 	public void function init() {

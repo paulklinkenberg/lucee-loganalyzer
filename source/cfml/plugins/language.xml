@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <languages>
 	<language key="en">
-		<title>Log analyzer</title>
+		<title>Log Viewer</title>
 		<description></description>
 		<custom key="logfilename">Logfile name</custom>
 		<custom key="logfilelocation">Log directory</custom>
@@ -68,7 +68,7 @@
 		<custom key="searchHint">search works automatically on the displayed logs, press search to search server logs</custom>
 	</language>
 	<language key="de">
-		<title>Log Analyzer</title>
+		<title>Log Viewer</title>
 		<description></description>
 		<custom key="logfilename">Logfile Name</custom>
 		<custom key="logfilelocation">Log Verzeichnis</custom>
@@ -116,7 +116,7 @@
 		<custom key="allinthesameminute">all in the same minute</custom>
 	</language>
 	<language key="nl">
-		<title>Log analyzer</title>
+		<title>Log Viewer</title>
 		<description></description>
 		<custom key="logfilename">Bestandsnaam</custom>
 		<custom key="logfilelocation">Log directory</custom>

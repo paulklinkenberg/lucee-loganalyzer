@@ -22,13 +22,9 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-/**
- * I contain the main functions for the log Analyzer plugin
- */
 component hint="I enumerate logs directories" {
-
 	/**
-	 * this function will be called to initalize
+	 * this function will be called to initialize
 	 */
 	public void function init() {
 		variables.classicHeader = '"Severity","ThreadID","Date","Time","Application","Message"';

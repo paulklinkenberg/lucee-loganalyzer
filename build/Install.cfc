@@ -37,7 +37,7 @@
 		<cfreturn install(argumentCollection=arguments) />
 <!--- 		<cfsavecontent variable="sReturn"><cfoutput>
 			<h3>Updated!</h3>
-			<p>The Log analyzer plugin is now updated.</p>
+			<p>The Log Viewer plugin is now updated.</p>
 			<p>&nbsp;</p>
 		</cfoutput></cfsavecontent>
 		<cfreturn sReturn />
@@ -53,7 +53,7 @@
 		<cfset var sReturn = "" />
 		<cfset var savePath = "" />
 		<cfadmin type="#request.admintype#" password="#session['password#request.admintype#']#" action="getPluginDirectory" returnVariable="savePath" />
-		<cfset savePath &= server.separator.file & "Log analyzer" & server.separator.file />
+		<cfset savePath &= server.separator.file & "Log Viewer" & server.separator.file />
 
 		<!--- create a new directory for the code files --->
 		<cfif not directoryExists(savepath)>
@@ -69,7 +69,7 @@
 
 		<cfsavecontent variable="sReturn"><cfoutput>
 			<h3>Almost done...</h3>
-			<p>The Log analyzer plugin is almost installed.</p>
+			<p>The Log Viewer plugin is almost installed.</p>
 			<p><a href="?alwaysNew=true" style="font-weight:bold;">Click here</a> to finish the installation</p>
 			<p>&nbsp;</p>
 		</cfoutput></cfsavecontent>
@@ -94,8 +94,7 @@
 		<cfset structdelete(application, "plugin", false) />
 		<cfset structdelete(application, "pluginlanguage", false) />
 
-		<cfset var ret = "<strong>You have successfully uninstalled the log analyzer</strong>.<br />
-			Was there a problem with the plugin? Then please let me know at <a href='mailto:paul@lucee.nl'>paul@lucee.nl</a>" />
+		<cfset var ret = "<strong>You have successfully uninstalled the log viewer</strong>.<br />" />
 
 		<cfif arrayLen(errors)>
 			<cfset ret &= "<br /><br />One or more errors were reported while uninstalling."
