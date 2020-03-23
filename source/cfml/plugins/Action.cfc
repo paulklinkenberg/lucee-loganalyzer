@@ -108,14 +108,7 @@ component hint="I contain the main functions for the log Analyzer plugin" extend
 	}
 
 	public function getLang(struct lang, struct app, struct req) output=false {
-		var pluginLanguage = {
-			strings: arguments.lang,
-			locale: session.LUCEE_ADMIN_LANG
-		};
-		setting showdebugoutput="false";
-		content type="text/javascript" reset="yes";
-		writeOutput("var pluginLanguage = #serializeJson(pluginLanguage)#;");
-		abort;
+		url.xhr=true;
 	}
 
 	public string function i18n(string key) output=false {
