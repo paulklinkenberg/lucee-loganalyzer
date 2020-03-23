@@ -29,5 +29,10 @@ Once installed, all the source cfml and js files can be found under the server o
 - web context: under the \WEB-INF\context\admin\plugin\logViewer
 - server: C:\lucee\tomcat\lucee-server\context\context\admin\plugin\logViewer
 
+Append debug=true to the url to enable debugging output
+
+If the plugin doesn't appear, append alwaysnew=1 to the url
+
+
 ## Screenshot
 ![Sample Screenshot](https://github.com/zspitzer/lucee-logviewer/blob/refactoring/screenshot.jpg)
