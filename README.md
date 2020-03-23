@@ -5,14 +5,16 @@ By Zac Spitzer https://twitter.com/zackster/
 
 Based on https://github.com/paulklinkenberg/lucee-loganalyzer
 
-- It's published on (ForgeBox)[https://www.forgebox.io/view/LuceeLogViewer] and available via the Lucee Administrator
-## Hacking and Building
-The Build process uses (Apache Ant)[https://ant.apache.org/] 
+- It's published on [ForgeBox](https://www.forgebox.io/view/LuceeLogViewer) and available via the Lucee Administrator
+## Building
+The Build process uses [Apache Ant](https://ant.apache.org/) 
 
-Simply run ant in the root directory to build the .lex file which you can manually install via the Lucee Administrator
+Simply run **ant** in the root directory to build the extension .lex file, which you can then manually install via the Lucee Administrator
 
-Once installed, all the source files can be found and hacked under the server or web contexts (i.e under WEB-INF)
+## Hacking
+Once installed, all the source cfml and js files can be found under the server or web context, depending where you installed it 
 
-C:\lucee\tomcat\lucee-server\context\context\admin\plugin\logViewer
+- web context: under the \WEB-INF\context\admin\plugin\logViewer
+- server: C:\lucee\tomcat\lucee-server\context\context\admin\plugin\logViewer
 
 ![Sample Screenshot](https://github.com/zspitzer/lucee-logviewer/blob/refactoring/screenshot.jpg)
