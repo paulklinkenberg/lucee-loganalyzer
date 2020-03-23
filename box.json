@@ -1,0 +1,59 @@
+{
+    "author":"Zac Spitzer",
+    "bugs":"",
+    "changelog":"",
+    "contributors":[],
+    "dependencies":{},
+    "description":"",
+    "devDependencies":{},
+    "documentation":"",
+    "homepage":"https://github.com/zspitzer/lucee-logviewer",
+    "ignore":[],
+    "installPaths":{},
+    "instructions":"",
+    "keywords":"logs",
+    "license":[
+        {
+            "type":"",
+            "URL":""
+        }
+    ],
+    "location":"ForgeboxStorage",
+    "name":"Lucee Log Viewer",
+    "private":false,
+    "projectURL":"",
+    "repository":{
+        "type":"",
+        "URL":""
+    },
+    "scripts":{},
+    "shortDescription":"A Lucee Admin plugin to view logs",
+    "slug":"LuceeLogViewer",
+    "testbox":{
+        "bundles":"",
+        "directory":"tests.specs",
+        "labels":"",
+        "options":{},
+        "recurse":true,
+        "reporter":"",
+        "runner":[
+            {
+                "default":""
+            }
+        ],
+        "testBundles":"",
+        "testSpecs":"",
+        "testSuites":"",
+        "verbose":true,
+        "watchDelay":500,
+        "watchPaths":"**.cfc"
+    },
+    "type":"lucee-extensions",
+    "lucee-extension-releasetype": "all",
+    "lucee-extension-mincoreversion": "5.3.4.80",
+    "lucee-extension-category": "logs",
+    "version":"3.0.0.26",
+    "engines" : [
+        { "type" : "lucee", "version" : ">=5.3.4" }
+    ]
+}
