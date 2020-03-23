@@ -109,9 +109,6 @@ component hint="enumerate logs directories and lucee contexts" {
 					and not structKeyExists(st_files, q_log_files.name))
 				continue; // this file wasn't requested
 			if (arguments.parseLogs){
-
-				cflog(text=q_log_files.name);
-
 				file_stats[q_log_files.name] = variables.logParser.readLog(logPath=variables.logDirectory.getLogPath(q_log_files.name),
 					logName=q_log_files.name, context="", qLog=q_log, start=start, end=end, search=arguments.search);
 				timings.append({
