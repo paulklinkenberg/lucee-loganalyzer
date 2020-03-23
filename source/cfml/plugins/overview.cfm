@@ -25,7 +25,7 @@
 <!--- when viewing logs in the server admin, then a webID must be defined --->
 
 <cfscript>
-	request.title = "Log Monitor";
+	request.title = "Log Viewer";
 	request.subtitle = "";
 	param name="req.xhr" default="false";
 	param name="req.severity"  default="";
