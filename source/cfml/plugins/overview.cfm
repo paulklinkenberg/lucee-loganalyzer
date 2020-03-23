@@ -102,11 +102,12 @@
 			</div>
 			<input class="daterange" type="text" value="" size="30">
 			<div class="log-severity-filter">
-				<cfloop list="INFO,INFORMATION|WARN,WARNING|ERROR|FATAL|DEBUG|TRACE" index="severity" delimiters="|">
+				<cfloop list="INFO,INFORMATION|WARN,WARNING|ERROR|FATAL|DEBUG|TRACE" index="variables.severity" delimiters="|">
 					<span class="log-severity-filter-type">
-						<cfset sev = listFirst(severity,",")>
-						<label class="log-severity-#sev#">
-							#sev# <input name="severity" type="checkbox" value="#sev#" <cfif not structKeyExists(st_severity, sev)>checked</cfif>>
+						<cfset variables.sev = listFirst(variables.severity,",")>
+						<label class="log-severity-#variables.sev#">
+							#sev# <input name="severity" type="checkbox" value="#variables.sev#"
+								<cfif not structKeyExists(st_severity, variables.sev)>checked</cfif>>
 						</label>
 					</span>
 				</cfloop>
@@ -149,8 +150,8 @@
 <cfif req.xhr>
 	<Cfcontent reset="yes">
 </cfif>
-<cfset num=0/>
-<cfset limit=5/>
+<cfset variables.num=0/>
+<cfset variables.limit=5/>
 <cfoutput>
 	<div class="logs-error" style="display:none;"></div>
 	<div class="logs-loading" style="display:none;">#i18n('LoadingLogs')#</div>
@@ -164,52 +165,52 @@
 	</cfscript>
 	<cfsetting enablecfoutputonly="true">
 	<cfloop query="q_log">
-		<cfoutput><div class="log log-severity-#q_log.severity# log-file-filter-#replace(q_log.logfile,".","_","all")# #num mod 2 ? 'odd':''#"></cfoutput>
-		<Cfif len(q_log.stack) gt 0>
-			<cfoutput><a class="log-expand" data-log="#num#">expand</a></cfoutput>
+		<cfoutput><div class="log log-severity-#variables.q_log.severity# log-file-filter-#replace(variables.q_log.logfile,".","_","all")# #variables.num mod 2 ? 'odd':''#"></cfoutput>
+		<Cfif len(variables.q_log.stack) gt 0>
+			<cfoutput><a class="log-expand" data-log="#variables.num#">expand</a></cfoutput>
 		</cfif>
-		<cfset hideRow = "">
-		<cfif q_log.currentrow gt 1>
-			<cfset lastRow = q_log.currentrow-1>
-			<cfif q_log.logfile eq q_log.logfile[lastrow]
-					and q_log.severity eq q_log.severity[lastrow]
-					and q_log.thread eq q_log.thread[lastrow]
-					and q_log.logtimestamp eq q_log.logtimestamp[lastrow]>
-				<cfset hideRow = ' style="display:none" '>
+		<cfset variables.hideRow = "">
+		<cfif variables.q_log.currentrow gt 1>
+			<cfset variables.lastRow = variables.q_log.currentrow-1>
+			<cfif variables.q_log.logfile eq variables.q_log.logfile[variables.lastrow]
+					and variables.q_log.severity eq variables.q_log.severity[variables.lastrow]
+					and variables.q_log.thread eq variables.q_log.thread[variables.lastrow]
+					and variables.q_log.logtimestamp eq variables.q_log.logtimestamp[variables.lastrow]>
+				<cfset variables.hideRow = ' style="display:none" '>
 			</cfif>
 		</cfif>
-		<cfoutput><div class="log-header" #hideRow#><span class="log-fie">#q_log.logfile#</span></cfoutput>
-			<cfoutput><span class="log-severity">#q_log.severity#</span></cfoutput>
-			<cfoutput><span class="log-timestamp"> #LSTimeFormat(q_log.logtimestamp, i18n("timeformat") )#,
-			#LSDateFormat(q_log.logtimestamp, i18n("dateformat"))#</span></cfoutput>
-			<cfoutput><span class="log-thread">#q_log.thread#</span></cfoutput>
+		<cfoutput><div class="log-header" #variables.hideRow#><span class="log-fie">#variables.q_log.logfile#</span></cfoutput>
+			<cfoutput><span class="log-severity">#variables.q_log.severity#</span></cfoutput>
+			<cfoutput><span class="log-timestamp"> #LSTimeFormat(variables.q_log.logtimestamp, i18n("timeformat") )#,
+			#LSDateFormat(variables.q_log.logtimestamp, i18n("dateformat"))#</span></cfoutput>
+			<cfoutput><span class="log-thread">#variables.q_log.thread#</span></cfoutput>
 		<cfoutput></div></cfoutput>
 		<cfoutput><div class="log-detail"></cfoutput>
-		<cfset r = 1>
+		<cfset variables.r = 1>
 		<!---
 		<cfdump var="#dump(queryGetRow(q_log, q_log.currentrow))#" expand="false">
 		--->
 
-		<cfoutput>#htmleditformat(q_log.log)#</cfoutput>
-		<Cfif q_log.cfstack.len() gt 0>
-			<cfset _stack = q_log.cfstack[currentrow]>
+		<cfoutput>#htmleditformat(variables.q_log.log)#</cfoutput>
+		<Cfif variables.q_log.cfstack.len() gt 0>
+			<cfset variables._stack = variables.q_log.cfstack[variables.q_log.currentrow]>
 			<cfoutput><ol class="cfstack"></cfoutput>
-			<Cfset maxrows = Min(ArrayLen(_stack),15)>
-			<cfloop from="1" to="#maxrows#" index="s">
-				<cfoutput><li><a>#_stack[s]#</a></li></cfoutput>
+			<Cfset variables.maxrows = Min(ArrayLen(variables._stack),15)>
+			<cfloop from="1" to="#variables.maxrows#" index="variables.s">
+				<cfoutput><li><a>#variables._stack[variables.s]#</a></li></cfoutput>
 			</cfloop>
 			<cfoutput></ol></cfoutput>
 		</cfif>
-		<Cfif len(q_log.stack) gt 0>
+		<Cfif len(variables.q_log.stack) gt 0>
 			<cfoutput><div style="display:none;" class="log-stacktrace"></cfoutput>
-			<cfloop list="#q_log.stack#" item="item" delimiters="#chr(10)#">
-				<cfoutput>#htmleditformat(item)#<br></cfoutput>
+			<cfloop list="#variables.q_log.stack#" item="variables.item" delimiters="#chr(10)#">
+				<cfoutput>#htmleditformat(variables.item)#<br></cfoutput>
 			</cfloop>
 			<cfoutput></div></cfoutput>
 		</cfif>
 		<cfoutput></div><!---log-detail---></cfoutput>
 		<cfoutput></div><!---log---></cfoutput>
-		<cfset num++ />
+		<cfset variables.num++ />
 	</cfloop>
 	<cfsetting enablecfoutputonly="false">
 </div>
