@@ -6,6 +6,14 @@ By Zac Spitzer https://twitter.com/zackster/
 Based on https://github.com/paulklinkenberg/lucee-loganalyzer
 
 - It's published on [ForgeBox](https://www.forgebox.io/view/LuceeLogViewer) and available via the Lucee Administrator
+
+## Features
+- Aggregrates all logs into a single combined view
+- Search by date or string
+- Auto refreshing / polling
+- Filter by severity or source log file
+- Stack traces are collapsed
+
 ## Building
 The Build process uses [Apache Ant](https://ant.apache.org/) 
 
