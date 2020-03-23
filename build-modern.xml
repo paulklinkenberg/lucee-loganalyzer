@@ -35,6 +35,10 @@ version: "${bundleversion}${build.number}"
 id: "${id}"
 name: "${label}"
 description: "${description}"
+release-type: "${release-type}"
+projectUrl: ${url}
+sourceUrl: ${url}
+documentionUrl: ${url}
 </echo>
 <!-- for java extensions only
 start-bundles: false
