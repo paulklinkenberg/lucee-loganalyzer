@@ -325,43 +325,43 @@ var viewLog = {
 	renderLogEntry: function(log, l){
 		var hideHeader = false;
 		if (l > 0) {
-			if ( log.LOGFILE === log.LOGFILE[l-1] &&
-					log.SEVERITY === log.SEVERITY[l-1] &&
-					log.THREAD === log.THREAD[l-1] &&
-					log.LOGTIMESTAMP === log.LOGTIMESTAMP[l-1] )
+			if ( log.logFile === log.logFile[l-1] &&
+					log.severity === log.severity[l-1] &&
+					log.thread === log.thread[l-1] &&
+					log.logTimestamp === log.logTimestamp[l-1] )
 			var hideHeader = true;
 		}
 
-		var el = $('<div>').addClass('log log-severity-' + log.SEVERITY + ' log-file-filter-' + log.LOGFILE.replace(".","_") );
+		var el = $('<div>').addClass('log log-severity-' + log.severity + ' log-file-filter-' + log.logFile.replace(".","_") );
 		el.append('<a class="log-expand"></a>').text( viewLog.i18n('expand') );
 		var header = $('<div class="log-header">');
 		if (hideHeader)
 			header.hide();
 
-		header.append( $('<span class="log-file">').text(log.LOGFILE) );
-		header.append( $('<span class="log-severity">').text(log.SEVERITY) );
+		header.append( $('<span class="log-file">').text(log.logFile) );
+		header.append( $('<span class="log-severity">').text(log.severity) );
 		header.append(
 			$('<span class="log-timestamp">').text(
-				moment(log.LOGTIMESTAMP, viewLog.jsonDateFormat).format(
+				moment(log.logTimestamp, viewLog.jsonDateFormat).format(
 					viewLog.i18n('timeformat','HH:mm:ss') + ', ' + viewLog.i18n('momentdateformat', 'D MMM, YYYY')
 				)
 			)
 		);
-		header.append( $('<span class="log-thread">').text("(" + log.THREAD) + ")" );
+		header.append( $('<span class="log-thread">').text("(" + log.thread + ")" ) );
 
 		el.append(header);
 
-		var detail = $('<div class="log-detail">').text(log.LOG);
-		if (log.CFSTACK.length){
+		var detail = $('<div class="log-detail">').text(log.log);
+		if (log.cfStack.length){
 			var cfstack = $('<ol class="cfstack">');
-			for (var c = 0; c < log.CFSTACK.length; c++)
-				cfstack.append( $('<li>').append($("<a>").text(log.CFSTACK[c]) ) );
+			for (var c = 0; c < log.cfStack.length; c++)
+				cfstack.append( $('<li>').append($("<a>").text(log.cfStack[c]) ) );
 			detail.append(cfstack);
 		}
 
-		if (log.STACK.length){
+		if (log.stack.length){
 			var stack  = $('<div style="display:none;" class="log-stacktrace">').html(
-				log.STACK.replace(viewLog.crlf,"<br>").replace(viewLog.nl, "<br>")
+				log.stack.replace(viewLog.crlf,"<br>").replace(viewLog.nl, "<br>")
 			);
 			detail.append(stack);
 		}
