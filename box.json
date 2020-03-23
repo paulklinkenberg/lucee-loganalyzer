@@ -52,7 +52,7 @@
     "lucee-extension-releasetype": "all",
     "lucee-extension-mincoreversion": "5.3.4.80",
     "lucee-extension-category": "logs",
-    "version":"3.0.0.26",
+    "version":"3.0.0.28",
     "engines" : [
         { "type" : "lucee", "version" : ">=5.3.4" }
     ]
