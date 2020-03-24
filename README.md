@@ -12,7 +12,7 @@ It's published on [ForgeBox](https://www.forgebox.io/view/LuceeLogViewer) and av
 Supports Lucee 5.2.8.50 and later
 
 ## Features
-- Aggregrates all logs into a single combined view
+- Aggregates all logs into a single combined view
 - Search by date or string
 - Auto refreshing / polling
 - Filter by severity or source log file
