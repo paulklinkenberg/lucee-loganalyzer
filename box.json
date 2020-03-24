@@ -1,7 +1,7 @@
 {
     "name":"Lucee Log Viewer",
     "author":"Zac Spitzer",
-    "version":"3.0.0.30",
+    "version":"3.0.0.32",
     "bugs":"https://github.com/zspitzer/lucee-logviewer/issues",
     "thumbnail": "https://raw.githubusercontent.com/zspitzer/lucee-logviewer/refactoring/build/images/logo.png",
     "changelog":"",
@@ -30,7 +30,7 @@
     },    
     "scripts":{},
     "shortDescription":"A Lucee Admin plugin to view logs",
-    "slug":"LuceeLogViewer",
+    "slug":"91AF5D75-8CEF-4510-A170240C401F5FBA",
     "testbox":{
         "bundles":"",
         "directory":"tests.specs",
