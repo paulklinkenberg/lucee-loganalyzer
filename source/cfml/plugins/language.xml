@@ -50,8 +50,8 @@
 		<custom key="timeformatchart">HH:mm</custom>
 		<custom key="allinthesameminute">all in the same minute</custom>
 		<custom key="go">Go</custom>
-		<custom key="webContext">Web context</custom>
-		<custom key="serverContext">Server context</custom>
+		<custom key="webContext">Web Context</custom>
+		<custom key="serverContext">Server Context</custom>
 		<custom key="search">Search</custom>
 		<custom key="clear">Clear</custom>
 		<custom key="poll">Poll</custom>

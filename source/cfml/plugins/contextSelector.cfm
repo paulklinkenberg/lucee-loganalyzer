@@ -37,9 +37,9 @@
 			<cfexit method="exittemplate" />
 		<cfelse>
 			<cfif session.logViewer.webID eq "serverContext">
-				<cfoutput><h3>#i18n('ServerContextLogFiles')#</h3></cfoutput>
+				<cfset request.subtitle = i18n('ServerContext')>
 			<cfelse>
-				<cfoutput><h3>#i18n('webContext')# <em>#logGateway.getWebRootPathByWebID(session.logViewer.webID)#</em></h3></cfoutput>
+				<cfset request.subtitle = "#logGateway.getWebRootPathByWebID(session.logViewer.webID)# (<em>#i18n('webContext')#</em>)">
 			</cfif>
 		</cfif>
 	</cfdefaultcase>

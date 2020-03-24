@@ -64,7 +64,7 @@ component hint="I parse log files " {
 		var entry = {
 			timeStamp: ""
 		};
-		
+
 		// reading the log files in reverse
 		try {
 			LineLoop: while (stats.logs < stats.maxLogs) {
@@ -77,7 +77,7 @@ component hint="I parse log files " {
 				if (stats.lines > stats.maxLines )
 					break;
 				if (len(line) gt 0 and left(line, 1) eq '"'){
-					// double quotes are escaped, don't get tripped up by wierd logs
+					// double quotes are escaped, don't get tripped up by weird logs
 					if (line neq '"' and left(line,2) neq '""' ){ // new log row
 						stats.logScanned++
 						entry = parseLogEntry(log=line, stack=row.reverse().toList( chr(10) ),
@@ -146,7 +146,6 @@ component hint="I parse log files " {
 		if (arguments.log.startsWith('"Severity"'))
 			return {}; // header row, ignore it
 
-
 		var entry = {};
 		var str = arguments.log;
 		if ( len(arguments.stack) )
@@ -155,7 +154,7 @@ component hint="I parse log files " {
 			// the start of the log entry is very structured, extract the first 5 quoted items
 			var header =  REMatch('\A(?:[^\"]*\"){11}', str);
 			if (header.len() eq 0)
-				throw "couldn't parse header";
+				throw "Couldn't parse empty header";
 
 			str = mid(str, len(header[1]));
 			// get rid of the double quotes

@@ -165,10 +165,6 @@
 	</cfscript>
 	<cfsetting enablecfoutputonly="true">
 	<cfloop query="q_log">
-		<cfoutput><div class="log log-severity-#variables.q_log.severity# log-file-filter-#replace(variables.q_log.logfile,".","_","all")# #variables.num mod 2 ? 'odd':''#"></cfoutput>
-		<Cfif len(variables.q_log.stack) gt 0>
-			<cfoutput><a class="log-expand" data-log="#variables.num#">expand</a></cfoutput>
-		</cfif>
 		<cfset variables.hideRow = "">
 		<cfif variables.q_log.currentrow gt 1>
 			<cfset variables.lastRow = variables.q_log.currentrow-1>
@@ -178,6 +174,11 @@
 					and variables.q_log.logtimestamp eq variables.q_log.logtimestamp[variables.lastrow]>
 				<cfset variables.hideRow = ' style="display:none" '>
 			</cfif>
+		</cfif>
+
+		<cfoutput><div class="log <cfif len(variables.hideRow)>log-grouped</cfif> log-severity-#variables.q_log.severity# log-file-filter-#replace(variables.q_log.logfile,".","_","all")# #variables.num mod 2 ? 'odd':''#"></cfoutput>
+		<Cfif len(variables.q_log.stack) gt 0>
+			<cfoutput><a class="log-expand" data-log="#variables.num#">expand</a></cfoutput>
 		</cfif>
 		<cfoutput><div class="log-header" #variables.hideRow#><span class="log-fie">#variables.q_log.logfile#</span></cfoutput>
 			<cfoutput><span class="log-severity">#variables.q_log.severity#</span></cfoutput>
@@ -197,7 +198,7 @@
 			<cfoutput><ol class="cfstack"></cfoutput>
 			<Cfset variables.maxrows = Min(ArrayLen(variables._stack),15)>
 			<cfloop from="1" to="#variables.maxrows#" index="variables.s">
-				<cfoutput><li><a>#variables._stack[variables.s]#</a></li></cfoutput>
+				<cfoutput><li><a title="show matching logs">#variables._stack[variables.s]#</a></li></cfoutput>
 			</cfloop>
 			<cfoutput></ol></cfoutput>
 		</cfif>

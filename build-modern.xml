@@ -36,6 +36,7 @@ id: "${id}"
 name: "${label}"
 description: "${description}"
 release-type: "${release-type}"
+lucee-core-version: "${lucee-core-version}""5.2.8.0"
 projectUrl: ${url}
 sourceUrl: ${url}
 documentionUrl: ${url}

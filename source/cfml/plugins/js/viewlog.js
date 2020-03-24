@@ -145,7 +145,7 @@ var viewLog = {
 	searchSelect: function(ev){
 		var el = $(ev.target);
 		var sel = window.getSelection();
-		if (sel.toString().length > 0){
+		if (sel.toString().length > 0 && sel.toString().length < 50){
 			window.scrollTo(0, 0);
 			viewLog.doSearch(sel.toString());
 		}
@@ -153,14 +153,14 @@ var viewLog = {
 	clickLog: function(ev){
 		var el = $(ev.target);
 		var log = $(ev.target).closest(".log");
-		if ( el[0].nodeName === "A" ){
-			window.scrollTo(0, 0);
-			viewLog.doSearch($(el[0]).text());
-		} else {
+		if (el.hasClass("log-expand")){
 			var collapsed = log.find(".log-stacktrace");
 			var expanded = collapsed.is(":VISIBLE");
 			collapsed.toggle(!expanded);
 			log.find("a.log-expand").toggle(expanded);
+		} else if (el[0].nodeName === "A" ){
+			window.scrollTo(0, 0);
+			viewLog.doSearch($(el[0]).text());
 		}
 	},
 	pollServerForUpdates: function(cb){
@@ -333,6 +333,8 @@ var viewLog = {
 		}
 
 		var el = $('<div>').addClass('log log-severity-' + log.severity + ' log-file-filter-' + log.logFile.replace(".","_") );
+		if (hideHeader)
+			el.addClass("log-grouped");
 		el.append('<a class="log-expand"></a>').text( viewLog.i18n('expand') );
 		var header = $('<div class="log-header">');
 		if (hideHeader)
@@ -398,8 +400,8 @@ $(function(){
 			midnight
 		],
 		"Yesterday": [
-			moment().subtract("days", 1).startOf('day'),
-			moment().subtract("days", 1).endOf('day'),
+			moment().subtract(1, "days").startOf('day'),
+			moment().subtract(1, "days").endOf('day'),
 		],
 		"Last 7 Days": [
 			moment().subtract(7,'days').startOf('day'),
