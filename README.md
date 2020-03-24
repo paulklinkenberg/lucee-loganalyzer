@@ -9,7 +9,7 @@ It's published on [ForgeBox](https://www.forgebox.io/view/LuceeLogViewer) and av
 
 ![install count](https://www.forgebox.io/api/v1/entry/LuceeLogViewer/badges/downloads)
 
-Supports Lucee 5.3.4 and later
+Supports Lucee 5.2.8.50 and later
 
 ## Features
 - Aggregrates all logs into a single combined view
