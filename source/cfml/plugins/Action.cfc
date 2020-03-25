@@ -93,15 +93,7 @@ component hint="Actions for the log Viewer plugin" extends="lucee.admin.plugin.P
 		param name="req.start" default="";
 		param name="req.end" default="";
 		param name="req.q" default="";
-
-		var logs = logGateway.getLog(files=req.file, startDate=req.start, endDate=req.end,
-			defaultDays=7, parseLogs=true, search=req.q);
-		logs.FETCHED = dateTimeFormat(now(), "yyyy-mm-dd HH:nn:ss");
-		variables.renderUtils.renderServerTimingHeaders(logs.timings);
-		setting showdebugoutput="false";
-		content type="application/json" reset="yes";
-		writeOutput(serializeJson(logs));
-		abort;
+		url.xhr=true;
 	}
 
 	public function getLang(struct lang, struct app, struct req) output=false {
