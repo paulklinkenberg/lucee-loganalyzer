@@ -5,9 +5,9 @@ By Zac Spitzer https://twitter.com/zackster/
 
 Based on https://github.com/paulklinkenberg/lucee-loganalyzer
 
-It's published on [ForgeBox](https://www.forgebox.io/view/lucee-log-viewer) and available via the Lucee Administrator 
+It's published on [ForgeBox](https://www.forgebox.io/view/91AF5D75-8CEF-4510-A170240C401F5FBA) and available via the Lucee Administrator 
 
-![install count](https://www.forgebox.io/api/v1/entry/lucee-log-viewer/badges/downloads)
+![install count](https://www.forgebox.io/api/v1/entry/91AF5D75-8CEF-4510-A170240C401F5FBA/badges/downloads)
 
 Supports Lucee 5.2.8.50 and later
 
