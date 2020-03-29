@@ -369,6 +369,30 @@ var viewLog = {
 		}
 		el.append(detail);
 		return el;
+	},
+	toggleLogConfigSelection: function(ev){
+		var $el = $(ev.currentTarget);
+		var state = $el.is(":checked");
+		$el.closest("TABLE").find("INPUT.logConfig").each(function(){
+			$(this).prop("checked", state);
+		});
+	},
+	submitLogConfig: function(ev){
+		var $el = $(ev.currentTarget);
+		var state = $el.is(":checked");
+		var logConfig = [];
+		$el.closest("TABLE").find("INPUT.logConfig").each(function(){
+			if($(this).is(":checked"))
+				logConfig.push($(this).val());
+		});
+		var logStorage = $(".logStorage:checked").val();
+		if (!logStorage){
+			alert("Please select a Log storage option");
+		} else if (!logConfig.length){
+			alert("Please select at least one log");
+		} else {
+			$(".log-configure").submit();
+		}
 	}
 };
 
@@ -392,6 +416,10 @@ $(function(){
 	$(window).on("focus", function(){
 		viewLog.updateTitleCount(null);
 	});
+
+	$(".logConfigToggle").on("change", viewLog.toggleLogConfigSelection);	
+	$(".bulkUpdateLogConfig").on("click", viewLog.submitLogConfig);
+	
 
 	var midnight = moment().set('hour', 23).set('minute', 23);
 	var ranges = {
@@ -420,30 +448,32 @@ $(function(){
 			moment().startOf('month').subtract(1, "months").endOf('month')
 		]
 	};
-	$('.daterange').daterangepicker({
-		"ranges": ranges,
-		"alwaysShowCalendars": false,
-		"startDate": (logViewerDates.start == "") ? null : moment(logViewerDates.start, 'YYYY-MM-DD'),
-		"endDate": (logViewerDates.end == "") ? null : moment(logViewerDates.end, 'YYYY-MM-DD'),
-		"minDate": moment(logViewerDates.firstLogDate, 'YYYY-MM-DD'),
-		"maxDate": moment(),
-		"opens": "left",
-		"timePicker": true,
-		"timePickerSeconds": false,
-		"timePicker24Hour": true,
-		"showDropdowns": true,
-		"autoUpdateInput": true,
-		locale: {
-			format: 'MMMM D, YYYY'
-		  }
-	}, function(start, end, label) {
-	  	console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to '
-			 + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
-		if (!start.isValid() || !end.isValid() )
-			return;
-		var newUrl = viewLog.updateUrl(null, "start", start.format('YYYY-MM-DD') );
-		newUrl = viewLog.updateUrl(newUrl, "end", end.format('YYYY-MM-DD') );
-		document.location = newUrl;
-	});
-	viewLog.daterangepicker = $('.daterange').data('daterangepicker');
+	if ($('.daterange').length){
+		$('.daterange').daterangepicker({
+			"ranges": ranges,
+			"alwaysShowCalendars": false,
+			"startDate": (logViewerDates.start == "") ? null : moment(logViewerDates.start, 'YYYY-MM-DD'),
+			"endDate": (logViewerDates.end == "") ? null : moment(logViewerDates.end, 'YYYY-MM-DD'),
+			"minDate": moment(logViewerDates.firstLogDate, 'YYYY-MM-DD'),
+			"maxDate": moment(),
+			"opens": "left",
+			"timePicker": true,
+			"timePickerSeconds": false,
+			"timePicker24Hour": true,
+			"showDropdowns": true,
+			"autoUpdateInput": true,
+			locale: {
+				format: 'MMMM D, YYYY'
+			}
+		}, function(start, end, label) {
+			console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to '
+				+ end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
+			if (!start.isValid() || !end.isValid() )
+				return;
+			var newUrl = viewLog.updateUrl(null, "start", start.format('YYYY-MM-DD') );
+			newUrl = viewLog.updateUrl(newUrl, "end", end.format('YYYY-MM-DD') );
+			document.location = newUrl;
+		});
+		viewLog.daterangepicker = $('.daterange').data('daterangepicker');
+	}
 });

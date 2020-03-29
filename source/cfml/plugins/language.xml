@@ -66,6 +66,10 @@
 		<custom key="expand">Expand</custom>
 		<custom key="unsupportedLogformat">Sorry, unsupported log format, only the classic log format is supported</custom>
 		<custom key="searchHint">search works automatically on the displayed logs, press search to search server logs</custom>
+		<custom key="logStorage">Storage</custom>
+		<custom key="bulkUpdateLogConfig">Update Log Storage</custom>		
+		<custom key="logStorageConfigHint">Please configure at least one log to use a datastore, or file a PR to list datasources enabled for storage</custom>		
+		<custom key="logStorageLayout">Log Layout</custom>		
 	</language>
 	<language key="de">
 		<title>Log Viewer</title>

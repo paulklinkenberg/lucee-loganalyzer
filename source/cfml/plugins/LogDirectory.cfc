@@ -40,6 +40,7 @@ component hint="I enumerate logs directories" {
 		// add log created date
 		QueryAddColumn( q_log_files, "created", "date" );
 		QueryAddColumn( q_log_files, "supportedFormat", "boolean" );
+		QueryAddColumn( q_log_files, "processed", "boolean" );
 		local.empty = [];
 		loop query=q_log_files{
 			QuerySetCell(q_log_files, "created",

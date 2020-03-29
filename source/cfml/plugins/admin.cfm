@@ -23,6 +23,7 @@
  *
  --->
 <cfparam name="req.file" default="">
+<cfparam name="req.result" default="">
 <cfset thispageaction = rereplace(action('overview'), "^[[:space:]]+", "") />
 
 <!--- show a select list of all the web contexts --->
@@ -31,6 +32,10 @@
 	<cfinclude  template="contextSelector.cfm">
 </cfif>
 <cfoutput>
+	<cfif len(req.result)>
+		<p><em>#req.result#</em></p>
+	</cfif>
+	
 	<table class="maintbl log-overview">
 	<thead>
 		<tr>
@@ -78,7 +83,81 @@
 		</cfloop>
 	</tbody>
 	</table>
-	<p>#i18n('logfilelocation')#: <em>#arguments.req.logfiles.directory#</em></p>
+
+	<h3>Log Storage</h3>
+	<form name="log-configure" class="log-configure" action="?plugin=#req.plugin#&action=#req.action#&pluginAction=updateLogConfig" method="POST">
+		<table class="maintbl log-config">
+		<thead>
+			<tr>
+				<th><input type="checkbox" class="logConfigToggle" value="1"></th>
+				<th><a class="tooltipMe" href="#thispageaction#&amp;sort=name<cfif req.sort eq 'name' and req.dir neq 'desc'>&amp;dir=desc</cfif>"
+					title="#i18n('Orderonthiscolumn')#"<cfif req.sort eq 'name'>
+					style="font-weight:bold"</cfif>>#i18n('logfilename')#</a></th>
+				<th><a class="tooltipMe" href="#thispageaction#&amp;sort=datelastmodified<cfif req.sort neq 'datelastmodified' or req.dir neq 'desc'>&amp;dir=desc</cfif>"
+					title="#i18n('Orderonthiscolumn')#"<cfif req.sort eq 'datelastmodified'>
+					style="font-weight:bold"</cfif>>#i18n('logStorage')#</a></th>				
+				<th><a class="tooltipMe" href="#thispageaction#&amp;sort=datelastmodified<cfif req.sort neq 'datelastmodified' or req.dir neq 'desc'>&amp;dir=desc</cfif>"
+						title="#i18n('Orderonthiscolumn')#"<cfif req.sort eq 'datelastmodified'>
+						style="font-weight:bold"</cfif>>#i18n('logStorageLayout')#</a></th>
+			</tr>
+		</thead>
+		<tbody>
+			<cfset q =arguments.req.logConfig>
+			<cfset datastores={}>
+			<cfloop query="q">
+				<tr data-logfile="#htmleditformat(q.name)#">
+					<td><input type="checkbox" class="logConfig" name="logConfig" value="#htmleditformat(q.name)#"></td>
+					<td class="name">
+					<cfif structKeyExists(q.appenderArgs,"datasource") or structKeyExists(q.appenderArgs,"path")>
+						<a href=#action('overview',"file=#q.name#")#>#name#</a>
+					<cfelse>
+						#name# (#listLast(q.layoutClass,".")#)
+						<p class="log-unsupported">#i18n('unsupportedLogformat')#</p>
+					</cfif>
+					</td>
+					<td>
+					<cfif structKeyExists(q.appenderArgs,"datasource")>
+						dsn: #q.appenderArgs.datasource#, table: #q.appenderArgs.table#
+						<cfset datastores[q.appenderArgs.datasource & ":" & q.appenderArgs.table]={
+							datasource: q.appenderArgs.datasource, 
+							table: q.appenderArgs.table
+						}>
+					<cfelseif structKeyExists(q.appenderArgs,"path")> 
+						#q.appenderArgs.path#
+					</cfif>
+					</td>
+					<td>#ListLast(q.layoutClass,".")#</td>
+				</tr>
+			</cfloop>
+		</tbody>
+		</table>
+		
+		<fieldset>
+			<legend>Bulk Switch Storage</legend>
+			<label>
+				<input type="radio" class="logStorage" name="logStorage" value="file">
+				File
+			</label>			
+			<cfloop collection=#datastores# item="dsn">
+				<cfset ds = datastores[dsn]>			
+				<label>
+					<input type="radio" class="logStorage" name="logStorage" value="datasource:#ds.datasource#,table:#ds.table#">
+					datasource: #ds.datasource#, TABLE:#ds.table#
+				</label>
+			</cfloop>
+			<input type="button" class="button bulkUpdateLogConfig" data-action="bulkUpdateLogConfig" value="#i18n('bulkUpdateLogConfig')#" />
+		</fieldset>
+		<cfif structCount(datastores) eq 1>
+			<p>#i18n('logStorageConfigHint')#</p>
+		</cfif>			
+	</form>
+	<p>
+		#i18n('logfilelocation')#: <em>#arguments.req.logfiles.directory#</em>
+	</p>
+
 	<div class="csrf-token" data-token="#renderUtils.getCSRF()#">
 	#renderUtils.includeJavascript("overview")#
+	#renderUtils.includeLang()#
+	#renderUtils.includeJavascript("moment-with-locales.min")#
+	#renderUtils.includeJavascript("viewlog")#
 </cfoutput>

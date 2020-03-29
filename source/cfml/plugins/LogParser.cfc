@@ -25,7 +25,62 @@
 component hint="I parse log files " {
 
 	public void function init() {
+
 	}
+
+	public struct function readDatasource(required struct db,
+			required string logName,
+			required struct files,
+			required string context,
+			required query qLog, // pass by reference
+			any start=false,
+			any end=false,
+			required string search) output="true"{
+
+		var fileNames = {};
+		arguments.files.each(function(filename){
+			if (listLast(filename,".") eq "log")
+				fileNames[mid(filename,1,len(filename)-4)]=1;
+			else
+				fileNames[filename] = 2;
+	   });
+
+		if (listLen(arguments.db.table,"; :,") gt 1)			
+			throw message = "invalid table name: #arguments.db.table#";
+		```
+		<cfquery name="local.q_log" datasource="#arguments.db.datasource#" maxrows="1000" result="local.stats">
+			SELECT 	pid,id,name,severity,threadid,time,application,message,exception,custom, name logFile
+			FROM 	#arguments.db.table#
+			WHERE	0=0
+					<cfif len(arguments.search)>
+						and (message like <cfqueryparam sqltype="varchar" value="%#arguments.search#%">
+							or application like <cfqueryparam sqltype="varchar" value="%#arguments.search#%">
+							or exception like <cfqueryparam sqltype="varchar" value="%#arguments.search#%">)
+					</cfif>
+					<cfif arguments.start neq false and arguments.end neq false>
+						and time between <cfqueryparam sqltype="date" value="#arguments.start#">	
+							and <cfqueryparam sqltype="date" value="#arguments.end#">
+					<cfelseif arguments.start neq false>
+						and time >= <cfqueryparam sqltype="date" value="#arguments.start#">						
+					<cfelseif arguments.end neq false>
+						and time >= <cfqueryparam sqltype="date" value="#arguments.end#">
+					</cfif>
+					<cfif structCount(fileNames)>
+						and name in (<cfqueryparam sqltype="varchar" value="#structKeyList(fileNames)#" list="true">)
+					</cfif>
+			order 	by time desc
+		</cfquery>
+		```		
+		loop query="local.q_log" {
+			var entry = queryRowData (local.q_log, local.q_log.currentrow);
+			entry.cfStack = "";
+			insertLogEntry(arguments.qLog, local.q_log.name & ".log", arguments.context, entry, 0);
+		}
+		return {
+			executionTime: local.stats.executionTime,
+			logs: local.q_log.recordcount
+		};	
+	};
 
 	public struct function readLog(required string logPath,
 			required string logName,
@@ -37,14 +92,13 @@ component hint="I parse log files " {
 			//required string singleFile,
 			numeric maxStackTrace = 4000,
 			numeric maxLines = 50000,
-			numeric maxLogs = 1000 ) output=true {
+			numeric maxLogs = 5000 ) output="true" {
 
 		var line = "";
 		var row = [];
 		var timestamp = "";
 		var javaFile   = createObject("java", "java.io.File").init(arguments.logPath);
-		var reader = createObject("java", "org.apache.commons.io.input.ReversedLinesFileReader").init(javaFile);
-
+		var reader = createObject("java", "org.apache.commons.io.input.ReversedLinesFileReader").init(javaFile);		
 		var stats = structNew("linked");
 		stats.logs = 0; // number of logs counted
 		stats.lines = 0; // number of lines processed
@@ -71,7 +125,7 @@ component hint="I parse log files " {
 				line = reader.readLine();
 				stats.lines++;
 				if (isNull(line)){
-					writeOutput("null");
+					//writeOutput("null");
 					break; // start of file
 				}
 				if (stats.lines > stats.maxLines )
@@ -79,7 +133,7 @@ component hint="I parse log files " {
 				if (len(line) gt 0 and left(line, 1) eq '"'){
 					// double quotes are escaped, don't get tripped up by weird logs
 					if (line neq '"' and left(line,2) neq '""' ){ // new log row
-						stats.logScanned++
+						stats.logScanned++;
 						entry = parseLogEntry(log=line, stack=row.reverse().toList( chr(10) ),
 							search=arguments.search );
 						switch(structCount(entry)){
@@ -87,31 +141,35 @@ component hint="I parse log files " {
 								continue LineLoop;
 							case 1:  // search no match
 								continue LineLoop;
+							case 6:
+								break; // normal
 							case 7:
 								break; // normal
 							default:
-								dump (entry); // shouldn't ever get this far
-								throw (text="entry had #structCount(entry)# items, expected 7");
+								// shouldn't ever get this far
+								throw (message="#arguments.logName# entry had #structCount(entry)# items, expected 7",
+									detail="#line#");
 						}
-
+						var diff = 0;
 						if (arguments.start neq false and arguments.end neq false){
 							// request for specific date range
-							if (dateCompare(entry.timeStamp, arguments.end,'d') eq 1){
+							var diff = dateCompare(entry.time, arguments.end,'d');
+							if (diff eq 1){
 								// log entry is more recent than end date
 								row = [];
-								stats.skipped= entry.timeStamp;
-								stats._skipped = dateCompare(entry.timeStamp, arguments.end,'d');
+								stats.skipped = entry.time;
+								stats._skipped = diff;
 								continue;
 							}
-							if (dateCompare(entry.timeStamp, arguments.start,'d') eq -1)  {
+							if (dateCompare(entry.time, arguments.start,'d') eq -1)  {
 								// log entry is before  start date, stop
 								row = [];
-								stats.bailed = entry.timeStamp;
+								stats.bailed = entry.time;
 								break;
 							}
 						} else if (arguments.start neq false){
 							// polling for updated since last fetch
-							if (dateCompare(entry.timeStamp, arguments.start) eq -1)  {
+							if (dateCompare(entry.time, arguments.start) eq -1)  {
 								row = [];
 								break;
 							}
@@ -127,10 +185,9 @@ component hint="I parse log files " {
 					arrayAppend(row, line);
 				}
 			}
-		} catch (any){
+		} catch (any){			
 			reader.close();
-			dump(cfcatch);
-			abort;
+			rethrow;
 		}
 
 		//throw message="zac";
@@ -161,15 +218,9 @@ component hint="I parse log files " {
 			header = listToArray(Replace(header[1], '"',"","ALL"), ",", true);
 
 			entry.severity = header[1];
-			entry.thread = header[2];
-			entry.timestamp = parseDateTime(header[3] & " " & header[4]);
-			entry.app = header[5];
-			// extract out all the cfml source paths, far more interesting at a glance for cfml developers
-			entry.cfStack = REMatch("(\([\/a-zA-Z\_\-\.\$]*[\.cfc|\.cfm|\.lucee)]\:\d+\))", str);
-			for (var cf = 1; cf <= entry.cfStack.len(); cf++){
-				// strip out the wrapping braces
-				entry.cfStack[cf] = ListFirst(entry.cfStack[cf],"()");
-			}
+			entry.threadid = header[2];
+			entry.time = parseDateTime(header[3] & " " & header[4]);
+			entry.application = header[5];			
 		} catch (any){
 			dump(left(str,500));
 			dump(header);
@@ -178,34 +229,23 @@ component hint="I parse log files " {
 		// now to parse out the error message and stack trace
 		var firstTab = find(chr(9), str); // the java stack traces have leading tabs
 		if (firstTab gt 0){
-			entry.log = mid(str, 1, firstTab);
-			entry.stack = mid(str, firstTab);
+			entry.message = mid(str, 1, firstTab);
+			entry.exception = mid(str, firstTab);
 		} else {
-			// no stack trace
-			entry.log = str;
-			entry.stack = "";
+			// exception exception trace
+			entry.message = str;
+			entry.exception = "";
 		}
 		if (arguments.search.len() gt 0){
-			if ( FindNoCase(arguments.search, entry.log) eq 0 and
-				 FindNoCase(arguments.search, entry.stack) eq 0 ){
+			if ( FindNoCase(arguments.search, entry.message) eq 0 and
+				 FindNoCase(arguments.search, entry.exception) eq 0 ){
 				return { search: false };
 			}
 		}
-
-		// https://regex101.com/r/Fd8qCi/1/
-		var logStack = REMatch("(\[[\:\/\\a-zA-Z\_\-\.\$]*\])", entry.log);
-		if (logStack.len() gt 0){
-			// de dup
-			var ls = StructNew('linked');
-			for (var s in logstack)
-				ls[listFirst(s,"[]")]="";
-			logStack = StructKeyList(ls);
-			ArrayAppend(entry.cfStack, logStack, true);
-		}
-
+				
 		// sanity checking
-		if (entry.stack contains '"ERROR","'
-				or entry.log contains '"ERROR","'){
+		if (entry.exception contains '"ERROR","'
+				or entry.message contains '"ERROR","'){
 			writeoutput('<pre>#str#</pre>');
 			dump (entry);
 			dump (local);
@@ -221,6 +261,25 @@ component hint="I parse log files " {
 		);
 	}
 
+	public array function parseCfmlStack(string str){
+		var cfStack = REMatch("(\([\/a-zA-Z\_\-\.\$]*[\.cfc|\.cfm|\.lucee)]\:\d+\))", arguments.str);
+		for (var cf = 1; cf <= cfStack.len(); cf++){
+			// strip out the wrapping braces
+			cfStack[cf] = ListFirst(cfStack[cf],"()");
+		}
+		// https://regex101.com/r/Fd8qCi/1/
+		var logStack = REMatch("(\[[\:\/\\a-zA-Z\_\-\.\$]*\])", arguments.str);
+		if (logStack.len() gt 0){
+			// de dup
+			var ls = StructNew('linked');
+			for (var s in logstack)
+				ls[listFirst(s,"[]")]="";
+			logStack = StructKeyList(ls);
+			ArrayAppend(cfStack, logStack, true);
+		}
+		return cFstack;
+	}
+
 	private void function insertLogEntry(required query q,
 			required string logFile,
 			required string context,
@@ -231,19 +290,19 @@ component hint="I parse log files " {
 		try {
 			querySetCell(arguments.q, "logfile",      arguments.logFile, row);
 			querySetCell(arguments.q, "severity",     arguments.entry.severity, row);
-			querySetCell(arguments.q, "app",          arguments.entry.app, row);
-			querySetCell(arguments.q, "thread",       arguments.entry.thread, row);
-			querySetCell(arguments.q, "logTimestamp", arguments.entry.timestamp, row);
-			querySetCell(arguments.q, "cfStack", 		arguments.entry.cfStack, row);
-			querySetCell(arguments.q, "log",        	arguments.entry.log, row);
+			querySetCell(arguments.q, "app",          arguments.entry.application, row);
+			querySetCell(arguments.q, "thread",       arguments.entry.threadid, row);
+			querySetCell(arguments.q, "logTimestamp", arguments.entry.time, row);
+			//querySetCell(arguments.q, "cfStack", 		arguments.entry.cfStack, row);
+			querySetCell(arguments.q, "log",        	arguments.entry.message, row);
 			if (arguments.maxStackTrace lt 1){
-				querySetCell(arguments.q, "stack",        arguments.entry.stack, row);
+				querySetCell(arguments.q, "stack",        arguments.entry.exception, row);
 			} else {
-				if (len(arguments.entry.stack) gt arguments.maxStackTrace ){
-					querySetCell(arguments.q, "stack", left(arguments.entry.stack, arguments.maxStackTrace)
-						& "#chr(10)# -- very long stack, omitted #(len(arguments.entry.stack)-arguments.maxStackTrace)# bytes" , row);
+				if (len(arguments.entry.exception) gt arguments.maxStackTrace ){
+					querySetCell(arguments.q, "stack", left(arguments.entry.exception, arguments.maxStackTrace)
+						& "#chr(10)# -- very long stack, omitted #(len(arguments.entry.exception)-arguments.maxStackTrace)# bytes" , row);
 				} else {
-					querySetCell(arguments.q, "stack", arguments.entry.stack, row);
+					querySetCell(arguments.q, "stack", arguments.entry.exception, row);
 				}
 
 			}

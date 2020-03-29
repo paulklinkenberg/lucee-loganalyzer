@@ -41,13 +41,13 @@
 			st_severity[h] = true;
 	}
 	param name="req.file"  default="";
-	st_files = {};
+	var st_files = {};
 	if (len(req.file) gt 0){
 		var _file = ListToArray(req.file);
 		for (var f in _file)
 			st_files[f] = true;
 	}
-	st_all_files = {};
+	var st_all_files = {};
 
 	var info = {};
 	for (var f in req.logs){
@@ -65,7 +65,6 @@
 	<cfinclude  template="contextSelector.cfm">
 </cfif>
 <cfoutput>
-
 <script>
 	var logViewerStats = #serializeJSON(info)#;
 	console.table(logViewerStats.STATS);
@@ -116,11 +115,11 @@
 
 		</div>
 		<div class="log-file-selector">
-			<cfset q = req.logs.q_log_files>
+			<cfset var q = req.logs.q_log_files>
 			<cfloop query="q">
 				<cfset st_all_files[q.name] = true>
 				<label class="log-file-filter">
-					#q.name#
+					<span class="log-file" title="#dateFormat(q.datelastmodified)# - #dateFormat(q.created)#">#q.name#</span>
 					<input name="file" type="checkbox" value="#q.name#" <cfif structKeyExists(st_files, q.name)>checked</cfif>>
 				</label>
 			</cfloop>
@@ -134,7 +133,7 @@
 		</cfloop>
 		<cfsetting enablecfoutputonly="false">
 	</style>
-	<!--- file filter work by reverse selection --->
+	<!--- file filter works by reverse selection --->
 	<style class="log-file-filter-css">
 		<cfif structcount(st_files) gt 0>
 			<cfloop collection="#st_all_files#" item="f">

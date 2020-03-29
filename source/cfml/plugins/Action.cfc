@@ -35,9 +35,9 @@ component hint="Actions for the log Viewer plugin" extends="lucee.admin.plugin.P
 		param name="url.xhr" default="false";
 		request._missing_lang = {};
 		if ( not url.xhr)
-			renderUtils.includeCSS("style");
+			variables.renderUtils.includeCSS("style");
 		super._display(argumentcollection=arguments);
-		renderUtils.warnMissingLang(request._missing_lang);
+		variables.renderUtils.warnMissingLang(request._missing_lang);
 	}
 
 	/**
@@ -51,8 +51,15 @@ component hint="Actions for the log Viewer plugin" extends="lucee.admin.plugin.P
 		if ( request.admintype == "server" && structKeyExists(req, "webID") && len(req.webID) ) {
 			session.logViewer.webID = req.webID;
 		}
+		admin 
+        	action="getLogSettings" 
+        	type="#variables.logGateway.getAdminType()#"
+        	password="#session["password"&request.adminType]#"        
+        	returnVariable="req.logConfig"
+			remoteClients="#request.getRemoteClients()#";
+		
 		if ( request.admintype != "server" || len(session.logViewer.webID) ) {
-			req.logfiles = logGateway.listLogs(sort=req.sort, dir=req.dir, listOnly=true);
+			req.logfiles = variables.logGateway.listLogs(sort=req.sort, dir=req.dir, listOnly=true);
 		} else {
 			location url=action("contextSelector", 'nextAction=admin') addtoken="false";
 		}
@@ -66,9 +73,14 @@ component hint="Actions for the log Viewer plugin" extends="lucee.admin.plugin.P
 		param name="session.logViewer.webID" default="serverContext";
 
 		if ( request.admintype != "server" || len(session.logViewer.webID) ) {
-			var logs = variables.logGateway.getLog(files=arguments.req.file, startDate=arguments.req.start,
+			
+			var logs = variables.logGateway.getLog(adminType=variables.logGateway.getAdminType(),
+				files=arguments.req.file, 
+				startDate=arguments.req.start,
 				endDate=arguments.req.end,
-				defaultDays=7, parseLogs=true, search=arguments.req.q);
+				defaultDays=7, 
+				parseLogs=true, 
+				search=arguments.req.q);
 			variables.renderUtils.renderServerTimingHeaders(logs.timings);
 			logs.delete("timings");
 			arguments.req.logs = logs;
@@ -120,7 +132,7 @@ component hint="Actions for the log Viewer plugin" extends="lucee.admin.plugin.P
 			//if (checkCSRF( req.token))
 			//	throw message="access denied";
 
-			local.tempFilePath = logGateway.getLogPath(file=req.file);
+			local.tempFilePath = variables.logGateway.getLogPath(file=req.file);
 			try {
 				file action="delete" file="#local.tempFilePath#";
 			} catch (any){
@@ -139,4 +151,26 @@ component hint="Actions for the log Viewer plugin" extends="lucee.admin.plugin.P
 			variables.renderUtils = new RenderUtils(arguments.lang, action("asset"), this.action );
 		renderUtils.returnAsset(url.asset);
 	}
+
+	public function updatelogConfig(struct lang, struct app, struct req) output=false {
+		param name="req.sort" default="name";
+		param name="req.dir" default="";
+		param name="session.logViewer.webID" default="serverContext";
+		param name="req.logConfig" default ="";
+		param name="req.logStorage" default ="";
+		
+		req.result = "";
+		if (req.logStorage.len() eq 0 or req.logConfig.len() eq 0){
+			req.result = ""
+		} else {
+			cflog(text="logConfig: #req.logConfig#, switch to #req.logStorage# #serializeJson(req)#");
+			req.result = new logGateway().updateLogConfig(adminType=variables.logGateway.getAdminType(),
+				logConfig=req.logConfig, 
+				logStorage=req.logStorage
+			);
+		}		
+		
+		location url=action("admin","&result=#urlEncodedFormat(req.result)#");
+	}
+
 }
