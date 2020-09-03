@@ -164,7 +164,7 @@ component hint="Actions for the log Viewer plugin" extends="lucee.admin.plugin.P
 			req.result = ""
 		} else {
 			cflog(text="logConfig: #req.logConfig#, switch to #req.logStorage# #serializeJson(req)#");
-			req.result = new logGateway().updateLogConfig(adminType=variables.logGateway.getAdminType(),
+			req.result = new logConfig().updateLogConfig(adminType=variables.logGateway.getAdminType(),
 				logConfig=req.logConfig, 
 				logStorage=req.logStorage
 			);
