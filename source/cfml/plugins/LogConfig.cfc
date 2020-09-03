@@ -30,25 +30,24 @@ component hint="update log configuration" {
 		ListToArray(arguments.logConfig).each(function(v){
 			_logConfig[v]=true;
 		});
-			
 		if (logStorage eq "file"){
 			var _log = {
 				charset	: "windows-1252",
 				maxfiles: "10",
 				maxfilesize: "10485760",
-				path: "{lucee-config}/",
+				path: "{lucee-config}/logs",
 				timeout :"60"
 			}
 			var _java = {				
 				layoutClass: "lucee.commons.io.log.log4j.layout.ClassicLayout",
 				appenderClass: "lucee.commons.io.log.log4j.appender.RollingResourceAppender"
 			};
-			if ( request.admintype != "server")
-				_log.path = "{lucee-web}/";
+			//if ( request.admintype != "server")
+			//	_log.path = "{lucee-config}/logs";
 			loop query="#local.existinglogConfig#"  {
 				if (StructKeyExists(_logconfig, local.existinglogConfig.name)){					
 					var _logSettings = duplicate(_log);
-					_logSettings.path = local.existinglogConfig.name & ".log";
+					_logSettings.path = _log.path & "/" & local.existinglogConfig.name & ".log";
 					updateLogSetting(local.existinglogConfig.name, _logSettings, _java,
 						QueryRowData(local.existinglogConfig, local.existinglogConfig.currentrow)
 					);
