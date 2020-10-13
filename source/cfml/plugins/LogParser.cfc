@@ -244,6 +244,7 @@ component hint="I parse log files " {
 		}
 				
 		// sanity checking
+		/*
 		if (entry.exception contains '"ERROR","'
 				or entry.message contains '"ERROR","'){
 			writeoutput('<pre>#str#</pre>');
@@ -251,6 +252,7 @@ component hint="I parse log files " {
 			dump (local);
 			throw text='"ERROR" found in parsed log message</h1>"';
 		}
+		*/
 		return entry;
 	}
 
