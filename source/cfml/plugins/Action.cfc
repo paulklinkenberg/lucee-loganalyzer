@@ -39,7 +39,7 @@
 		<cfif not structKeyExists(variables, "qWebContexts") or not arguments.fromCache>
 			<!--- get all web contexts --->
 			<cfadmin
-				action="getContextes"
+				action="getContexts"
 				type="server"
 				password="#session.passwordserver#"
 				returnVariable="qWebContexts" />
