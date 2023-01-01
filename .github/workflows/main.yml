@@ -1,0 +1,55 @@
+# This workflow will build a Java project with Ant
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-ant
+
+name: Java CI
+
+on: [push, pull_request,workflow_dispatch]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    env:
+      luceeVersion: 5.3.10.97
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'adopt'
+    - name: Cache Maven packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2
+        key: lucee-script-runner-maven-cache
+    - name: Cache Lucee files
+      uses: actions/cache@v3
+      with:
+        path: _actions/lucee/script-runner/main/lucee-download-cache
+        key: lucee-downloads-${{ env.luceeVersion }}
+        restore-keys: |
+          lucee-downloads
+    - name: Build with Ant
+      run: ant -noinput -verbose -buildfile build.xml
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: logviewer-lex
+        path: dist/modern/*.lex
+    - name: Checkout Lucee
+      uses: actions/checkout@v3
+      with:
+        repository: lucee/lucee
+        path: lucee
+    - name: Run Lucee Test Suite (testLabels="log-viewer")
+      uses: lucee/script-runner@main
+      with:
+        webroot: ${{ github.workspace }}/lucee/test
+        execute: /bootstrap-tests.cfm
+        luceeVersion: ${{ env.luceeVersion }}
+        extensionDir: ${{ github.workspace }}/
+      env:
+        testLabels: log-viewer
+        testAdditional: ${{ github.workspace }}/tests
